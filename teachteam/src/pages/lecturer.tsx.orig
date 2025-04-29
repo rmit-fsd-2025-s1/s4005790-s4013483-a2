@@ -1,0 +1,36 @@
+import { Box, Heading, Text, Flex } from "@chakra-ui/react";
+import Header from "../components/Header";
+import Footer from "../components/Footer";
+<<<<<<< HEAD
+import SubjectTable from "../components/SubjectTable";
+=======
+>>>>>>> 29c173b (Added name)
+import { useUser } from "@/context/UserContext";
+
+export default function Lecturer() {
+    const { user } = useUser();
+    return (
+        <Box display="flex" flexDirection="column" minHeight="100vh">
+            <Header />
+            <Box as="main" flex="1" w="100%" p={8} textAlign="center">
+                <Heading as="h1" mb={8}>
+                    Lecturer Home Page
+                </Heading>
+                <Text>Welcome, {user?.name} the Lecturer!</Text>
+<<<<<<< HEAD
+                <Flex mt={8} justifyContent="space-between">
+                    <Box w="30%">
+                        <SubjectTable />
+                    </Box>
+                    <Box w="65%">
+                        {/* Placeholder for other content */}
+                        <Text>Other content goes here.</Text>
+                    </Box>
+                </Flex>
+=======
+>>>>>>> 29c173b (Added name)
+            </Box>
+            <Footer />
+        </Box>
+    );
+}
