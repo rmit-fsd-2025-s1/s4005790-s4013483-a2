@@ -8,21 +8,22 @@ import {
 
 @Entity()
 export class Tutor {
-  @PrimaryGeneratedColumn()
+  @PrimaryGeneratedColumn({ type: "int" })
   id: number;
 
-  @Column()
+  @Column({ type: "varchar", length: 40 })
   name: string;
 
-  @Column({ unique: true })
+  @Column({ type: "varchar", length: 256, unique: true })
   email: string;
 
-  @Column()
+  @Column({ type: "varchar", length: 100 })
   password: string;
 
-  @CreateDateColumn()
+  @CreateDateColumn({ type: "timestamp" })
   createdAt: Date;
 
-  @UpdateDateColumn()
+  @UpdateDateColumn({ type: "timestamp" })
   updatedAt: Date;
 }
+
