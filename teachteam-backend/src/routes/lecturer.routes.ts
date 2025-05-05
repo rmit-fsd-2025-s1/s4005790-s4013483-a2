@@ -12,6 +12,10 @@ router.get("/lecturer/:id", async (req, res) => {
   await lecturerController.one(req, res);
 });
 
+router.get("/lecturer/:email", async (req, res) => {
+  await lecturerController.email(req, res);
+});
+
 router.post("/lecturer", async (req, res) => {
   await lecturerController.save(req, res);
 });
