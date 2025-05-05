@@ -1,7 +1,6 @@
 import { Request, Response } from "express";
 import { AppDataSource } from "../data-source";
 import { Lecturer } from "../entity/Lecturer";
-import { parse } from "path";
 
 export class LecturerController {
   private lecturerRepository = AppDataSource.getRepository(Lecturer);
