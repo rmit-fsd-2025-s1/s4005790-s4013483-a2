@@ -1,6 +1,7 @@
 import { Request, Response } from "express";
 import { AppDataSource } from "../data-source";
 import { Lecturer } from "../entity/Lecturer";
+import { parse } from "path";
 
 export class LecturerController {
   private lecturerRepository = AppDataSource.getRepository(Lecturer);
@@ -27,6 +28,24 @@ export class LecturerController {
     const id = parseInt(request.params.id);
     const lecturer = await this.lecturerRepository.findOne({
       where: { id },
+    });
+
+    if (!lecturer) {
+      return response.status(404).json({ message: "Lecturer not found" });
+    }
+    return response.json(lecturer);
+  }
+
+    /**
+   * Retrieves a single lecturer by their email
+   * @param request - Express request object containing the lecturer email in params
+   * @param response - Express response object
+   * @returns JSON response containing the lecturer if found, or 404 error if not found
+   */
+  async email(request: Request, response: Response) {
+    const email = request.params.email;
+    const lecturer = await this.lecturerRepository.findOne({
+      where: { email },
     });
 
     if (!lecturer) {
