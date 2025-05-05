@@ -5,19 +5,19 @@ const router = Router();
 const tutorController = new TutorController();
 
 router.get("/tutors", async (req, res) => {
-  await tutorController.all(req, res);
+  await tutorController.getAll(req, res);
 });
 
 router.get("/tutors/:id", async (req, res) => {
-  await tutorController.one(req, res);
+  await tutorController.getOne(req, res);
 });
 
 router.get("/tutors/:email", async (req, res) => {
-  await tutorController.email(req, res);
+  await tutorController.getOneEmail(req, res);
 });
 
 router.post("/tutors", async (req, res) => {
-  await tutorController.save(req, res);
+  await tutorController.add(req, res);
 });
 
 router.put("/tutors/:id", async (req, res) => {
@@ -25,7 +25,7 @@ router.put("/tutors/:id", async (req, res) => {
 });
 
 router.delete("/tutors/:id", async (req, res) => {
-  await tutorController.remove(req, res);
+  await tutorController.delete(req, res);
 });
 
 export default router;

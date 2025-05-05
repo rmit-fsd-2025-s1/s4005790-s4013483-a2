@@ -11,7 +11,7 @@ export class TutorController {
    * @param response - Express response object
    * @returns JSON response containing an array of all tutors
    */
-  async all(request: Request, response: Response) {
+  async getAll(request: Request, response: Response) {
     const tutors = await this.tutorRepository.find();
 
     return response.json(tutors);
@@ -23,7 +23,7 @@ export class TutorController {
    * @param response - Express response object
    * @returns JSON response containing the tutor if found, or 404 error if not found
    */
-  async one(request: Request, response: Response) {
+  async getOne(request: Request, response: Response) {
     const id = parseInt(request.params.id);
     const tutors = await this.tutorRepository.findOne({
       where: { id },
@@ -41,7 +41,7 @@ export class TutorController {
    * @param response - Express response object
    * @returns JSON response containing the tutor if found, or 404 error if not found
    */
-  async email(request: Request, response: Response) {
+  async getOneEmail(request: Request, response: Response) {
     const email = request.params.email;
     const tutor = await this.tutorRepository.findOne({
       where: { email },
@@ -59,7 +59,7 @@ export class TutorController {
    * @param response - Express response object
    * @returns JSON response containing the created tutor or error message
    */
-  async save(request: Request, response: Response) {
+  async add(request: Request, response: Response) {
     const { name, email, password } = request.body;
 
     const tutor = Object.assign(new Tutor(), {
@@ -84,7 +84,7 @@ export class TutorController {
    * @param response - Express response object
    * @returns JSON response with success message or 404 error if tutor not found
    */
-  async remove(request: Request, response: Response) {
+  async delete(request: Request, response: Response) {
     const id = parseInt(request.params.id);
     const tutorToRemove = await this.tutorRepository.findOne({
       where: { id },
