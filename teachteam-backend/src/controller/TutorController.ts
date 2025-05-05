@@ -59,7 +59,7 @@ export class TutorController {
    * @param response - Express response object
    * @returns JSON response containing the created tutor or error message
    */
-  async add(request: Request, response: Response) {
+  async create(request: Request, response: Response) {
     const { name, email, password } = request.body;
 
     const tutor = Object.assign(new Tutor(), {

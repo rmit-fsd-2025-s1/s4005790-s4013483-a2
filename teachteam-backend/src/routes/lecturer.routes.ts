@@ -17,7 +17,7 @@ router.get("/lecturers/:email", async (req, res) => {
 });
 
 router.post("/lecturers", async (req, res) => {
-  await lecturerController.add(req, res);
+  await lecturerController.create(req, res);
 });
 
 router.put("/lecturers/:id", async (req, res) => {
