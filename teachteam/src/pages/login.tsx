@@ -1,4 +1,5 @@
-import { ChakraProvider, Box, Heading, VStack, Text, Input, Button, FormControl, FormLabel } from "@chakra-ui/react";
+import { ChakraProvider, Box, Heading, VStack, Text, Input, Button, FormControl, FormLabel, Link } from "@chakra-ui/react";
+import NextLink from "next/link";
 import { PasswordInput, PasswordStrengthMeter } from "@/components/ui/password-input";
 import Header from "../components/Header";
 import Footer from "../components/Footer";
@@ -102,6 +103,7 @@ export default function Login() {
               </FormControl>
               <Button type="submit">Sign In</Button>
             </form>
+            <Link as={NextLink} href='/create'>Create Account</Link>
           </VStack>
         </Box>
         {/* Explicitly wrap Footer to enforce styles */}
