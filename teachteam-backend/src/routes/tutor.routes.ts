@@ -12,7 +12,7 @@ router.get("/tutors/:id", async (req, res) => {
   await tutorController.getOne(req, res);
 });
 
-router.get("/tutors/:email", async (req, res) => {
+router.get("/tutors/email/:email", async (req, res) => {
   await tutorController.getOneEmail(req, res);
 });
 

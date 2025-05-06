@@ -23,7 +23,7 @@ export const tutorApi = {
   },
 
   getTutorByEmail: async (email: string) => {
-    const response = await api.get(`/tutors/${email}`);
+    const response = await api.get(`/tutors/email/${email}`);
     return response.data;
   },
 

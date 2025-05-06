@@ -23,7 +23,7 @@ export const lecturerApi = {
   },
 
   getLecturerByEmail: async (email: string) => {
-    const response = await api.get(`/lecturers/${email}`);
+    const response = await api.get(`/lecturers/email/${email}`);
     return response.data;
   },
 

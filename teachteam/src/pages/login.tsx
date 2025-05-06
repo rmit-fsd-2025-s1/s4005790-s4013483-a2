@@ -9,12 +9,28 @@ import { usersList } from "@/components/UsersList";
 import { User } from "@/components/User";
 import { useUser } from "@/context/UserContext";
 
-//Add logic for specifically if email or password is incorrect
-function validateForm(user: { email: string; password: string }): User | string {
-  const userExists = usersList.find((u: User) => u.email === user.email && u.password === user.password);
+import { tutorApi } from "@/services/tutor.api";
+import { lecturerApi } from "@/services/lecturer.api";
 
-  if (userExists) {
-    return userExists;
+// Add logic for specifically if email or password is incorrect
+async function validateForm(user: { email: string; password: string }): Promise<User | string> {
+  const [tutorResult, lecturerResult] = await Promise.allSettled([
+    tutorApi.getTutorByEmail(user.email),
+    lecturerApi.getLecturerByEmail(user.email),
+  ]);
+
+  const tutor = tutorResult.status === "fulfilled" ? tutorResult.value : null;
+  const lecturer = lecturerResult.status === "fulfilled" ? lecturerResult.value : null;
+
+  const userExists = tutor || lecturer;
+
+  if (userExists && userExists.password == user.password) {
+    console.log(userExists);
+    return  { 
+      email: userExists.email,
+      password: userExists.password,
+      role: userExists.role,
+      name: userExists.name };
   }
 
   return "Your login is incorrect!";
@@ -39,9 +55,10 @@ export default function Login() {
     }));
   }
 
-  function handleSubmit(e: React.FormEvent) {
+  async function handleSubmit(e: React.FormEvent) {
     e.preventDefault();
-    const result = validateForm(user);
+    const result = await validateForm(user);
+    // const result = user;
 
     if (typeof result === "string") {
       setFormError(result);
