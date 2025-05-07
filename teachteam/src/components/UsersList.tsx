@@ -1,9 +1,21 @@
+import { lecturerApi } from "@/services/lecturer.api";
+import { tutorApi } from "@/services/tutor.api";
 import { User } from "@/components/User";
 
-export const usersList: User[] = [
-  { email: "user@lecturer.com", password: "password", role: "Lecturer", name: "Alpha"},
-  { email: "user@tutor.com", password: "password123", role: "Tutor", name: "Bravo" },
-  { email: "charlie@student.com", password: "password", role: "Tutor", name: "Charlie"},
-  { email: "delta@student.com", password: "password", role: "Tutor", name: "Delta"},
-  { email: "echo@student.com", password: "password", role: "Tutor", name: "Echo"}
-];
+let usersList: Omit<User, "password">[] = [];
+
+async function useAllUsers() {
+  const [lecturers, tutors] = await Promise.all([
+    lecturerApi.getAllLecturers(),
+    tutorApi.getAllTutors(),
+  ]);
+
+  const lecturersWithRole : User[] = lecturers.map((l : Omit<User, "password">) => ({ ...l, role: "Lecturer" }));
+  const tutorsWithRole : User[] = tutors.map((t : Omit<User, "password">) => ({ ...t, role: "Tutor" }));
+
+  usersList = [...lecturersWithRole, ...tutorsWithRole];
+};
+
+await useAllUsers();
+
+export { usersList };
