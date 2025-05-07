@@ -1,9 +1,11 @@
 import { Request, Response } from "express";
 import { AppDataSource } from "../data-source";
 import { Lecturer } from "../entity/Lecturer";
+import { LecturerProfile } from "../entity/LecturerProfile";
 
 export class LecturerController {
   private lecturerRepository = AppDataSource.getRepository(Lecturer);
+  private lecturerProfileRepository = AppDataSource.getRepository(LecturerProfile);
 
   /**
    * Retrieves all lecturers from the database
@@ -130,6 +132,67 @@ export class LecturerController {
         .status(400)
         .json({ message: "Error updating lecturer", error });
     }
+  }
+
+  /**
+ * Attaches a profile to a lecturer and a lecturer to a profile
+ * @param req - Express request object containing lecturer_id and profile_id in params
+ * @param res - Express response object
+ * @returns JSON object of the updated lecturer and profile or 404 if lecturer/profile not found
+ */
+  async attachProfile(request: Request, response: Response) {
+    const lecturer = await this.lecturerRepository.findOne({
+      where: { id: parseInt(request.params.lecturer_id) },
+      relations: ["profile"],
+    });
+
+    if (!lecturer) {
+      return response.status(404).json({ message: "Lecturer not found" });
+    }
+
+    // Find profile
+    const profile = await this.lecturerProfileRepository.findOneBy({
+      id: parseInt(request.params.profile_id),
+    });
+
+    if (!profile) {
+      return response.status(404).json({ message: "Lecturer profie not found" });
+    }
+    
+    lecturer.profile = profile;
+    profile.lecturer = lecturer;
+        
+    // Save the updated pet
+    try {
+      await this.lecturerRepository.save(lecturer);
+      await this.lecturerProfileRepository.save(profile);
+      response.json(lecturer);
+    } catch (error) {
+      return response
+        .status(500)
+        .json({ message: "Error attaching profile to pet", error });
+    }
+  }
+
+    /**
+   * Retrieves the profile associated with a specific lecturer
+   * @param request - Express request object containing the lecturer ID in params
+   * @param response - Express response object
+   * @returns JSON response containing the lecturer if found, or 404 error if not found
+   */
+  async getOneProfile(request: Request, response: Response) {
+    const lecturer = await this.lecturerRepository.findOneBy({
+      id: parseInt(request.params.lecturer_id),
+    });
+
+    if (!lecturer) {
+      return response.status(404).json({ message: "Lecturer profile not found" });
+    }
+
+    const profile = await this.lecturerProfileRepository.find({
+      where: { lecturer: { id: lecturer.id } },
+    });
+    return response.json(profile);
   }
 }
 

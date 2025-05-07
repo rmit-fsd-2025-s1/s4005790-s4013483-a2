@@ -3,6 +3,7 @@ import express from "express";
 import { AppDataSource } from "./data-source";
 import lecturerRoutes from "./routes/lecturer.routes";
 import tutorRoutes from "./routes/tutor.routes";
+import lecturerProfileRoutes from "./routes/lecturerProfile.routes";
 import cors from "cors";
 const app = express();
 const PORT = process.env.PORT || 3001;
@@ -11,6 +12,7 @@ app.use(cors());
 app.use(express.json());
 app.use("/api", lecturerRoutes);
 app.use("/api", tutorRoutes);
+app.use("/api", lecturerProfileRoutes);
 
 AppDataSource.initialize()
   .then(() => {

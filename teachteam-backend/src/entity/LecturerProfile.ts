@@ -5,31 +5,33 @@ import {
   CreateDateColumn,
   UpdateDateColumn,
   OneToOne,
-  JoinColumn,
 } from "typeorm";
-import { LecturerProfile } from "./LecturerProfile";
+
+import { Lecturer } from "./Lecturer";
 
 @Entity()
-export class Lecturer {
+export class LecturerProfile {
   @PrimaryGeneratedColumn({ type: "int" })
   id: number;
 
   @Column({ type: "varchar", length: 40 })
-  name: string;
+  age: number;
 
   @Column({ type: "varchar", length: 256, unique: true })
-  email: string;
+  contact: string;
 
   @Column({ type: "varchar", length: 100 })
-  password: string;
+  biography: string;
+
+  @Column("simple-json")
+  links: string[];
 
   @CreateDateColumn({ type: "timestamp" })
-  createdAt: Date
+  createdAt: Date;
 
   @UpdateDateColumn({ type: "timestamp" })
   updatedAt: Date;
 
-  @OneToOne(() => LecturerProfile, (profile) => profile.lecturer, { cascade: true, nullable: false, eager: true })
-  @JoinColumn()
-  profile: LecturerProfile;
+  @OneToOne(() => Lecturer, (lecturer) => lecturer.profile)
+  lecturer: Lecturer;
 }

@@ -28,4 +28,12 @@ router.delete("/lecturers/:id", async (req, res) => {
   await lecturerController.delete(req, res);
 });
 
+router.get("lecturers/:id/profile", async (req, res) => {
+  await lecturerController.getOneProfile(req, res);
+});
+
+router.post("lecturers/:id/profile/:profile_id", async (req, res) => {
+  await lecturerController.attachProfile(req, res);
+});
+
 export default router;
