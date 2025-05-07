@@ -6,8 +6,8 @@ import { lecturerApi } from "@/services/lecturer.api";
 
 // Interfacae type for UserContext
 interface UserContextType {
-  user: User | null;
-  setUser: (user: User | null) => void;
+  user: Omit<User, 'password'> | null;
+  setUser: (user: Omit<User, 'password'> | null) => void;
 }
 
 // UserContext for context hook to use
@@ -22,7 +22,7 @@ export const useUser = () => useContext(UserContext);
 // To wrap in _app.tsx
 export const UserProvider = ({ children }: { children: ReactNode }) => {
 
-  const [user, setUser] = useState<User | null>(null);
+  const [user, setUser] = useState<Omit<User, 'password'> | null>(null);
 
   // Check if user is signed in (through localStorage) on load.
   useEffect(() => {
@@ -31,7 +31,6 @@ export const UserProvider = ({ children }: { children: ReactNode }) => {
 
       if (storedUser && storedUser !== "null") {
         const userToCheck : User = JSON.parse(storedUser);
-        // const userIndex = usersList.findIndex((u: User) => u.email === userToCheck.email && u.password === userToCheck.password);
         const [tutorResult, lecturerResult] = await Promise.allSettled([
           tutorApi.getTutorByEmail(userToCheck.email),
           lecturerApi.getLecturerByEmail(userToCheck.email),
@@ -44,7 +43,6 @@ export const UserProvider = ({ children }: { children: ReactNode }) => {
 
         setUser({
           email: userFound.email,
-          password: userFound.password,
           name: userFound.name,
           role: tutor ? "Tutor" : "Lecturer"
         });

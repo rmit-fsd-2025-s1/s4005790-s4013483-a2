@@ -23,7 +23,7 @@ export default function Home() {
   );
 }
 
-function MainContent({ user } : { user : User | null}) {
+function MainContent({ user } : { user : Omit<User, "password"> | null}) {
   if (user) {
     if (user.role === "Lecturer") {
       return <LecturerMainContent/>;

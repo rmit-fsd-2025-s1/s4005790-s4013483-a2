@@ -5,7 +5,6 @@ import Header from "../components/Header";
 import Footer from "../components/Footer";
 import { useState, useEffect } from "react";
 import { useRouter } from "next/router";
-import { usersList } from "@/components/UsersList";
 import { User } from "@/components/User";
 import { useUser } from "@/context/UserContext";
 
@@ -14,7 +13,7 @@ import { lecturerApi } from "@/services/lecturer.api";
 import bcrypt from "bcryptjs";
 
 // Add logic for specifically if email or password is incorrect
-async function validateForm(user: { email: string; password: string }): Promise<User | string> {
+async function validateForm(user: { email: string; password: string }): Promise<Omit<User, 'password'> | string> {
   const [tutorResult, lecturerResult] = await Promise.allSettled([
     tutorApi.getTutorByEmail(user.email),
     lecturerApi.getLecturerByEmail(user.email),
@@ -30,7 +29,6 @@ async function validateForm(user: { email: string; password: string }): Promise<
   if (userExists && await bcrypt.compare(user.password, userExists.password)) {
     return  { 
       email: userExists.email,
-      password: userExists.password,
       role: userExists.role,
       name: userExists.name
     };
