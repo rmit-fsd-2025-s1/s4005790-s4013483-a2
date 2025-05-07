@@ -3,19 +3,22 @@ import type { AppProps } from "next/app";
 import * as React from "react";
 import { ChakraProvider } from "@chakra-ui/react";
 import { UserProvider } from "@/context/UserContext";
-import { ProfileProvider } from "@/context/ProfileContext";
+import { LecturerProfileProvider } from "@/context/LecturerProfileContext";
+import { TutorProfileProvider } from "@/context/TutorProfileContext"; 
 import { ApplicationsProvider } from "@/context/ApplicationsContext";
 
 export default function App({ Component, pageProps }: AppProps) {
   return (
     <UserProvider>
-    <ProfileProvider>
+    <TutorProfileProvider>
+    <LecturerProfileProvider>
     <ApplicationsProvider>
       <ChakraProvider>
         <Component {...pageProps} />
       </ChakraProvider>
     </ApplicationsProvider>
-    </ProfileProvider>
+    </LecturerProfileProvider>
+    </TutorProfileProvider>
     </UserProvider>
   );
 }

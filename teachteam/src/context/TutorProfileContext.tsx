@@ -17,7 +17,7 @@ const ProfileContext = createContext<ProfileContextType>({
 export const useProfile = () => useContext(ProfileContext);
 
 // To wrap in _app.tsx
-export const ProfileProvider = ({ children }: { children: ReactNode }) => {
+export const TutorProfileProvider = ({ children }: { children: ReactNode }) => {
   const [profiles, setProfiles] = useState<Map<string, ProfileTutor>>(new Map());
 
   // Check if user is signed in (through localStorage) on load.
