@@ -21,7 +21,7 @@ export default function Profiles() {
     roles: "",
     availability: "None", // Default value for availability
     skills: "",
-    credentials: {}
+    credentials: [] 
   });
   const { profiles, setProfiles } = useProfile();
   const { user } = useUser();
