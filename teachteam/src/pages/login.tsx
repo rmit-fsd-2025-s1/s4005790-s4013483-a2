@@ -19,13 +19,14 @@ async function validateForm(user: { email: string; password: string }): Promise<
     lecturerApi.getLecturerByEmail(user.email),
   ]);
 
-  const tutor = tutorResult.status === "fulfilled" ? tutorResult.value : null;
-  const lecturer = lecturerResult.status === "fulfilled" ? lecturerResult.value : null;
-
-  const userExists = tutor || lecturer;
+  // Checks if the user exists in either tutor/lecturer and adds role
+  const userExists = tutorResult.status === "fulfilled"
+    ? { ...tutorResult.value, role: "Tutor" }
+    : lecturerResult.status === "fulfilled"
+    ? { ...lecturerResult.value, role: "Lecturer" }
+    : null;
 
   if (userExists && userExists.password == user.password) {
-    console.log(userExists);
     return  { 
       email: userExists.email,
       password: userExists.password,
