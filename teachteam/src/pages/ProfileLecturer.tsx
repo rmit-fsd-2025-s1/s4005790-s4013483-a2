@@ -2,20 +2,14 @@ import { Box, ChakraProvider, FormControl, FormLabel, Input, Button, VStack, Tex
 import Header from "@/components/Header";
 import Footer from "@/components/Footer";
 import { useEffect, useState } from "react";
-import { useProfile } from "@/context/ProfileContext";
+import { useProfile } from "@/context/LecturerProfileContext";
 import { useUser } from "@/context/UserContext";
 import { useRouter } from 'next/router';
 import { lecturerApi } from "@/services/lecturer.api";
-
-export interface ProfileLecturer {
-  age: string,
-  contact: string,
-  biography: string,
-  links: string
-};
+import { ProfileLecturer as Profile } from "@/components/Profile";
 
 export default function ProfileLecturer() {
-  const [profileChange, setProfileChange] = useState<ProfileLecturer>({
+  const [profileChange, setProfileChange] = useState<Profile>({
     age: "",
     contact: "",
     biography: "",
@@ -30,13 +24,13 @@ export default function ProfileLecturer() {
 
   // If there is a pre-existing profile load it in.
   useEffect(() => {
-    if (user) {
-      async function fetchCreatedAt() {
+    async function fetchCreatedAt() {
+      if (user) {
         const value = await lecturerApi.getLecturerByEmail(user.email);
         setCreatedAt(value.createdAt);
       }
-      fetchCreatedAt();
     }
+    fetchCreatedAt();
     if (user && profiles.has(user.email) && profiles) {
       const profile = profiles.get(user.email);
       if (profile) {

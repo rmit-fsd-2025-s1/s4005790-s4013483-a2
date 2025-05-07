@@ -2,8 +2,8 @@ import { Box, ChakraProvider, Checkbox, FormControl, FormLabel, Select, Input, B
 import Header from "@/components/Header";
 import Footer from "@/components/Footer";
 import { useEffect, useState } from "react";
-import { useProfile } from "@/context/ProfileContext";
-import { Profile as Profile } from "@/components/Profile";
+import { useProfile } from "@/context/TutorProfileContext";
+import { ProfileTutor as Profile } from "@/components/Profile";
 import { useUser } from "@/context/UserContext";
 import { useRouter } from "next/router";
 import { tutorApi } from "@/services/tutor.api";
