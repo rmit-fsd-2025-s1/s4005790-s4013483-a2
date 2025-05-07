@@ -1,7 +1,7 @@
 import React, { useState } from "react";
 import { Box, Input, Select, Button, VStack, HStack } from "@chakra-ui/react";
 import { useApplications } from "@/context/ApplicationsContext";
-import { useProfile } from "@/context/ProfileContext";
+import { useProfile } from "@/context/TutorProfileContext";
 import { courseList } from "@/components/CoursesList";
 import { usersList } from "@/components/UsersList";
 

@@ -5,7 +5,7 @@ import { Course, courseList } from "@/components/CoursesList";
 import { Role, rolesList } from "@/components/RolesList";
 import { useUser } from "@/context/UserContext";
 import { useApplications } from "@/context/ApplicationsContext";
-import { useProfile } from "@/context/ProfileContext";
+import { useProfile } from "@/context/TutorProfileContext";
 import { useState, useEffect } from "react";
 
 export default function Tutor() {

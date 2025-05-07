@@ -4,7 +4,7 @@ import Footer from "../components/Footer";
 import SubjectTable from "../components/SubjectTable";
 import { useUser } from "@/context/UserContext";
 import { useApplications } from "@/context/ApplicationsContext";
-import { useProfile } from "@/context/ProfileContext";
+import { useProfile } from "@/context/LecturerProfileContext";
 import { courseList } from "@/components/CoursesList";
 import { usersList } from "@/components/UsersList";
 import { useState, useEffect } from "react";
