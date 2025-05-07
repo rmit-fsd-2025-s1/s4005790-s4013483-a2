@@ -9,6 +9,7 @@ import { User } from "@/components/User";
 import { useUser } from "@/context/UserContext";
 import { tutorApi } from "@/services/tutor.api";
 import { lecturerApi } from "@/services/lecturer.api";
+import bcrypt from "bcryptjs";
 
 //Add logic for specifically if email or password is incorrect
 async function validateForm(user: User): Promise<User | string> {
@@ -67,19 +68,20 @@ export default function SignUp() {
     if (typeof result === "string") {
       setFormError(result);
     } else {
+      const hashedPassword = bcrypt.hashSync(result.password, 10);
       setUser(result);
       if (result.role == "Lecturer") {
         lecturerApi.createLecturer({
           name: result.name,
           email: result.email,
-          password: result.password,
+          password: hashedPassword,
         })
         router.push("/lecturer");
       } else {
         tutorApi.createTutor({
           name: result.name,
           email: result.email,
-          password: result.password,
+          password: hashedPassword,
         })
         router.push("/tutor");
       }

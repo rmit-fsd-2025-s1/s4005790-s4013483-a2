@@ -11,6 +11,7 @@ import { useUser } from "@/context/UserContext";
 
 import { tutorApi } from "@/services/tutor.api";
 import { lecturerApi } from "@/services/lecturer.api";
+import bcrypt from "bcryptjs";
 
 // Add logic for specifically if email or password is incorrect
 async function validateForm(user: { email: string; password: string }): Promise<User | string> {
@@ -26,12 +27,13 @@ async function validateForm(user: { email: string; password: string }): Promise<
     ? { ...lecturerResult.value, role: "Lecturer" }
     : null;
 
-  if (userExists && userExists.password == user.password) {
+  if (userExists && await bcrypt.compare(user.password, userExists.password)) {
     return  { 
       email: userExists.email,
       password: userExists.password,
       role: userExists.role,
-      name: userExists.name };
+      name: userExists.name
+    };
   }
 
   return "Your login is incorrect!";
