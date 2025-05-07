@@ -3,8 +3,8 @@ import { Profile } from "@/components/Profile";
 
 // Interfacae type for ProfileContext
 interface ProfileContextType {
-  profiles: Map<string, Profile[]>;
-  setProfiles: (profiles: Map<string, Profile[]>) => void;
+  profiles: Map<string, Profile>;
+  setProfiles: (profiles: Map<string, Profile>) => void;
 }
 
 // ProfileContext for context hook to use
@@ -18,7 +18,7 @@ export const useProfile = () => useContext(ProfileContext);
 
 // To wrap in _app.tsx
 export const ProfileProvider = ({ children }: { children: ReactNode }) => {
-  const [profiles, setProfiles] = useState<Map<string, Profile[]>>(new Map());
+  const [profiles, setProfiles] = useState<Map<string, Profile>>(new Map());
 
   // Check if user is signed in (through localStorage) on load.
   useEffect(() => {

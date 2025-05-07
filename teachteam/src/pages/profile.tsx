@@ -31,7 +31,12 @@ export default function Profiles() {
   // If there is a pre-existing profile, load it in.
   useEffect(() => {
     if (user && profiles.has(user.email)) {
-      setProfilesChange(profiles.get(user.email));
+      const profile = profiles.get(user.email);
+      if (profile) {
+        console.log("YIPEE");
+        console.log(profile);
+        setProfilesChange(profile);
+      }
     }
   }, [profiles, user]);
 
@@ -84,6 +89,9 @@ export default function Profiles() {
     }
   }
 
+  function handleAccountChange(e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>) {
+  }
+
   function handleCredentialChange(e: React.ChangeEvent<HTMLInputElement>, credential: string) {
     const { value } = e.target;
     setProfilesChange((prevProfile) => ({
@@ -102,7 +110,15 @@ export default function Profiles() {
         <Box as="main" flex="1" w="100%" p={8} textAlign="center" maxW="800px" mx="auto">
           <VStack>
             <form onSubmit={handleSubmit}>
+              <Text textAlign="center" color="#32e5b" style={{fontWeight:"bold"}}>Account Details</Text>
+              <Text textAlign="left" color="#032e5b">Name</Text>
+              <Text textAlign="left">{user?.name}</Text>
+              <Text textAlign="left" color="#032e5b">Email</Text>
+              <Text textAlign="left">{user?.email}</Text>
+              <Text textAlign="left" color="#032e5b">Account Created</Text>
+              <Text textAlign="left">yes</Text>
               <FormControl>
+                <FormLabel textAlign="center" color="#32e5b" style={{fontWeight:"bold"}}>Profile</FormLabel>
                 <FormLabel color="#032e5b">Previous Roles</FormLabel>
                 <Input name="roles" value={profilesChange.roles} onChange={handleChange} />
                 <FormLabel color="#032e5b">Availability</FormLabel>
