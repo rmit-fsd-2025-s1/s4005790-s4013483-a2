@@ -20,10 +20,14 @@ async function validateForm(user: User): Promise<User | string> {
     return "Email must be between 1 and 255 characters.";
   }
 
-  const emailExists = await Promise.all([
+  const [tutorResult, lecturerResult] = await Promise.allSettled([
     tutorApi.getTutorByEmail(user.email),
     lecturerApi.getLecturerByEmail(user.email),
-  ]).then(([tutor, lecturer]) => tutor || lecturer);
+  ]);
+
+  const tutor = tutorResult.status === "fulfilled" ? tutorResult.value : null;
+  const lecturer = lecturerResult.status === "fulfilled" ? lecturerResult.value : null;
+  const emailExists = tutor || lecturer;
 
   if (emailExists) {
     return "This email already has an account.";
@@ -65,8 +69,18 @@ export default function SignUp() {
     } else {
       setUser(result);
       if (result.role == "Lecturer") {
+        lecturerApi.createLecturer({
+          name: result.name,
+          email: result.email,
+          password: result.password,
+        })
         router.push("/lecturer");
       } else {
+        tutorApi.createTutor({
+          name: result.name,
+          email: result.email,
+          password: result.password,
+        })
         router.push("/tutor");
       }
     }
@@ -122,7 +136,6 @@ export default function SignUp() {
                   onChange={(e) => handleInputChange(e.target.name, e.target.value)}
                 />
                 <PasswordStrengthMeter value={0} />
-                {formError && <Text color="red.500">{formError}</Text>}
                 <FormLabel color="#032e5b">Role</FormLabel>
                 <RadioGroup
                   name="role"
@@ -134,6 +147,7 @@ export default function SignUp() {
                   <Radio value="Tutor">Tutor</Radio>
                 </RadioGroup>
               </FormControl>
+              {formError && <Text color="red.500" wordBreak={"break-word"}>{formError}</Text>}
               <Button type="submit">Sign Up</Button>
             </form>
             <Link as={NextLink} href='/login'>Already have an account?</Link>
