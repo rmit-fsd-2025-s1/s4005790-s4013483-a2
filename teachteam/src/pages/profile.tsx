@@ -3,9 +3,10 @@ import Header from "@/components/Header";
 import Footer from "@/components/Footer";
 import { useEffect, useState } from "react";
 import { useProfile } from "@/context/ProfileContext";
-import { Profile as ProfileType } from "@/components/Profile";
+import { Profile as Profile } from "@/components/Profile";
 import { useUser } from "@/context/UserContext";
 import { useRouter } from "next/router";
+import { tutorApi } from "@/services/tutor.api";
 
 const skillsList = [
   "Python", "Java", "JavaScript", "TypeScript", "C++", "C#", "Ruby", "Go", "Swift", "Kotlin",
@@ -17,12 +18,13 @@ const academicCredentialsList = [
 ];
 
 export default function Profiles() {
-  const [profilesChange, setProfilesChange] = useState<ProfileType>({
+  const [profilesChange, setProfilesChange] = useState<Profile>({
     roles: "",
     availability: "None", // Default value for availability
     skills: "",
     credentials: [] 
   });
+  const [createdAt, setCreatedAt] = useState<string>("Loading...");
   const { profiles, setProfiles } = useProfile();
   const { user } = useUser();
   const { isOpen, onOpen, onClose } = useDisclosure();
@@ -31,10 +33,17 @@ export default function Profiles() {
   // If there is a pre-existing profile, load it in.
   useEffect(() => {
     if (user && profiles.has(user.email)) {
+      async function fetchCreatedAt() {
+        if (user) {
+          const value = await tutorApi.getTutorByEmail(user.email);
+          // TODO: Format time
+          setCreatedAt(value.createdAt);
+        }
+      }
+      fetchCreatedAt();
+
       const profile = profiles.get(user.email);
       if (profile) {
-        console.log("YIPEE");
-        console.log(profile);
         setProfilesChange(profile);
       }
     }
@@ -89,9 +98,6 @@ export default function Profiles() {
     }
   }
 
-  function handleAccountChange(e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>) {
-  }
-
   function handleCredentialChange(e: React.ChangeEvent<HTMLInputElement>, credential: string) {
     const { value } = e.target;
     setProfilesChange((prevProfile) => ({
@@ -115,8 +121,8 @@ export default function Profiles() {
               <Text textAlign="left">{user?.name}</Text>
               <Text textAlign="left" color="#032e5b">Email</Text>
               <Text textAlign="left">{user?.email}</Text>
-              <Text textAlign="left" color="#032e5b">Account Created</Text>
-              <Text textAlign="left">yes</Text>
+              <Text textAlign="left" color="#032e5b">Created At</Text>
+              <Text textAlign="left">{createdAt}</Text>
               <FormControl>
                 <FormLabel textAlign="center" color="#32e5b" style={{fontWeight:"bold"}}>Profile</FormLabel>
                 <FormLabel color="#032e5b">Previous Roles</FormLabel>
