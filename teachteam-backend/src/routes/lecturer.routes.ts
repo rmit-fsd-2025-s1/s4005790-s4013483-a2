@@ -1,7 +1,8 @@
 import { Router } from "express";
 import { LecturerController } from "../controller/LecturerController";
-import { LecturerProfileController } from "../controller/LecturerProfileController";
-
+import { validateDto } from "src/middleware/validate";
+import { UpdateLecturerDTO } from "src/dtos/update-lecturer.dto";
+import { CreateLecturerDTO } from "src/dtos/create-lecturer.dto";
 const router = Router();
 const lecturerController = new LecturerController();
 
@@ -17,11 +18,11 @@ router.get("/lecturers/email/:email", async (req, res) => {
   await lecturerController.getOneEmail(req, res);
 });
 
-router.post("/lecturers", async (req, res) => {
+router.post("/lecturers", validateDto(CreateLecturerDTO), async (req, res) => {
   await lecturerController.create(req, res);
 });
 
-router.put("/lecturers/:id", async (req, res) => {
+router.put("/lecturers/:id", validateDto(UpdateLecturerDTO), async (req, res) => {
   await lecturerController.update(req, res);
 });
 

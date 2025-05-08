@@ -1,5 +1,8 @@
 import { Router } from "express";
 import { TutorController } from "../controller/TutorController";
+import { validateDto } from "src/middleware/validate";
+import { CreateTutorDTO } from "src/dtos/create-tutor.dto";
+import { UpdateTutorDTO } from "src/dtos/update-tutor.dto";
 
 const router = Router();
 const tutorController = new TutorController();
@@ -16,11 +19,11 @@ router.get("/tutors/email/:email", async (req, res) => {
   await tutorController.getOneEmail(req, res);
 });
 
-router.post("/tutors", async (req, res) => {
+router.post("/tutors", validateDto(CreateTutorDTO), async (req, res) => {
   await tutorController.create(req, res);
 });
 
-router.put("/tutors/:id", async (req, res) => {
+router.put("/tutors/:id", validateDto(UpdateTutorDTO), async (req, res) => {
   await tutorController.update(req, res);
 });
 
