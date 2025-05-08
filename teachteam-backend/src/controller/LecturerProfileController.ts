@@ -91,9 +91,8 @@ export class LecturerProfileController {
    */
   async update(request: Request, response: Response) {
     const id = parseInt(request.params.id);
-    const { age, contact, biography, links } = request.body;
 
-    let lecturerToUpdate = await this.lecturerProfileRepository.findOne({
+    const lecturerToUpdate = await this.lecturerProfileRepository.findOne({
       where: { id },
     });
 
@@ -101,16 +100,11 @@ export class LecturerProfileController {
       return response.status(404).json({ message: "Lecturer profile not found" });
     }
 
-    lecturerToUpdate = Object.assign(lecturerToUpdate, {
-      age,
-      contact,
-      biography,
-      links,
-    });
+    const updatedProfile = { ...lecturerToUpdate, ...request.body };
 
     try {
-      const updatedLecturer = await this.lecturerProfileRepository.save(lecturerToUpdate);
-      return response.json(updatedLecturer);
+      const savedProfile = await this.lecturerProfileRepository.save(updatedProfile);
+      return response.json(savedProfile);
     } catch (error) {
       return response
         .status(400)

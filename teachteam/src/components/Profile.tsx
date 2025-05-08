@@ -6,7 +6,7 @@ export interface ProfileTutor {
 };
 
 export interface ProfileLecturer {
-  age: string,
+  age: number,
   contact: string,
   biography: string,
   links: string
