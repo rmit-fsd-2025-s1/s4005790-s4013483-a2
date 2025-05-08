@@ -2,10 +2,10 @@ import { Box, ChakraProvider, FormControl, FormLabel, Input, Button, VStack, Tex
 import Header from "@/components/Header";
 import Footer from "@/components/Footer";
 import { useEffect, useState } from "react";
-import { useProfile } from "@/context/LecturerProfileContext";
 import { useUser } from "@/context/UserContext";
 import { useRouter } from 'next/router';
 import { lecturerApi } from "@/services/lecturer.api";
+import { lecturerProfileApi } from "@/services/lecturerProfile.api";
 import { ProfileLecturer as Profile } from "@/components/Profile";
 
 export default function ProfileLecturer() {
@@ -17,7 +17,6 @@ export default function ProfileLecturer() {
   });
 
   const [createdAt, setCreatedAt] = useState<string>("Loading...");
-  const { profiles, setProfiles } = useProfile();
   const { user } = useUser();
   const { isOpen, onOpen, onClose } = useDisclosure();
   const router = useRouter();
@@ -28,26 +27,25 @@ export default function ProfileLecturer() {
       if (user) {
         const value = await lecturerApi.getLecturerByEmail(user.email);
         setCreatedAt(value.createdAt);
+        setProfileChange(value.profile);
       }
     }
     fetchCreatedAt();
-    if (user && profiles.has(user.email) && profiles) {
-      const profile = profiles.get(user.email);
-      if (profile) {
-        setProfileChange(profile);
-      }
-    }
-  }, [profiles, user]);
+  }, [user]);
 
-  function handleSubmit(e: React.FormEvent) {
+  async function handleSubmit(e: React.FormEvent) {
     e.preventDefault();
-    setProfiles((prevProfiles) => {
-      const newProfiles = new Map(prevProfiles);
+    if (user) {
+      const value = await lecturerApi.getLecturerByEmail(user.email);
+      
+      const updatedProfile = {
+        ...value.profile,
+        ...profileChange
+      };
 
-      newProfiles.set(user.email, profileChange);
+      await lecturerProfileApi.updateProfile(value.profile.id, updatedProfile);
+    }
 
-      return newProfiles;
-    });
     onOpen();
   };
 

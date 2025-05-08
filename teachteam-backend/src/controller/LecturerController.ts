@@ -143,7 +143,7 @@ export class LecturerController {
  */
   async attachProfile(request: Request, response: Response) {
     const lecturer = await this.lecturerRepository.findOne({
-      where: { id: parseInt(request.params.lecturer_id) },
+      where: { id: parseInt(request.params.id) },
       relations: ["profile"],
     });
 
@@ -153,7 +153,7 @@ export class LecturerController {
 
     // Find profile
     const profile = await this.lecturerProfileRepository.findOneBy({
-      id: parseInt(request.params.profile_id),
+      id: parseInt(request.params.profileId),
     });
 
     if (!profile) {
@@ -183,16 +183,21 @@ export class LecturerController {
    */
   async getOneProfile(request: Request, response: Response) {
     const lecturer = await this.lecturerRepository.findOneBy({
-      id: parseInt(request.params.lecturer_id),
+      id: parseInt(request.params.id),
     });
 
     if (!lecturer) {
       return response.status(404).json({ message: "Lecturer profile not found" });
     }
 
-    const profile = await this.lecturerProfileRepository.find({
+    const profile = await this.lecturerProfileRepository.findOne({
       where: { lecturer: { id: lecturer.id } },
     });
+
+    if (!profile) {
+      return response.status(404).json({ message: "Lecturer profile not found" });
+    }
+
     return response.json(profile);
   }
 }

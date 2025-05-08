@@ -106,7 +106,6 @@ export class LecturerProfileController {
       contact,
       biography,
       links,
-      name,
     });
 
     try {
@@ -183,7 +182,7 @@ export class LecturerProfileController {
    * @returns JSON response with success message or 404 error if lecturer not found
    */
   async deleteLecturer(request: Request, response: Response) {
-    const id = parseInt(request.params.profile_id);
+    const id = parseInt(request.params.id);
     const lecturerProfileToRemove = await this.lecturerProfileRepository.findOne({
       where: { id },
     });
@@ -192,7 +191,7 @@ export class LecturerProfileController {
       return response.status(404).json({ message: "Lecturer profile not found" });
     }
 
-    const lecturerId = parseInt(request.params.lecturer_id);
+    const lecturerId = parseInt(request.params.lecturerId);
     const lecturerToRemove = await this.lecturerRepository.delete({
       id: lecturerId,
       profile: { id: lecturerProfileToRemove.id },

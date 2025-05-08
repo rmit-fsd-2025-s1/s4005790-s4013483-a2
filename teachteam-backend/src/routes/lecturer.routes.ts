@@ -32,7 +32,7 @@ router.get("/lecturers/:id/profile", async (req, res) => {
   await lecturerController.getOneProfile(req, res);
 });
 
-router.post("/lecturers/:id/profile/:profile_id", async (req, res) => {
+router.post("/lecturers/:id/profile/:profileId:", async (req, res) => {
   await lecturerController.attachProfile(req, res);
 });
 
