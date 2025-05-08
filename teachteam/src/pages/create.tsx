@@ -18,6 +18,11 @@ async function validateForm(user: User): Promise<User | string> {
     return "Name must be between 1 and 40 characters.";
   }
 
+  const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+  if (!emailRegex.test(user.email)) {
+    return "Invalid email address.";
+  }
+
   if (user.email.length < 1 || user.email.length > 256) {
     return "Email must be between 1 and 255 characters.";
   }
