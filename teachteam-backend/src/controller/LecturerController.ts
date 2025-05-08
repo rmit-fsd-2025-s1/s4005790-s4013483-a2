@@ -96,7 +96,6 @@ export class LecturerController {
     const id = parseInt(request.params.id);
     const lecturerToRemove = await this.lecturerRepository.findOne({
       where: { id },
-      relations: ["profile"]
     });
 
     if (!lecturerToRemove) {
@@ -104,19 +103,13 @@ export class LecturerController {
     }
 
     try {
-      const profileToRemove = lecturerToRemove.profile;
-      
       await this.lecturerRepository.remove(lecturerToRemove);
-      
-      if (profileToRemove) {
-        await this.lecturerProfileRepository.remove(profileToRemove);
-      }
 
-      return response.json({ message: "Lecturer and profile removed successfully" });
+      return response.json({ message: "Lecturer removed successfully" });
     } catch (error) {
       return response
         .status(500)
-        .json({ message: "Error removing lecturer and profile", error });
+        .json({ message: "Error removing lecturer", error });
     }
   }
 
