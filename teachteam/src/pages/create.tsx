@@ -14,11 +14,11 @@ import bcrypt from "bcryptjs";
 
 //Add logic for specifically if email or password is incorrect
 async function validateForm(user: User): Promise<User | string> {
-  if (user.name.length === 0 || user.name.length > 40) {
+  if (user.name.length < 1 || user.name.length > 40) {
     return "Name must be between 1 and 40 characters.";
   }
 
-  if (user.email.length === 0 || user.email.length > 256) {
+  if (user.email.length < 1 || user.email.length > 256) {
     return "Email must be between 1 and 255 characters.";
   }
 
@@ -35,10 +35,14 @@ async function validateForm(user: User): Promise<User | string> {
     return "This email already has an account.";
   }
 
-  if (user.password.length === 0 || user.password.length > 100) {
-    return "Password must be between 1 and 100 characters.";
+  if (user.password.length < 8 || user.password.length > 100) {
+    return "Password must be between 8 and 100 characters.";
   }
-  //TODO: Add password strength check
+
+  const passwordRegex = /^(?=.*[A-Z])(?=.*[0-9])(?=.*[!@#$%^&*(),.?":{}|<>])(?=.*[a-z]).{8,}$/;
+  if (!passwordRegex.test(user.password)) {
+    return "Password must be at least 8 characters long and contain at least one uppercase letter, one number, and one special character.";
+  }
 
   return user;
 }
