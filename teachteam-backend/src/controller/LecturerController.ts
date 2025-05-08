@@ -62,12 +62,13 @@ export class LecturerController {
    * @returns JSON response containing the created lecturer or error message
    */
   async create(request: Request, response: Response) {
-    const { name, email, password } = request.body;
+    const { name, email, password, profile } = request.body;
 
     const lecturer = Object.assign(new Lecturer(), {
       name,
       email,
       password,
+      profile,
     });
 
     try {

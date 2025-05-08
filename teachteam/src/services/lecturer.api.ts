@@ -1,7 +1,8 @@
 import axios from "axios";
+import { LecturerProfile } from "./lecturerProfile.api";
 
 export const api = axios.create({
-  baseURL: "http://localhost:3001/api", // Adjust this to match your backend URL
+  baseURL: "http://localhost:3001/api",
 });
 
 export interface Lecturer {
@@ -9,6 +10,7 @@ export interface Lecturer {
   name: string;
   email: string;
   password: string;
+  profile: LecturerProfile;
 }
 
 export const lecturerApi = {
@@ -39,6 +41,16 @@ export const lecturerApi = {
 
   deleteLecturer: async (id: number) => {
     const response = await api.delete(`/lecturers/${id}`);
+    return response.data;
+  },
+
+  attachProfile: async (lecturerId: number, profileId: number) => {
+    const response = await api.post(`/lecturers/${lecturerId}/profile/${profileId}`);
+    return response.data;
+  },
+
+  getLecturerProfile: async (lecturerId: number) => {
+    const response = await api.get(`/lecturers/${lecturerId}/profile`);
     return response.data;
   },
 };

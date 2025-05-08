@@ -9,6 +9,7 @@ import { User } from "@/components/User";
 import { useUser } from "@/context/UserContext";
 import { tutorApi } from "@/services/tutor.api";
 import { lecturerApi } from "@/services/lecturer.api";
+import { lecturerProfileApi } from "@/services/lecturerProfile.api";
 import bcrypt from "bcryptjs";
 
 //Add logic for specifically if email or password is incorrect
@@ -70,20 +71,42 @@ export default function SignUp() {
     } else {
       const hashedPassword = bcrypt.hashSync(result.password, 10);
       setUser(result);
-      if (result.role == "Lecturer") {
-        lecturerApi.createLecturer({
-          name: result.name,
-          email: result.email,
-          password: hashedPassword,
-        })
-        router.push("/lecturer");
+      
+      if (result.role === "Lecturer") {
+        try {
+          // Create the lecturer profile first
+          const profile = await lecturerProfileApi.createProfile({
+            age: 0,
+            contact: "",
+            biography: "",
+            links: [],
+          });
+
+          // Create the lecturer with the profile ID
+          await lecturerApi.createLecturer({
+            name: result.name,
+            email: result.email,
+            password: hashedPassword,
+            profile: profile
+          });
+          
+          router.push("/lecturer");
+        } catch (error) {
+          setFormError("Error creating lecturer account. Please try again.");
+          console.error("Error creating lecturer:", error);
+        }
       } else {
-        tutorApi.createTutor({
-          name: result.name,
-          email: result.email,
-          password: hashedPassword,
-        })
-        router.push("/tutor");
+        try {
+          await tutorApi.createTutor({
+            name: result.name,
+            email: result.email,
+            password: hashedPassword,
+          });
+          router.push("/tutor");
+        } catch (error) {
+          setFormError("Error creating tutor account. Please try again.");
+          console.error("Error creating tutor:", error);
+        }
       }
     }
   }
