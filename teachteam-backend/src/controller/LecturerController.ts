@@ -62,19 +62,33 @@ export class LecturerController {
    * @returns JSON response containing the created lecturer or error message
    */
   async create(request: Request, response: Response) {
-    const { name, email, password, profile } = request.body;
+    const { name, email, password } = request.body;
 
-    const lecturer = Object.assign(new Lecturer(), {
-      name,
-      email,
-      password,
-      profile,
+    // Create a new profile first
+    const profile = Object.assign(new LecturerProfile(), {
+      age: 0,
+      contact: "",
+      biography: "",
+      links: ""
     });
 
     try {
+      const savedProfile = await this.lecturerProfileRepository.save(profile);
+
+      // Create lecturer with the profile
+      const lecturer = Object.assign(new Lecturer(), {
+        name,
+        email,
+        password,
+        profile: savedProfile
+      });
+
       const savedLecturer = await this.lecturerRepository.save(lecturer);
       return response.status(201).json(savedLecturer);
     } catch (error) {
+      if (profile.id) {
+        await this.lecturerProfileRepository.remove(profile);
+      }
       return response
         .status(400)
         .json({ message: "Error creating lecturer", error });
@@ -91,14 +105,28 @@ export class LecturerController {
     const id = parseInt(request.params.id);
     const lecturerToRemove = await this.lecturerRepository.findOne({
       where: { id },
+      relations: ["profile"]
     });
 
     if (!lecturerToRemove) {
       return response.status(404).json({ message: "Lecturer not found" });
     }
 
-    await this.lecturerRepository.remove(lecturerToRemove);
-    return response.json({ message: "Lecturer removed successfully" });
+    try {
+      const profileToRemove = lecturerToRemove.profile;
+      
+      await this.lecturerRepository.remove(lecturerToRemove);
+      
+      if (profileToRemove) {
+        await this.lecturerProfileRepository.remove(profileToRemove);
+      }
+
+      return response.json({ message: "Lecturer and profile removed successfully" });
+    } catch (error) {
+      return response
+        .status(500)
+        .json({ message: "Error removing lecturer and profile", error });
+    }
   }
 
   /**

@@ -9,7 +9,7 @@ export interface LecturerProfile {
   age: number;
   contact: string;
   biography: string;
-  links: string[];
+  links: string;
 }
 
 export const lecturerProfileApi = {
@@ -40,16 +40,6 @@ export const lecturerProfileApi = {
 
   getLecturerByProfile: async (profileId: number) => {
     const response = await api.get(`/lecturerProfiles/${profileId}/lecturers`);
-    return response.data;
-  },
-
-  createLecturerWithProfile: async (profileId: number, lecturer: { name: string; email: string; password: string }) => {
-    const response = await api.post(`/lecturerProfiles/${profileId}/lecturers`, lecturer);
-    return response.data;
-  },
-
-  deleteLecturerFromProfile: async (profileId: number, lecturerId: number) => {
-    const response = await api.delete(`/lecturerProfiles/${profileId}/lecturers/${lecturerId}`);
     return response.data;
   },
 }; 

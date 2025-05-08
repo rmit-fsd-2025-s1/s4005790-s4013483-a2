@@ -74,20 +74,10 @@ export default function SignUp() {
       
       if (result.role === "Lecturer") {
         try {
-          // Create the lecturer profile first
-          const profile = await lecturerProfileApi.createProfile({
-            age: 0,
-            contact: "",
-            biography: "",
-            links: [],
-          });
-
-          // Create the lecturer with the profile ID
           await lecturerApi.createLecturer({
             name: result.name,
             email: result.email,
-            password: hashedPassword,
-            profile: profile
+            password: hashedPassword
           });
           
           router.push("/lecturer");

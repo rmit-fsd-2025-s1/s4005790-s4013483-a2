@@ -27,12 +27,4 @@ router.get("/lecturerProfiles/:id/lecturers", async (req, res) => {
   await lecturerController.getOneLecturer(req, res);
 });
 
-router.post("/lecturerProfiles/:id/lecturers", async (req, res) => {
-  await lecturerController.createLecturer(req, res);
-});
-
-router.delete("/lecturerProfiles/:id/lecturers/:lecturerId", async (req, res) => {
-  await lecturerController.deleteLecturer(req, res)
-});
-
 export default router;

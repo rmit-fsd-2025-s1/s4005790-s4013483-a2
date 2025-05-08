@@ -14,17 +14,17 @@ export class LecturerProfile {
   @PrimaryGeneratedColumn({ type: "int" })
   id: number;
 
-  @Column({ type: "varchar", length: 40 })
+  @Column({ type: "int", default: 0 })
   age: number;
 
-  @Column({ type: "varchar", length: 256, unique: true })
+  @Column({ type: "varchar", length: 100 })
   contact: string;
 
-  @Column({ type: "varchar", length: 100 })
+  @Column({ type: "varchar", length: 1000 })
   biography: string;
 
-  @Column("simple-json")
-  links: string[];
+  @Column({ type: "varchar", length: 1000 })
+  links: string;
 
   @CreateDateColumn({ type: "timestamp" })
   createdAt: Date;
