@@ -104,6 +104,7 @@ export class LecturerController {
 
     try {
       await this.lecturerRepository.remove(lecturerToRemove);
+      await this.lecturerProfileRepository.remove(lecturerToRemove.profile);
 
       return response.json({ message: "Lecturer removed successfully" });
     } catch (error) {
