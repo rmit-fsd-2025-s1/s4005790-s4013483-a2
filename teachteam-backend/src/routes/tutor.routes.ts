@@ -1,8 +1,8 @@
 import { Router } from "express";
 import { TutorController } from "../controller/TutorController";
-import { validateDto } from "src/middleware/validate";
-import { CreateTutorDTO } from "src/dtos/create-tutor.dto";
-import { UpdateTutorDTO } from "src/dtos/update-tutor.dto";
+import { validateDto } from "../middleware/validate";
+import { CreateTutorDTO } from "../dtos/create-tutor.dto";
+import { UpdateTutorDTO } from "../dtos/update-tutor.dto";
 
 const router = Router();
 const tutorController = new TutorController();
