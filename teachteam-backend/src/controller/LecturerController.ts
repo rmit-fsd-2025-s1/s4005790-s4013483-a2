@@ -64,31 +64,22 @@ export class LecturerController {
   async create(request: Request, response: Response) {
     const { name, email, password } = request.body;
 
-    // Create a new profile first
-    const profile = Object.assign(new LecturerProfile(), {
-      age: 0,
-      contact: "",
-      biography: "",
-      links: ""
-    });
-
     try {
-      const savedProfile = await this.lecturerProfileRepository.save(profile);
-
-      // Create lecturer with the profile
       const lecturer = Object.assign(new Lecturer(), {
         name,
         email,
         password,
-        profile: savedProfile
+        profile: Object.assign(new LecturerProfile(), {
+          age: 0,
+          contact: "",
+          biography: "",
+          links: ""
+        })
       });
 
       const savedLecturer = await this.lecturerRepository.save(lecturer);
       return response.status(201).json(savedLecturer);
     } catch (error) {
-      if (profile.id) {
-        await this.lecturerProfileRepository.remove(profile);
-      }
       return response
         .status(400)
         .json({ message: "Error creating lecturer", error });
