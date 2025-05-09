@@ -1,17 +1,19 @@
 import { Box, Heading, Text, Button, Menu, MenuList, MenuItemOption, MenuButton, MenuOptionGroup, Modal, ModalOverlay, ModalContent, ModalHeader, ModalFooter, ModalBody, ModalCloseButton, useDisclosure, FormControl, FormLabel, Textarea } from "@chakra-ui/react";
 import Header from "../components/Header";
 import Footer from "../components/Footer";
-import { Course, courseList } from "@/components/CoursesList";
+import { Course } from "@/components/CoursesList"; // Import the Course interface
 import { Role, rolesList } from "@/components/RolesList";
 import { useUser } from "@/context/UserContext";
 import { useApplications } from "@/context/ApplicationsContext";
 import { useProfile } from "@/context/TutorProfileContext";
 import { useState, useEffect } from "react";
+import axios from "axios";
 
 export default function Tutor() {
   const { user } = useUser();
   const { profiles } = useProfile();
-  const [ selectedCourses, setSelectedCourses ] = useState<Course[]>([]);
+  const [courseList, setCourseList] = useState<Course[]>([]); // Dynamic course list from backend
+  const [selectedCourses, setSelectedCourses] = useState<Course[]>([]);
   const { applications, setApplications } = useApplications();
   const { isOpen, onOpen, onClose } = useDisclosure();
   const { isOpen: isConfirmOpen, onOpen: onConfirmOpen, onClose: onConfirmClose } = useDisclosure();
@@ -20,27 +22,51 @@ export default function Tutor() {
   const [note, setNote] = useState("");
   const profile = profiles.get(user?.email);
 
+  // Fetch courses from backend
+  useEffect(() => {
+    const fetchCourses = async () => {
+      try {
+        const response = await axios.get("http://localhost:3001/api/courses"); // Replace with actual backend URL
+        setCourseList(response.data);
+      } catch (error) {
+        console.error("Failed to fetch courses:", error);
+      }
+    };
+
+    fetchCourses();
+  }, []);
+
   const handleSelect = (values: string[] | string) => {
-    setSelectedCourses(values.map(code => courseList.find(course => course.code === code)));
+    setSelectedCourses(
+      (Array.isArray(values) ? values : [values]).map(
+        (code) => courseList.find((course) => course.code === code)!
+      )
+    );
+  };
+
+  const selectCoursesList = () => {
+    return courseList.map((course) => (
+      <MenuItemOption value={course.code} key={course.code}>{course.name}</MenuItemOption>
+    ));
   };
 
   const showRoles = () => {
     return rolesList
-      .filter((role) => selectedCourses.some((course) => course === role.course) && (user && (!applications.get(user.email) || !applications.get(user.email).some((existingRole : Role)=> existingRole.course.code === role.course.code && existingRole.role === role.role)))).map((role) => (
-      <Box textAlign="left" p={4} borderWidth="1px" borderRadius="lg" key={role.course.code + role.role}>
-        <Text fontWeight="bold" mt={4} color="#032e5b">Required Skills:</Text>
-        <Text color="#032e5b">{role.course.skills.join(", ")}</Text>
-        <Heading as="h2" size="md" mt={4} color="#032e5b">Role: {role.role}</Heading>
-        <Text color="#032e5b">
-          <span style={{ fontWeight: "bold" }}>Course: </span>
-          {role.course.name} <span>({role.course.code})</span>
-        </Text>
-        <Text fontWeight="bold" mt={4} color="#032e5b">About Role:</Text>
-        <Text color="#032e5b">The tutor will assist in teaching courses, grading assignments, and providing support to students.</Text>
-        <Button onClick={() => openApplicationModal(role)} mt={4} color="#032e5b">Apply Now</Button>
-      </Box>
-    ));
-  }
+      .filter((role) => selectedCourses.some((course) => course === role.course) && (user && (!applications.get(user.email) || !applications.get(user.email).some((existingRole: Role) => existingRole.course.code === role.course.code && existingRole.role === role.role)))).map((role) => (
+        <Box textAlign="left" p={4} borderWidth="1px" borderRadius="lg" key={role.course.code + role.role}>
+          <Text fontWeight="bold" mt={4} color="#032e5b">Required Skills:</Text>
+          <Text color="#032e5b">{role.course.skills.join(", ")}</Text>
+          <Heading as="h2" size="md" mt={4} color="#032e5b">Role: {role.role}</Heading>
+          <Text color="#032e5b">
+            <span style={{ fontWeight: "bold" }}>Course: </span>
+            {role.course.name} <span>({role.course.code})</span>
+          </Text>
+          <Text fontWeight="bold" mt={4} color="#032e5b">About Role:</Text>
+          <Text color="#032e5b">The tutor will assist in teaching courses, grading assignments, and providing support to students.</Text>
+          <Button onClick={() => openApplicationModal(role)} mt={4} color="#032e5b">Apply Now</Button>
+        </Box>
+      ));
+  };
 
   const openApplicationModal = (role: Role) => {
     setSelectedRole(role);
@@ -66,9 +92,6 @@ export default function Tutor() {
       onConfirmOpen();
     }
   };
-
-  useEffect(() => {
-  }, [applications]);
 
   const userSkills = profile?.skills.split(", ") || [];
 
@@ -148,10 +171,4 @@ export default function Tutor() {
       </Modal>
     </Box>
   );
-};
-
-const selectCoursesList = () => {
-  return courseList.map((course) => (
-    <MenuItemOption value={course.code} key={course.code}>{course.name}</MenuItemOption>
-  ));
 };
