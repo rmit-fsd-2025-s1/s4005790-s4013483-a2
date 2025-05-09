@@ -12,13 +12,12 @@ Tutor:
 
 To run the application:
 1. Open terminal
-2. `cd teachteam-backend`
+2. Open project folder
 3. `npm install`
-4. `npm run dev`
-5. `cd ../teachteam`
-6. `npm install`
-7. `npm run dev`
+4. `npm run install-all`
+5. `npm run dev`
 
 To run unit tests:
-1. Type in (npm test) then press enter
-2. The unit tests should now run and results should show
+1. `cd teachteam`
+2. `npm test`
+3. The unit tests should now run and results should show
