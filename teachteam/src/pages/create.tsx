@@ -9,7 +9,6 @@ import { User } from "@/components/User";
 import { useUser } from "@/context/UserContext";
 import { tutorApi } from "@/services/tutor.api";
 import { lecturerApi } from "@/services/lecturer.api";
-import { lecturerProfileApi } from "@/services/lecturerProfile.api";
 import bcrypt from "bcryptjs";
 
 //Add logic for specifically if email or password is incorrect

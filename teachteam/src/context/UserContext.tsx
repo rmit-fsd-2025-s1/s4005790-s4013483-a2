@@ -1,6 +1,5 @@
 import { createContext, useContext, useEffect, useState, ReactNode } from "react";
 import { User } from "@/components/User";
-import { usersList } from "@/components/UsersList";
 import { tutorApi } from "@/services/tutor.api";
 import { lecturerApi } from "@/services/lecturer.api";
 

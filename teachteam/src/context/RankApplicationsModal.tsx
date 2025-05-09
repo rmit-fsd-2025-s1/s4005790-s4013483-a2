@@ -1,10 +1,11 @@
 import React, { useState } from "react";
 import { Modal, ModalOverlay, ModalContent, ModalHeader, ModalBody, ModalFooter, Button, Text, VStack, HStack, Select } from "@chakra-ui/react";
 import { useApplications } from "@/context/ApplicationsContext";
-import { usersList } from "@/components/UsersList";
+import { useUsersLists } from "@/context/UsersListsContext";
 
 const RankApplicationsModal = ({ isOpen, onClose, courseCode }) => {
   const { applications, setApplications } = useApplications();
+  const { usersList } = useUsersLists();
   const approvedApplications = Array.from(applications.entries())
     .flatMap(([email, roles]) =>
       roles.filter((role) => role.course.code === courseCode && role.status === "Approved").map((role) => ({

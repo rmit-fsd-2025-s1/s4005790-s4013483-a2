@@ -3,7 +3,7 @@ import Lecturer from "@/pages/lecturer";
 import { render, screen } from "@testing-library/react";
 import { useUser } from "@/context/UserContext";
 import { useApplications } from "@/context/ApplicationsContext";
-import { usersList } from "@/components/UsersList";
+import { useUsersLists } from "@/context/UsersListsContext";
 import { rolesList } from "@/components/RolesList";
 
 // Mocks router to be able to render Lecturer
@@ -22,8 +22,13 @@ jest.mock("@/context/ApplicationsContext", () => ({
   useApplications: jest.fn(),
 }));
 
+// Mocks UsersListsContext
+jest.mock("@/context/UsersListsContext", () => ({
+  useUsersLists: jest.fn(),
+}));
+
 // Mock variables
-const mockUser = usersList[0];
+const mockUser = { email: "test@example.com", name: "Test User", role: "Lecturer" };
 const mockAppliedRole = rolesList[0];
 
 describe("Lecturer", () => {
@@ -34,6 +39,10 @@ describe("Lecturer", () => {
     (useApplications as jest.Mock).mockReturnValue({
       applications : new Map([[mockUser.email, [mockAppliedRole]]]),
       setApplications: jest.fn(),
+    });
+    // Sets usersList to include mockUser
+    (useUsersLists as jest.Mock).mockReturnValue({
+      usersList: [mockUser],
     });
 
     render(<Lecturer />);

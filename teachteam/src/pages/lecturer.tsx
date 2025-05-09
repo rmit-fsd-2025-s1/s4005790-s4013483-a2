@@ -6,13 +6,14 @@ import { useUser } from "@/context/UserContext";
 import { useApplications } from "@/context/ApplicationsContext";
 import { useProfile } from "@/context/LecturerProfileContext";
 import { courseList } from "@/components/CoursesList";
-import { usersList } from "@/components/UsersList";
+import { useUsersLists } from "@/context/UsersListsContext";
 import { useState, useEffect } from "react";
 
 export default function Lecturer() {
   const { user } = useUser();
   const { applications, setApplications } = useApplications();
   const { profiles } = useProfile();
+  const { usersList } = useUsersLists();
   const { isOpen, onOpen, onClose } = useDisclosure();
   const { isOpen: isProfileOpen, onOpen: onProfileOpen, onClose: onProfileClose } = useDisclosure();
   const [selectedApplication, setSelectedApplication] = useState(null);

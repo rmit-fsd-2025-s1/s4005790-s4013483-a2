@@ -6,10 +6,12 @@ import { UserProvider } from "@/context/UserContext";
 import { LecturerProfileProvider } from "@/context/LecturerProfileContext";
 import { TutorProfileProvider } from "@/context/TutorProfileContext"; 
 import { ApplicationsProvider } from "@/context/ApplicationsContext";
+import { UsersListsProvider } from "@/context/UsersListsContext";
 
 export default function App({ Component, pageProps }: AppProps) {
   return (
     <UserProvider>
+    <UsersListsProvider>
     <TutorProfileProvider>
     <LecturerProfileProvider>
     <ApplicationsProvider>
@@ -19,6 +21,7 @@ export default function App({ Component, pageProps }: AppProps) {
     </ApplicationsProvider>
     </LecturerProfileProvider>
     </TutorProfileProvider>
+    </UsersListsProvider>
     </UserProvider>
   );
 }

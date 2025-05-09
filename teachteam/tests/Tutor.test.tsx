@@ -3,7 +3,7 @@ import Tutor from "@/pages/tutor";
 import { fireEvent, render, screen } from "@testing-library/react";
 import { useUser } from "@/context/UserContext";
 import { useApplications } from "@/context/ApplicationsContext";
-import { usersList } from "@/components/UsersList";
+import { useUsersLists } from "@/context/UsersListsContext";
 import { rolesList } from "@/components/RolesList";
 import { courseList } from "@/components/CoursesList";
 
@@ -23,8 +23,13 @@ jest.mock("@/context/ApplicationsContext", () => ({
   useApplications: jest.fn(),
 }));
 
+// Mocks UsersListsContext
+jest.mock("@/context/UsersListsContext", () => ({
+  useUsersLists: jest.fn(),
+}));
+
 // Mock variables
-const mockUser = usersList[0];
+const mockUser = { email: "test@example.com", name: "Test User", role: "Tutor" };
 const mockAppliedRole = rolesList[0];
 
 describe("Tutor", () => {
@@ -35,6 +40,10 @@ describe("Tutor", () => {
     (useApplications as jest.Mock).mockReturnValue({
       applications : new Map(),
       setApplications: jest.fn(),
+    });
+    // Sets usersList to include mockUser
+    (useUsersLists as jest.Mock).mockReturnValue({
+      usersList: [mockUser],
     });
 
     render(<Tutor />);
@@ -63,6 +72,10 @@ describe("Tutor", () => {
     (useApplications as jest.Mock).mockReturnValue({
       applications : new Map([[mockUser.email, [mockAppliedRole]]]),
       setApplications: jest.fn(),
+    });
+    // Sets usersList to include mockUser
+    (useUsersLists as jest.Mock).mockReturnValue({
+      usersList: [mockUser],
     });
 
     render(<Tutor />);
