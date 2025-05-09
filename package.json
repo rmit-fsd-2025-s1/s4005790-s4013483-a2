@@ -1,0 +1,13 @@
+{
+  "name": "teachteam-fullstack",
+  "version": "1.0.0",
+  "private": true,
+  "scripts": {
+    "dev": "concurrently \"cd teachteam && npm run dev\" \"cd teachteam-backend && npm run dev\"",
+    "install-all": "npm install && cd teachteam && npm install && cd ../teachteam-backend && npm install",
+    "build": "cd teachteam && npm run build && cd ../teachteam-backend && npm run build"
+  },
+  "devDependencies": {
+    "concurrently": "^8.2.2"
+  }
+} 
