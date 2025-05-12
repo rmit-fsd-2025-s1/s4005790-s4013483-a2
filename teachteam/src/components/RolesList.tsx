@@ -1,7 +1,7 @@
 import { Course } from "@/components/CoursesList";
 
 export interface Role {
-  role: "Tutor/Lab-Assistant";
+  role: "Tutor" | "Lab-Assistant"; // Separate roles for Tutor and Lab-Assistant
   course: Course;
   description: string;
   expressionOfInterest: string;
@@ -9,25 +9,24 @@ export interface Role {
   status: string;
 }
 
-// Roles list is now a function that generates roles based on the provided course list
+// Generate roles for both Tutor and Lab-Assistant for each course
 export const generateRolesList = (courseList: Course[]): Role[] => {
-  return courseList.map(course => ({
-    role: "Tutor/Lab-Assistant",
-    course,
-    description: "",
-    expressionOfInterest: "",
-    note: "",
-    status: "",
-  }));
+  return courseList.flatMap(course => [
+    {
+      role: "Tutor",
+      course,
+      description: "",
+      expressionOfInterest: "",
+      note: "",
+      status: "",
+    },
+    {
+      role: "Lab-Assistant",
+      course,
+      description: "",
+      expressionOfInterest: "",
+      note: "",
+      status: "",
+    },
+  ]);
 };
-
-//export const rolesList : Role[] = [
-//  { role: "Tutor", course: courseList[0] },
-//  { role: "Lab-assistant", course: courseList[0] },
-//  { role: "Tutor", course: courseList[1] },
-//  { role: "Lab-assistant", course: courseList[2] },
-//  { role: "Tutor", course: courseList[3] },
-//  { role: "Lab-assistant", course: courseList[3] },
-//  { role: "Tutor", course: courseList[4] },
-//  { role: "Lab-assistant", course: courseList[4] },
-//];

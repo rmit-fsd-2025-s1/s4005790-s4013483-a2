@@ -13,7 +13,7 @@ export default function Tutor() {
   const { profiles } = useProfile();
   const [courseList, setCourseList] = useState<Course[]>([]); // Dynamic course list from backend
   const [rolesList, setRolesList] = useState<Role[]>([]); // Dynamic roles list
-  const [selectedCourses, setSelectedCourses] = useState<Course[]>([]);
+  const [selectedCourses, setSelectedCourses] = useState<Course[]>([]); // Selected courses
   const { applications, setApplications } = useApplications();
   const { isOpen, onOpen, onClose } = useDisclosure();
   const { isOpen: isConfirmOpen, onOpen: onConfirmOpen, onClose: onConfirmClose } = useDisclosure();
@@ -33,6 +33,7 @@ export default function Tutor() {
   }, []);
 
   const handleSelect = (values: string[] | string) => {
+    // Update selected courses based on course codes
     setSelectedCourses(
       (Array.isArray(values) ? values : [values]).map(
         (code) => courseList.find((course) => course.code === code)!
@@ -40,6 +41,7 @@ export default function Tutor() {
     );
   };
 
+  // Updated to show only course names in the dropdown menu
   const selectCoursesList = () => {
     return courseList.map((course) => (
       <MenuItemOption value={course.code} key={course.code}>
@@ -48,28 +50,17 @@ export default function Tutor() {
     ));
   };
 
+  // Show roles (Tutor and Lab-Assistant) for the selected courses
   const showRoles = () => {
     return rolesList
-      .filter(
-        (role) =>
-          selectedCourses.some((course) => course === role.course) &&
-          user &&
-          (!applications.get(user.email) ||
-            !applications
-              .get(user.email)
-              .some(
-                (existingRole: Role) =>
-                  existingRole.course.code === role.course.code &&
-                  existingRole.role === role.role
-              ))
-      )
+      .filter((role) => selectedCourses.some((course) => course.code === role.course.code))
       .map((role) => (
         <Box
           textAlign="left"
           p={4}
           borderWidth="1px"
           borderRadius="lg"
-          key={role.course.code + role.role}
+          key={role.course.code + "-" + role.role}
         >
           <Text fontWeight="bold" mt={4} color="#032e5b">
             Required Skills:
@@ -86,8 +77,9 @@ export default function Tutor() {
             About Role:
           </Text>
           <Text color="#032e5b">
-            The tutor will assist in teaching courses, grading assignments, and
-            providing support to students.
+            {role.role === "Tutor"
+              ? "The tutor will assist in teaching courses, grading assignments, and providing support to students."
+              : "The lab assistant will help in managing labs, assisting students in practical sessions, and maintaining equipment."}
           </Text>
           <Button
             onClick={() => openApplicationModal(role)}
