@@ -5,7 +5,7 @@ import Footer from "@/components/Footer"; // Import Footer component
 import { useUser } from "@/context/UserContext";
 import { useProfile } from "@/context/TutorProfileContext";
 import { useState, useEffect } from "react";
-import { Box, Heading, Text, Button, Menu, MenuList, MenuItemOption, MenuButton, MenuOptionGroup, Modal, ModalOverlay, ModalContent, ModalHeader, ModalFooter, ModalBody, ModalCloseButton, FormControl, FormLabel,Textarea, useDisclosure} from "@chakra-ui/react";
+import { Box, Heading, Text, Button, Menu, MenuList, MenuItemOption, MenuButton, MenuOptionGroup, Modal, ModalOverlay, ModalContent, ModalHeader, ModalFooter, ModalBody, ModalCloseButton, FormControl, FormLabel, Textarea, useDisclosure, useToast, } from "@chakra-ui/react";
 import { tutorApi } from "@/services/tutor.api";
 
 export default function Tutor() {
@@ -14,11 +14,12 @@ export default function Tutor() {
   const [courseList, setCourseList] = useState<Course[]>([]); // Dynamic course list from backend
   const [rolesList, setRolesList] = useState<Role[]>([]); // Dynamic roles list
   const [selectedCourses, setSelectedCourses] = useState<Course[]>([]); // Selected courses
-  const { isOpen, onOpen, onClose } = useDisclosure();
+  const { isOpen, onOpen, onClose } = useDisclosure(); // Modal disclosure
   const [selectedRole, setSelectedRole] = useState<Role | null>(null);
   const [expressionOfInterest, setExpressionOfInterest] = useState("");
   const [note, setNote] = useState("");
   const profile = profiles.get(user?.email);
+  const toast = useToast(); // Initialize Chakra UI toast
 
   // Fetch courses and generate roles when the component mounts
   useEffect(() => {
@@ -103,8 +104,26 @@ export default function Tutor() {
       try {
         await tutorApi.createApplication(application); // Submit application to the backend
         onClose(); // Close modal
+
+        // Show confirmation toast
+        toast({
+          title: "Application Sent!",
+          description: `Your application for the role of ${selectedRole.role} in ${selectedRole.course.name} has been submitted.`,
+          status: "success",
+          duration: 5000, // Display the toast for 5 seconds
+          isClosable: true, // Allow the user to close the toast manually
+        });
       } catch (error) {
         console.error("Failed to submit application:", error);
+
+        // Show error toast
+        toast({
+          title: "Submission Failed",
+          description: "There was an error submitting your application. Please try again.",
+          status: "error",
+          duration: 5000,
+          isClosable: true,
+        });
       }
     }
   };
