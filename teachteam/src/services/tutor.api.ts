@@ -11,6 +11,15 @@ export interface Tutor {
   password: string;
 }
 
+export interface Application {
+  roles: string;
+  courseCode: string;
+  courseName: string;
+  outcome: string;
+  expressionOfInterest: string;
+  note: string;
+}
+
 export const tutorApi = {
   getAllTutors: async () => {
     const response = await api.get("/tutors");
@@ -41,5 +50,9 @@ export const tutorApi = {
     const response = await api.delete(`/tutors/${id}`);
     return response.data;
   },
-};
 
+  createApplication: async (application: Application) => {
+    const response = await api.post("/applications", application);
+    return response.data;
+  },
+};

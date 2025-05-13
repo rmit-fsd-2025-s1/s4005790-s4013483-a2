@@ -3,10 +3,10 @@ import { generateRolesList, Role } from "@/components/RolesList"; // Import gene
 import Header from "@/components/Header"; // Import Header component
 import Footer from "@/components/Footer"; // Import Footer component
 import { useUser } from "@/context/UserContext";
-import { useApplications } from "@/context/ApplicationsContext";
 import { useProfile } from "@/context/TutorProfileContext";
 import { useState, useEffect } from "react";
-import { Box, Heading, Text, Button, Menu, MenuList, MenuItemOption, MenuButton, MenuOptionGroup, Modal, ModalOverlay, ModalContent, ModalHeader, ModalFooter, ModalBody, ModalCloseButton, useDisclosure, FormControl, FormLabel, Textarea } from "@chakra-ui/react";
+import { Box, Heading, Text, Button, Menu, MenuList, MenuItemOption, MenuButton, MenuOptionGroup, Modal, ModalOverlay, ModalContent, ModalHeader, ModalFooter, ModalBody, ModalCloseButton, FormControl, FormLabel,Textarea, useDisclosure} from "@chakra-ui/react";
+import { tutorApi } from "@/services/tutor.api";
 
 export default function Tutor() {
   const { user } = useUser();
@@ -14,9 +14,7 @@ export default function Tutor() {
   const [courseList, setCourseList] = useState<Course[]>([]); // Dynamic course list from backend
   const [rolesList, setRolesList] = useState<Role[]>([]); // Dynamic roles list
   const [selectedCourses, setSelectedCourses] = useState<Course[]>([]); // Selected courses
-  const { applications, setApplications } = useApplications();
   const { isOpen, onOpen, onClose } = useDisclosure();
-  const { isOpen: isConfirmOpen, onOpen: onConfirmOpen, onClose: onConfirmClose } = useDisclosure();
   const [selectedRole, setSelectedRole] = useState<Role | null>(null);
   const [expressionOfInterest, setExpressionOfInterest] = useState("");
   const [note, setNote] = useState("");
@@ -53,7 +51,9 @@ export default function Tutor() {
   // Show roles (Tutor and Lab-Assistant) for the selected courses
   const showRoles = () => {
     return rolesList
-      .filter((role) => selectedCourses.some((course) => course.code === role.course.code))
+      .filter((role) =>
+        selectedCourses.some((course) => course.code === role.course.code)
+      )
       .map((role) => (
         <Box
           textAlign="left"
@@ -73,14 +73,6 @@ export default function Tutor() {
             <span style={{ fontWeight: "bold" }}>Course: </span>
             {role.course.name} <span>({role.course.code})</span>
           </Text>
-          <Text fontWeight="bold" mt={4} color="#032e5b">
-            About Role:
-          </Text>
-          <Text color="#032e5b">
-            {role.role === "Tutor"
-              ? "The tutor will assist in teaching courses, grading assignments, and providing support to students."
-              : "The lab assistant will help in managing labs, assisting students in practical sessions, and maintaining equipment."}
-          </Text>
           <Button
             onClick={() => openApplicationModal(role)}
             mt={4}
@@ -97,68 +89,40 @@ export default function Tutor() {
     onOpen();
   };
 
-  const enrol = () => {
+  const enrol = async () => {
     if (selectedRole) {
-      const newRole = { ...selectedRole, expressionOfInterest, note };
-      setApplications((prevApplications) => {
-        const newApplications = new Map(prevApplications || []);
-        if (user && newApplications.has(user.email)) {
-          if (
-            !newApplications
-              .get(user.email)
-              .some(
-                (existingRole: Role) =>
-                  existingRole.course.code === newRole.course.code &&
-                  existingRole.role === newRole.role
-              )
-          ) {
-            newApplications.set(user.email, [
-              ...newApplications.get(user.email),
-              newRole,
-            ]);
-          }
-        } else {
-          newApplications.set(user.email, [newRole]);
-        }
-        return newApplications;
-      });
-      onClose();
-      onConfirmOpen();
+      const application = {
+        roles: selectedRole.role,
+        courseCode: selectedRole.course.code,
+        courseName: selectedRole.course.name,
+        outcome: "Sent",
+        expressionOfInterest,
+        note,
+      };
+
+      try {
+        await tutorApi.createApplication(application); // Submit application to the backend
+        onClose(); // Close modal
+      } catch (error) {
+        console.error("Failed to submit application:", error);
+      }
     }
   };
 
   const userSkills = profile?.skills.split(", ") || [];
+  const courseSkills = selectedRole?.course.skills || [];
+  const skillsFulfilled = userSkills.filter((skill) =>
+    courseSkills.includes(skill)
+  );
 
   return (
     <Box display="flex" flexDirection="column" minHeight="100vh">
-      <Header /> {/* Ensure Header is correctly imported */}
+      <Header />
       <Box as="main" flex="1" w="100%" p={8} textAlign="center">
         <Heading as="h1" mb={8} color="#032e5b">
           Tutor Home Page
         </Heading>
         <Text color="#032e5b">Welcome, {user?.name}!</Text>
-        {selectedCourses.map((course) => (
-          <Box
-            key={course.code}
-            textAlign="left"
-            p={4}
-            borderWidth="1px"
-            borderRadius="lg"
-            mt={4}
-          >
-            <Heading as="h2" size="md" color="#032e5b">
-              {course.name} ({course.code})
-            </Heading>
-            <Text fontWeight="bold" mt={4} color="#032e5b">
-              Course Description:
-            </Text>
-            <Text color="#032e5b">{course.description}</Text>
-            <Text fontWeight="bold" mt={4} color="#032e5b">
-              Required Skills:
-            </Text>
-            <Text color="#032e5b">{course.skills.join(", ")}</Text>
-          </Box>
-        ))}
         <Menu closeOnSelect={false}>
           <MenuButton as={Button} mt={4} color="#032e5b">
             Select Courses
@@ -175,7 +139,61 @@ export default function Tutor() {
         </Menu>
         {showRoles()}
       </Box>
-      <Footer /> {/* Ensure Footer is correctly imported */}
+      <Modal isOpen={isOpen} onClose={onClose}>
+        <ModalOverlay />
+        <ModalContent>
+          <ModalHeader>Apply for Role</ModalHeader>
+          <ModalCloseButton />
+          <ModalBody>
+            {selectedRole && (
+              <>
+                <Text>
+                  <strong>Course Name:</strong> {selectedRole.course.name}
+                </Text>
+                <Text>
+                  <strong>Role:</strong> {selectedRole.role}
+                </Text>
+                <Text>
+                  <strong>Skills You Have:</strong> {userSkills.join(", ")}
+                </Text>
+                <Text>
+                  <strong>Skills Required:</strong>{" "}
+                  {selectedRole.course.skills.join(", ")}
+                </Text>
+                <Text>
+                  <strong>Skills Fulfilled:</strong> {skillsFulfilled.length}/
+                  {selectedRole.course.skills.length}
+                </Text>
+                <FormControl mt={4}>
+                  <FormLabel>Expression of Interest</FormLabel>
+                  <Textarea
+                    value={expressionOfInterest}
+                    onChange={(e) => setExpressionOfInterest(e.target.value)}
+                    placeholder="Write your expression of interest"
+                  />
+                </FormControl>
+                <FormControl mt={4}>
+                  <FormLabel>Note</FormLabel>
+                  <Textarea
+                    value={note}
+                    onChange={(e) => setNote(e.target.value)}
+                    placeholder="Add any additional notes"
+                  />
+                </FormControl>
+              </>
+            )}
+          </ModalBody>
+          <ModalFooter>
+            <Button colorScheme="blue" mr={3} onClick={enrol}>
+              Submit
+            </Button>
+            <Button variant="ghost" onClick={onClose}>
+              Cancel
+            </Button>
+          </ModalFooter>
+        </ModalContent>
+      </Modal>
+      <Footer />
     </Box>
   );
 }

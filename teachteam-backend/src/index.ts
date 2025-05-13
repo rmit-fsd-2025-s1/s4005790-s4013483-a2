@@ -5,6 +5,7 @@ import lecturerRoutes from "./routes/lecturer.routes";
 import tutorRoutes from "./routes/tutor.routes";
 import lecturerProfileRoutes from "./routes/lecturerProfile.routes";
 import courseRoutes from "./routes/course.routes";
+import applicationRoutes from "./routes/application.routes";
 import cors from "cors";
 const app = express();
 const PORT = process.env.PORT || 3001;
@@ -15,6 +16,7 @@ app.use("/api", lecturerRoutes);
 app.use("/api", tutorRoutes);
 app.use("/api", lecturerProfileRoutes);
 app.use("/api", courseRoutes);
+app.use("/api", applicationRoutes);
 
 AppDataSource.initialize()
   .then(() => {
