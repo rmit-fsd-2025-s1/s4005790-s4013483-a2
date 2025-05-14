@@ -5,7 +5,7 @@ import SubjectTable from "../components/SubjectTable";
 import { useUser } from "@/context/UserContext";
 import { useApplications } from "@/context/ApplicationsContext";
 import { useProfile } from "@/context/LecturerProfileContext";
-import { courseList } from "@/components/CoursesList";
+import { fetchCourses, Course } from "@/components/CoursesList";
 import { useUsersLists } from "@/context/UsersListsContext";
 import { useState, useEffect } from "react";
 
@@ -24,6 +24,7 @@ export default function Lecturer() {
   const [sortOption, setSortOption] = useState(""); // State for sorting option
   const [comments, setComments] = useState(new Map()); // Map to store comments keyed by tutor email
   const [newComment, setNewComment] = useState(""); // State for new comment input
+  const [courseList, setCourseList] = useState<Course[]>([]);
 
   // Load comments from localStorage on component mount
   useEffect(() => {
@@ -31,6 +32,11 @@ export default function Lecturer() {
     if (storedComments) {
       setComments(new Map(JSON.parse(storedComments)));
     }
+    const loadCourses = async () => {
+      const courses = await fetchCourses(); // Fetch courses from the backend
+      setCourseList(courses);
+    };
+    loadCourses();
   }, []);
 
   // Save comments to localStorage whenever they change
