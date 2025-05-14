@@ -135,4 +135,12 @@ export class LecturerProfileController {
   }
 }
 
+async attachCourses(request: Request, response: Response) {
+  const courseIds = request.params.courseIds;
+  const lecturerId = request.params.lecturerId;
+
+  const lecturerProfile = await this.lecturerProfileRepository.findOne({
+    where: { id: lecturerId },
+  });
+}
 

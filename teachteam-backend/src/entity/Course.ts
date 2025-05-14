@@ -1,4 +1,5 @@
-import { Entity, Column, PrimaryColumn } from "typeorm";
+import { Entity, Column, PrimaryColumn, ManyToMany } from "typeorm";
+import { LecturerProfile } from "./LecturerProfile";
 
 @Entity()
 export class Course {
@@ -13,4 +14,7 @@ export class Course {
 
   @Column("text")
   description: string;
+
+  @ManyToMany(() => LecturerProfile, (lecturerProfile) => lecturerProfile.courses)
+  lecturers: LecturerProfile[];
 }

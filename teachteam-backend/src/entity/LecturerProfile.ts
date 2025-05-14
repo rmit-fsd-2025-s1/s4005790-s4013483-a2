@@ -5,9 +5,12 @@ import {
   CreateDateColumn,
   UpdateDateColumn,
   OneToOne,
+  JoinTable,
+  ManyToMany,
 } from "typeorm";
 
 import { Lecturer } from "./Lecturer";
+import { Course } from "./Course";
 
 @Entity()
 export class LecturerProfile {
@@ -34,4 +37,8 @@ export class LecturerProfile {
 
   @OneToOne(() => Lecturer, (lecturer) => lecturer.profile)
   lecturer: Lecturer;
+
+  @ManyToMany(() => Course, (course) => course.lecturers)
+  @JoinTable()
+  courses: Course[];  
 }
