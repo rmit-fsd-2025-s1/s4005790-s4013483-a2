@@ -20,6 +20,14 @@ export interface Application {
   note: string;
 }
 
+export interface TutorProfile {
+  id?: number;
+  roles: string;
+  availability: string;
+  skills: string[];
+  credentials: { [key: string]: string };
+}
+
 export const tutorApi = {
   getAllTutors: async () => {
     const response = await api.get("/tutors");
@@ -53,6 +61,43 @@ export const tutorApi = {
 
   createApplication: async (application: Application) => {
     const response = await api.post("/applications", application);
+    return response.data;
+  },
+
+  getAllProfiles: async () => {
+    const response = await api.get("/tutor-profiles");
+    return response.data;
+  },
+
+  getProfileById: async (id: number) => {
+    const response = await api.get(`/tutor-profiles/${id}`);
+    return response.data;
+  },
+
+  getTutorProfileByEmail: async (email: string) => {
+    const response = await api.get(`/tutor-profiles?email=${email}`);
+    return response.data;
+  },
+
+  createProfile: async (profile: TutorProfile) => {
+    const response = await api.post("/tutor-profiles", profile);
+    return response.data;
+  },
+
+  updateProfile: async (id: number, profile: TutorProfile) => {
+    const response = await api.put(`/tutor-profiles/${id}`, profile);
+    return response.data;
+  },
+
+  saveTutorProfile: async (profile: TutorProfile) => {
+    if (profile.id) {
+      return await tutorApi.updateProfile(profile.id, profile);
+    }
+    return await tutorApi.createProfile(profile);
+  },
+
+  deleteProfile: async (id: number) => {
+    const response = await api.delete(`/tutor-profiles/${id}`);
     return response.data;
   },
 };
