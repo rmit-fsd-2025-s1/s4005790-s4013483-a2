@@ -5,7 +5,33 @@ import Footer from "@/components/Footer";
 import { useUser } from "@/context/UserContext";
 import { useProfile } from "@/context/TutorProfileContext";
 import { useState, useEffect } from "react";
-import { Box, Heading, Text, Button, Menu, MenuList, MenuItemOption, MenuButton, MenuOptionGroup, Modal, ModalOverlay, ModalContent, ModalHeader, ModalFooter, ModalBody, ModalCloseButton, FormControl, FormLabel, Textarea, useDisclosure, useToast, Tag, TagLabel, Wrap, WrapItem, } from "@chakra-ui/react";
+import {
+  Box,
+  Heading,
+  Text,
+  Button,
+  Menu,
+  MenuList,
+  MenuItemOption,
+  MenuButton,
+  MenuOptionGroup,
+  Modal,
+  ModalOverlay,
+  ModalContent,
+  ModalHeader,
+  ModalFooter,
+  ModalBody,
+  ModalCloseButton,
+  FormControl,
+  FormLabel,
+  Textarea,
+  useDisclosure,
+  useToast,
+  Tag,
+  TagLabel,
+  Wrap,
+  WrapItem,
+} from "@chakra-ui/react";
 import { tutorApi } from "@/services/tutor.api";
 
 export default function Tutor() {
@@ -18,11 +44,10 @@ export default function Tutor() {
   const [selectedRole, setSelectedRole] = useState<Role | null>(null);
   const [expressionOfInterest, setExpressionOfInterest] = useState("");
   const [note, setNote] = useState("");
-  // Use email as key (since that's what you want) NOT id
-  const profile = profiles.get(user?.email);
+  // Find the profile by email (not ID!)
+  const profile = Array.from(profiles.values()).find((p) => p.email === user?.email);
 
   const toast = useToast();
-
   const [userApplications, setUserApplications] = useState<any[]>([]);
 
   useEffect(() => {
@@ -146,29 +171,29 @@ export default function Tutor() {
     }
   };
 
-  // Robustly get user skills from profile as array (whether stored as string or array)
+  // Always robustly extract skills as array.
   let userSkills: string[] = [];
-  if (profile) {
+  if (profile && profile.skills) {
     if (Array.isArray(profile.skills)) {
-      userSkills = [...profile.skills];
+      userSkills = profile.skills;
     } else if (typeof profile.skills === "string") {
       try {
-        // Try to parse as JSON array
         const parsed = JSON.parse(profile.skills);
         if (Array.isArray(parsed)) {
           userSkills = parsed;
         } else {
-          userSkills = profile.skills.split(",").map(s => s.trim()).filter(Boolean);
+          userSkills = profile.skills.split(",").map((s: string) => s.trim()).filter(Boolean);
         }
       } catch {
-        userSkills = profile.skills.split(",").map(s => s.trim()).filter(Boolean);
+        userSkills = profile.skills.split(",").map((s: string) => s.trim()).filter(Boolean);
       }
     }
   }
-  // For modal, only show relevant skills the course needs (intersection)
+  // The course skills are always an array
   const courseSkills: string[] = (selectedRole?.course.skills as string[]) || [];
-  const skillsFulfilledArr: string[] = userSkills.filter(skill =>
-    courseSkills.includes(skill)
+  // Only show skills that are BOTH in userSkills and courseSkills
+  const skillsFulfilledArr: string[] = courseSkills.filter(skill =>
+    userSkills.includes(skill)
   );
 
   return (
