@@ -44,8 +44,9 @@ export default function Profiles() {
   const [profilesChange, setProfilesChange] = useState<TutorProfile>({
     roles: "",
     availability: "None",
-    skills: [], // Initialize as an empty array
-    credentials: {}, // Initialize as an empty object
+    skills: [],
+    credentials: {},
+    email: "", // <-- ensure email is present for upsert
   });
   const [createdAt, setCreatedAt] = useState<string>("Loading...");
   const { user } = useUser();
@@ -59,12 +60,21 @@ export default function Profiles() {
           const profile = await tutorApi.getTutorProfileByEmail(user.email);
           setProfilesChange({
             ...profile,
-            skills: profile.skills || [], // Fallback to an empty array
-            credentials: profile.credentials || {}, // Fallback to an empty object
+            skills: profile.skills || [],
+            credentials: profile.credentials || {},
+            email: user.email, // always ensure email is set
           });
           setCreatedAt(new Date(profile.createdAt).toLocaleDateString());
         } catch (error) {
-          console.error("Error fetching profile:", error);
+          // If no profile, initialize a blank profile with email
+          setProfilesChange({
+            roles: "",
+            availability: "None",
+            skills: [],
+            credentials: {},
+            email: user.email,
+          });
+          setCreatedAt("Not yet created");
         }
       };
       fetchProfile();
@@ -76,7 +86,8 @@ export default function Profiles() {
 
     if (user) {
       try {
-        await tutorApi.saveTutorProfile(profilesChange);
+        // Always send email for upsert
+        await tutorApi.saveTutorProfile({ ...profilesChange, email: user.email });
         onOpen();
       } catch (error) {
         console.error("Error saving profile:", error);
@@ -173,7 +184,7 @@ export default function Profiles() {
                       color="#032e5b"
                       key={skill}
                       name={skill}
-                      isChecked={profilesChange.skills?.includes(skill)} // Use optional chaining
+                      isChecked={profilesChange.skills?.includes(skill)}
                       onChange={handleChange}
                     >
                       {skill}
@@ -187,7 +198,7 @@ export default function Profiles() {
                       <Checkbox
                         color="#032e5b"
                         name={credential}
-                        isChecked={profilesChange.credentials?.[credential] !== undefined} // Use optional chaining
+                        isChecked={profilesChange.credentials?.[credential] !== undefined}
                         onChange={handleChange}
                       >
                         {credential}
@@ -196,7 +207,7 @@ export default function Profiles() {
                         <Input
                           color="#032e5b"
                           name={`${credential}_title`}
-                          value={profilesChange.credentials?.[credential] || ""} // Use fallback
+                          value={profilesChange.credentials?.[credential] || ""}
                           onChange={(e) => handleCredentialChange(e, credential)}
                           placeholder="Degree Title e.g. Bachelor of IT"
                         />

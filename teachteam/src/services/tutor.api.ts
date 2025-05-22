@@ -75,7 +75,7 @@ export const tutorApi = {
   },
 
   getTutorProfileByEmail: async (email: string) => {
-    const response = await api.get(`/tutor-profiles?email=${email}`);
+    const response = await api.get(`/tutor-profiles?email=${encodeURIComponent(email)}`);
     return response.data;
   },
 
@@ -90,10 +90,8 @@ export const tutorApi = {
   },
 
   saveTutorProfile: async (profile: TutorProfile) => {
-    if (profile.id) {
-      return await tutorApi.updateProfile(profile.id, profile);
-    }
-    return await tutorApi.createProfile(profile);
+    const response = await api.post("/tutor-profiles/upsert", profile);
+    return response.data;
   },
 
   deleteProfile: async (id: number) => {

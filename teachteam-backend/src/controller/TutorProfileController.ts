@@ -74,4 +74,44 @@ export class TutorProfileController {
     await this.tutorProfileRepository.remove(profileToRemove);
     return response.json({ message: "Profile removed successfully" });
   }
+
+  async getByEmail(request: Request, response: Response) {
+    const { email } = request.query;
+    if (!email) return response.status(400).json({ message: "Mising email" });
+    const profile = await this.tutorProfileRepository.findOne({ where: { email: String(email) } });
+    if (!profile) {
+      return response.status(404).json({ message: "Profile not found" });
+    }
+
+    return response.json(profile);
+  }
+
+  async upsertByEmail(request: Request, response: Response) {
+    const { email, roles, availability, skills, credentials } = request.body;
+    if (!email) return response.status(400).json({ message: "Missing email"});
+
+    let profile = await this.tutorProfileRepository.findOne({ where: { email } });
+    if (profile) {
+      profile.roles = roles;
+      profile.availability = availability;
+      profile.skills = skills;
+      profile.credentials = credentials;
+      profile.updatedAt = new Date();
+    } else {
+      profile = this.tutorProfileRepository.create({
+        email,
+        roles,
+        availability,
+        skills,
+        credentials,
+      });
+    }
+
+    try {
+      const savedProfile = await this.tutorProfileRepository.save(profile);
+      return response.json(savedProfile);
+    } catch (error) {
+      return response.status(400).json({ message: "Error saving profile", error });
+    }
+  }
 }

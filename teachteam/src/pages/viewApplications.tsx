@@ -1,21 +1,5 @@
 import { useEffect, useState } from "react";
-import {
-  Box,
-  Heading,
-  Text,
-  VStack,
-  Flex,
-  Badge,
-  Button,
-  useToast,
-  Divider,
-  Modal,
-  ModalOverlay,
-  ModalContent,
-  ModalHeader,
-  ModalBody,
-  ModalFooter,
-} from "@chakra-ui/react";
+import { Box, Heading, Text, VStack, Flex, Badge, Button, useToast, Divider, Modal, ModalOverlay, ModalContent, ModalHeader, ModalBody, ModalFooter } from "@chakra-ui/react";
 import Header from "../components/Header";
 import Footer from "../components/Footer";
 import { useUser } from "@/context/UserContext";
