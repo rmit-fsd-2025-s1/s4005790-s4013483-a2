@@ -1,35 +1,35 @@
-import { fetchCourses, Course } from "@/components/CoursesList"; // Import fetchCourses
-import { generateRolesList, Role } from "@/components/RolesList"; // Import generateRolesList
-import Header from "@/components/Header"; // Import Header component
-import Footer from "@/components/Footer"; // Import Footer component
+import { fetchCourses, Course } from "@/components/CoursesList";
+import { generateRolesList, Role } from "@/components/RolesList";
+import Header from "@/components/Header";
+import Footer from "@/components/Footer";
 import { useUser } from "@/context/UserContext";
 import { useProfile } from "@/context/TutorProfileContext";
 import { useState, useEffect } from "react";
-import { Box, Heading, Text, Button, Menu, MenuList, MenuItemOption, MenuButton, MenuOptionGroup, Modal, ModalOverlay, ModalContent, ModalHeader, ModalFooter, ModalBody, ModalCloseButton, FormControl, FormLabel, Textarea, useDisclosure, useToast, } from "@chakra-ui/react";
+import { Box, Heading, Text, Button, Menu, MenuList, MenuItemOption, MenuButton, MenuOptionGroup, Modal, ModalOverlay, ModalContent, ModalHeader, ModalFooter, ModalBody, ModalCloseButton, FormControl, FormLabel, Textarea, useDisclosure, useToast, Tag, TagLabel, Wrap, WrapItem, } from "@chakra-ui/react";
 import { tutorApi } from "@/services/tutor.api";
 
 export default function Tutor() {
   const { user } = useUser();
   const { profiles } = useProfile();
-  const [courseList, setCourseList] = useState<Course[]>([]); // Dynamic course list from backend
-  const [rolesList, setRolesList] = useState<Role[]>([]); // Dynamic roles list
-  const [selectedCourses, setSelectedCourses] = useState<Course[]>([]); // Selected courses
-  const { isOpen, onOpen, onClose } = useDisclosure(); // Modal disclosure
+  const [courseList, setCourseList] = useState<Course[]>([]);
+  const [rolesList, setRolesList] = useState<Role[]>([]);
+  const [selectedCourses, setSelectedCourses] = useState<Course[]>([]);
+  const { isOpen, onOpen, onClose } = useDisclosure();
   const [selectedRole, setSelectedRole] = useState<Role | null>(null);
   const [expressionOfInterest, setExpressionOfInterest] = useState("");
   const [note, setNote] = useState("");
+  // Use email as key (since that's what you want) NOT id
   const profile = profiles.get(user?.email);
-  const toast = useToast(); // Initialize Chakra UI toast
 
-  // NEW: Store user's applications
+  const toast = useToast();
+
   const [userApplications, setUserApplications] = useState<any[]>([]);
 
-  // Fetch courses, roles, and user's applications when the component mounts or user changes
   useEffect(() => {
     const loadCoursesRolesAndApplications = async () => {
-      const courses = await fetchCourses(); // Fetch courses from the backend
+      const courses = await fetchCourses();
       setCourseList(courses);
-      setRolesList(generateRolesList(courses)); // Generate roles dynamically
+      setRolesList(generateRolesList(courses));
       if (user?.email) {
         try {
           const apps = await tutorApi.getApplicationsByUser(user.email);
@@ -43,7 +43,6 @@ export default function Tutor() {
   }, [user?.email]);
 
   const handleSelect = (values: string[] | string) => {
-    // Update selected courses based on course codes
     setSelectedCourses(
       (Array.isArray(values) ? values : [values]).map(
         (code) => courseList.find((course) => course.code === code)!
@@ -51,7 +50,6 @@ export default function Tutor() {
     );
   };
 
-  // Updated to show only course names in the dropdown menu
   const selectCoursesList = () => {
     return courseList.map((course) => (
       <MenuItemOption value={course.code} key={course.code}>
@@ -60,7 +58,6 @@ export default function Tutor() {
     ));
   };
 
-  // Helper: already applied?
   const hasApplied = (role: Role) =>
     userApplications.some(
       (app) =>
@@ -68,8 +65,6 @@ export default function Tutor() {
         app.roles === role.role
     );
 
-  // Show roles (Tutor and Lab-Assistant) for the selected courses,
-  // but filter out roles the user has already applied for
   const showRoles = () => {
     return rolesList
       .filter(
@@ -112,11 +107,10 @@ export default function Tutor() {
     onOpen();
   };
 
-  // On submit: include user email and refresh applications after submit
   const enrol = async () => {
     if (selectedRole) {
       const application = {
-        email: user?.email, // include email
+        email: user?.email,
         roles: selectedRole.role,
         courseCode: selectedRole.course.code,
         courseName: selectedRole.course.name,
@@ -126,26 +120,21 @@ export default function Tutor() {
       };
 
       try {
-        await tutorApi.createApplication(application); // Submit application to the backend
-        // Re-fetch user's applications so UI updates instantly
+        await tutorApi.createApplication(application);
         if (user?.email) {
           const apps = await tutorApi.getApplicationsByUser(user.email);
           setUserApplications(apps);
         }
-        onClose(); // Close modal
-
-        // Show confirmation toast
+        onClose();
         toast({
           title: "Application Sent!",
           description: `Your application for the role of ${selectedRole.role} in ${selectedRole.course.name} has been submitted.`,
           status: "success",
-          duration: 5000, // Display the toast for 5 seconds
-          isClosable: true, // Allow the user to close the toast manually
+          duration: 5000,
+          isClosable: true,
         });
       } catch (error) {
         console.error("Failed to submit application:", error);
-
-        // Show error toast
         toast({
           title: "Submission Failed",
           description: "There was an error submitting your application. Please try again.",
@@ -157,9 +146,28 @@ export default function Tutor() {
     }
   };
 
-  const userSkills = profile?.skills.split(", ") || [];
-  const courseSkills = selectedRole?.course.skills || [];
-  const skillsFulfilled = userSkills.filter((skill) =>
+  // Robustly get user skills from profile as array (whether stored as string or array)
+  let userSkills: string[] = [];
+  if (profile) {
+    if (Array.isArray(profile.skills)) {
+      userSkills = [...profile.skills];
+    } else if (typeof profile.skills === "string") {
+      try {
+        // Try to parse as JSON array
+        const parsed = JSON.parse(profile.skills);
+        if (Array.isArray(parsed)) {
+          userSkills = parsed;
+        } else {
+          userSkills = profile.skills.split(",").map(s => s.trim()).filter(Boolean);
+        }
+      } catch {
+        userSkills = profile.skills.split(",").map(s => s.trim()).filter(Boolean);
+      }
+    }
+  }
+  // For modal, only show relevant skills the course needs (intersection)
+  const courseSkills: string[] = (selectedRole?.course.skills as string[]) || [];
+  const skillsFulfilledArr: string[] = userSkills.filter(skill =>
     courseSkills.includes(skill)
   );
 
@@ -201,16 +209,46 @@ export default function Tutor() {
                 <Text>
                   <strong>Role:</strong> {selectedRole.role}
                 </Text>
+                <Text mt={2}><strong>Skills You Have (relevant to this course):</strong></Text>
+                <Wrap mb={1}>
+                  {skillsFulfilledArr.length === 0 ? (
+                    <Tag size="sm" colorScheme="gray">
+                      <TagLabel>None</TagLabel>
+                    </Tag>
+                  ) : (
+                    skillsFulfilledArr.map((skill) => (
+                      <WrapItem key={skill}>
+                        <Tag size="sm" colorScheme="green">
+                          <TagLabel>{skill}</TagLabel>
+                        </Tag>
+                      </WrapItem>
+                    ))
+                  )}
+                </Wrap>
+                <Text mt={2}><strong>Skills Required for this course:</strong></Text>
+                <Wrap mb={1}>
+                  {courseSkills.length === 0 ? (
+                    <Tag size="sm" colorScheme="gray">
+                      <TagLabel>None specified</TagLabel>
+                    </Tag>
+                  ) : (
+                    courseSkills.map((skill) => (
+                      <WrapItem key={skill}>
+                        <Tag
+                          size="sm"
+                          colorScheme={
+                            skillsFulfilledArr.includes(skill) ? "green" : "red"
+                          }
+                        >
+                          <TagLabel>{skill}</TagLabel>
+                        </Tag>
+                      </WrapItem>
+                    ))
+                  )}
+                </Wrap>
                 <Text>
-                  <strong>Skills You Have:</strong> {userSkills.join(", ")}
-                </Text>
-                <Text>
-                  <strong>Skills Required:</strong>{" "}
-                  {selectedRole.course.skills.join(", ")}
-                </Text>
-                <Text>
-                  <strong>Skills Fulfilled:</strong> {skillsFulfilled.length}/
-                  {selectedRole.course.skills.length}
+                  <strong>Skills Fulfilled:</strong>{" "}
+                  {skillsFulfilledArr.length}/{courseSkills.length}
                 </Text>
                 <FormControl mt={4}>
                   <FormLabel>Expression of Interest</FormLabel>
