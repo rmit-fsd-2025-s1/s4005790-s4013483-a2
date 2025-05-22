@@ -22,4 +22,8 @@ export class CreateApplicationDTO {
 
   @IsString()
   note: string;
+
+  @IsString()
+  @IsNotEmpty()
+  email: string;
 }

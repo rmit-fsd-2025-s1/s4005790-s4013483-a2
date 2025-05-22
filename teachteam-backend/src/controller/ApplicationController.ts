@@ -6,7 +6,7 @@ export class ApplicationController {
   private applicationRepository = AppDataSource.getRepository(Application);
 
   async create(request: Request, response: Response) {
-    const { roles, courseCode, courseName, outcome, expressionOfInterest, note } = request.body;
+    const { roles, courseCode, courseName, outcome, expressionOfInterest, note, email } = request.body;
 
     const application = Object.assign(new Application(), {
       roles,
@@ -15,6 +15,7 @@ export class ApplicationController {
       outcome,
       expressionOfInterest,
       note,
+      email,
     });
 
     try {
@@ -28,6 +29,17 @@ export class ApplicationController {
   async getAll(request: Request, response: Response) {
     try {
       const applications = await this.applicationRepository.find();
+      return response.json(applications);
+    } catch (error) {
+      return response.status(500).json({ message: "Failed to fetch applications", error });
+    }
+  }
+
+  // Add this method to get apps by email
+  async getByEmail(request: Request, response: Response) {
+    const { email } = request.params;
+    try {
+      const applications = await this.applicationRepository.find({ where: { email } });
       return response.json(applications);
     } catch (error) {
       return response.status(500).json({ message: "Failed to fetch applications", error });

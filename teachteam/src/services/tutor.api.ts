@@ -100,4 +100,9 @@ export const tutorApi = {
     const response = await api.delete(`/tutor-profiles/${id}`);
     return response.data;
   },
+
+  getApplicationsByUser: async (email: string) => {
+    const response = await api.get(`/applications/email/${email}`);
+    return response.data
+  },
 };

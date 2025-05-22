@@ -14,4 +14,8 @@ router.get("/applications", async (req, res) => {
   await applicationController.getAll(req, res);
 });
 
+router.get("/applications/email/:email", async (req, res) => {
+  await applicationController.getByEmail(req, res);
+});
+
 export default router;

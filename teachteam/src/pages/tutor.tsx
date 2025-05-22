@@ -21,15 +21,26 @@ export default function Tutor() {
   const profile = profiles.get(user?.email);
   const toast = useToast(); // Initialize Chakra UI toast
 
-  // Fetch courses and generate roles when the component mounts
+  // NEW: Store user's applications
+  const [userApplications, setUserApplications] = useState<any[]>([]);
+
+  // Fetch courses, roles, and user's applications when the component mounts or user changes
   useEffect(() => {
-    const loadCoursesAndRoles = async () => {
+    const loadCoursesRolesAndApplications = async () => {
       const courses = await fetchCourses(); // Fetch courses from the backend
       setCourseList(courses);
       setRolesList(generateRolesList(courses)); // Generate roles dynamically
+      if (user?.email) {
+        try {
+          const apps = await tutorApi.getApplicationsByUser(user.email);
+          setUserApplications(apps);
+        } catch (err) {
+          setUserApplications([]);
+        }
+      }
     };
-    loadCoursesAndRoles();
-  }, []);
+    loadCoursesRolesAndApplications();
+  }, [user?.email]);
 
   const handleSelect = (values: string[] | string) => {
     // Update selected courses based on course codes
@@ -49,11 +60,22 @@ export default function Tutor() {
     ));
   };
 
-  // Show roles (Tutor and Lab-Assistant) for the selected courses
+  // Helper: already applied?
+  const hasApplied = (role: Role) =>
+    userApplications.some(
+      (app) =>
+        app.courseCode === role.course.code &&
+        app.roles === role.role
+    );
+
+  // Show roles (Tutor and Lab-Assistant) for the selected courses,
+  // but filter out roles the user has already applied for
   const showRoles = () => {
     return rolesList
-      .filter((role) =>
-        selectedCourses.some((course) => course.code === role.course.code)
+      .filter(
+        (role) =>
+          selectedCourses.some((course) => course.code === role.course.code) &&
+          !hasApplied(role)
       )
       .map((role) => (
         <Box
@@ -90,9 +112,11 @@ export default function Tutor() {
     onOpen();
   };
 
+  // On submit: include user email and refresh applications after submit
   const enrol = async () => {
     if (selectedRole) {
       const application = {
+        email: user?.email, // include email
         roles: selectedRole.role,
         courseCode: selectedRole.course.code,
         courseName: selectedRole.course.name,
@@ -103,6 +127,11 @@ export default function Tutor() {
 
       try {
         await tutorApi.createApplication(application); // Submit application to the backend
+        // Re-fetch user's applications so UI updates instantly
+        if (user?.email) {
+          const apps = await tutorApi.getApplicationsByUser(user.email);
+          setUserApplications(apps);
+        }
         onClose(); // Close modal
 
         // Show confirmation toast

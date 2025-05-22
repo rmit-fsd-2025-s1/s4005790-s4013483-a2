@@ -22,4 +22,7 @@ export class Application {
 
   @Column("text")
   note: string;
+
+  @Column()
+  email: string;
 }
