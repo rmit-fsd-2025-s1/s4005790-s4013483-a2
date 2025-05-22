@@ -105,4 +105,9 @@ export const tutorApi = {
     const response = await api.get(`/applications/email/${email}`);
     return response.data
   },
+
+  deleteApplication: async (id: number) => {
+    const response = await api.delete(`/applications/${id}`);
+    return response.data;
+  }
 };

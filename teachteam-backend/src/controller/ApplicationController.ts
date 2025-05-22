@@ -45,4 +45,16 @@ export class ApplicationController {
       return response.status(500).json({ message: "Failed to fetch applications", error });
     }
   }
+
+  async deleteById(request: Request, response: Response) {
+    const { id } = request.params;
+    try {
+      const result = await this.applicationRepository.delete(id);
+      if (result.affected === 0) {
+        return response.status(404).json({ message: "Application not found" });
+      }
+      return response.status(204).send();
+    } catch (error) {
+      return response.status(500).json({ message: "Failed to delete application", error });    }
+  }
 }

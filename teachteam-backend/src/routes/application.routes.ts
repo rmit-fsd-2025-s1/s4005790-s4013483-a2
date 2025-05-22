@@ -18,4 +18,8 @@ router.get("/applications/email/:email", async (req, res) => {
   await applicationController.getByEmail(req, res);
 });
 
+router.delete("/applications/:id", async (req, res) => {
+  await applicationController.deleteById(req, res);
+});
+
 export default router;
