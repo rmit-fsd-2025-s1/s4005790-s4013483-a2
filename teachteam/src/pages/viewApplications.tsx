@@ -1,29 +1,41 @@
+import { useEffect, useState } from "react";
 import { Box, Heading, Text, VStack, Grid, GridItem, Button, useToast } from "@chakra-ui/react";
 import Header from "../components/Header";
 import Footer from "../components/Footer";
 import { useUser } from "@/context/UserContext";
-import { useApplications } from "@/context/ApplicationsContext";
+import { tutorApi } from "@/services/tutor.api";
 
 export default function ViewApplications() {
   const { user } = useUser();
-  const { applications, setApplications } = useApplications();
   const toast = useToast();
 
-  const userApplications = applications.get(user?.email) || [];
+  // New: Store user's applications from backend
+  const [userApplications, setUserApplications] = useState<any[]>([]);
 
-  const handleWithdraw = (courseCode) => {
-    setApplications((prevApplications) => {
-      const newApplications = new Map(prevApplications);
-      const updatedRoles = newApplications.get(user?.email)?.filter(
-        (role) => role.course.code !== courseCode
-      );
-      if (updatedRoles?.length > 0) {
-        newApplications.set(user?.email, updatedRoles);
-      } else {
-        newApplications.delete(user?.email);
+  // Fetch user's applications from backend on mount or when user changes
+  useEffect(() => {
+    const fetchApplications = async () => {
+      if (user?.email) {
+        try {
+          const apps = await tutorApi.getApplicationsByUser(user.email);
+          setUserApplications(apps);
+        } catch {
+          setUserApplications([]);
+        }
       }
-      return newApplications;
-    });
+    };
+    fetchApplications();
+  }, [user?.email]);
+
+  // Optionally: Implement withdraw/delete functionality with backend
+  // For now, just remove from local state (UI only)
+  const handleWithdraw = (courseCode, roles) => {
+    setUserApplications((prev) =>
+      prev.filter(
+        (app) =>
+          !(app.courseCode === courseCode && app.roles === roles)
+      )
+    );
     toast({
       title: "Application Withdrawn",
       description: `You have successfully withdrawn your application for course ${courseCode}.`,
@@ -33,19 +45,13 @@ export default function ViewApplications() {
     });
   };
 
-  const handleDelete = (courseCode) => {
-    setApplications((prevApplications) => {
-      const newApplications = new Map(prevApplications);
-      const updatedRoles = newApplications.get(user?.email)?.filter(
-        (role) => role.course.code !== courseCode
-      );
-      if (updatedRoles?.length > 0) {
-        newApplications.set(user?.email, updatedRoles);
-      } else {
-        newApplications.delete(user?.email);
-      }
-      return newApplications;
-    });
+  const handleDelete = (courseCode, roles) => {
+    setUserApplications((prev) =>
+      prev.filter(
+        (app) =>
+          !(app.courseCode === courseCode && app.roles === roles)
+      )
+    );
     toast({
       title: "Application Deleted",
       description: `You have successfully deleted the rejected application for course ${courseCode}.`,
@@ -67,35 +73,47 @@ export default function ViewApplications() {
             <Box key={index} p={4} borderWidth="1px" borderRadius="lg" boxShadow="md">
               <Grid templateColumns="repeat(2, 1fr)" gap={6}>
                 <GridItem>
-                  <Text color="#032e5b"><strong>Course:</strong> {application.course.name}</Text>
+                  <Text color="#032e5b">
+                    <strong>Course:</strong> {application.courseName}
+                  </Text>
                 </GridItem>
                 <GridItem>
-                  <Text color="#032e5b"><strong>Code:</strong> {application.course.code}</Text>
+                  <Text color="#032e5b">
+                    <strong>Code:</strong> {application.courseCode}
+                  </Text>
                 </GridItem>
                 <GridItem>
-                  <Text color="#032e5b"><strong>Role:</strong> {application.role}</Text>
+                  <Text color="#032e5b">
+                    <strong>Role:</strong> {application.roles}
+                  </Text>
                 </GridItem>
                 <GridItem>
-                  <Text color="#032e5b"><strong>Outcome:</strong> {application.status || "Sent"}</Text>
+                  <Text color="#032e5b">
+                    <strong>Outcome:</strong> {application.outcome || "Sent"}
+                  </Text>
                 </GridItem>
                 <GridItem colSpan={2}>
-                  <Text color="#032e5b"><strong>Expression of Interest:</strong> {application.expressionOfInterest}</Text>
+                  <Text color="#032e5b">
+                    <strong>Expression of Interest:</strong> {application.expressionOfInterest}
+                  </Text>
                 </GridItem>
                 <GridItem colSpan={2}>
-                  <Text color="#032e5b"><strong>Note:</strong> {application.note}</Text>
+                  <Text color="#032e5b">
+                    <strong>Note:</strong> {application.note}
+                  </Text>
                 </GridItem>
                 <GridItem colSpan={2} color="#032e5b">
-                  {application.status === "Rejected" ? (
+                  {application.outcome === "Rejected" ? (
                     <Button
                       colorScheme="red"
-                      onClick={() => handleDelete(application.course.code)}
+                      onClick={() => handleDelete(application.courseCode, application.roles)}
                     >
                       Delete
                     </Button>
                   ) : (
                     <Button
                       colorScheme="orange"
-                      onClick={() => handleWithdraw(application.course.code)}
+                      onClick={() => handleWithdraw(application.courseCode, application.roles)}
                     >
                       Withdraw
                     </Button>
