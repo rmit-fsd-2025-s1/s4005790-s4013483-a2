@@ -18,6 +18,10 @@ export interface Application {
   outcome: string;
   expressionOfInterest: string;
   note: string;
+  email: string;
+  courseSkills: string[];
+  tutorSkills: string[];
+  skillsFulfilled: string;
 }
 
 export interface TutorProfile {

@@ -25,4 +25,13 @@ export class Application {
 
   @Column()
   email: string;
+
+  @Column("json")
+  courseSkills: string[];
+
+  @Column("json")
+  tutorSkills: string[];
+
+  @Column()
+  skillsFulfilled: string;
 }

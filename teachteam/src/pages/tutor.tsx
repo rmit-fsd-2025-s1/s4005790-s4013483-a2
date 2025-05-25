@@ -132,8 +132,35 @@ export default function Tutor() {
     onOpen();
   };
 
+  // Always robustly extract skills as array.
+  let userSkills: string[] = [];
+  if (profile && profile.skills) {
+    if (Array.isArray(profile.skills)) {
+      userSkills = profile.skills;
+    } else if (typeof profile.skills === "string") {
+      try {
+        const parsed = JSON.parse(profile.skills);
+        if (Array.isArray(parsed)) {
+          userSkills = parsed;
+        } else {
+          userSkills = profile.skills.split(",").map((s: string) => s.trim()).filter(Boolean);
+        }
+      } catch {
+        userSkills = profile.skills.split(",").map((s: string) => s.trim()).filter(Boolean);
+      }
+    }
+  }
+  // The course skills are always an array
+  const courseSkills: string[] = (selectedRole?.course.skills as string[]) || [];
+  // Only show skills that are BOTH in userSkills and courseSkills
+  const skillsFulfilledArr: string[] = courseSkills.filter(skill =>
+    userSkills.includes(skill)
+  );
+  const skillsFulfilled = `${skillsFulfilledArr.length}/${courseSkills.length}`;
+
   const enrol = async () => {
     if (selectedRole) {
+      // Compose the application object with the new fields
       const application = {
         email: user?.email,
         roles: selectedRole.role,
@@ -142,6 +169,9 @@ export default function Tutor() {
         outcome: "Sent",
         expressionOfInterest,
         note,
+        courseSkills,
+        tutorSkills: userSkills,
+        skillsFulfilled,
       };
 
       try {
@@ -170,31 +200,6 @@ export default function Tutor() {
       }
     }
   };
-
-  // Always robustly extract skills as array.
-  let userSkills: string[] = [];
-  if (profile && profile.skills) {
-    if (Array.isArray(profile.skills)) {
-      userSkills = profile.skills;
-    } else if (typeof profile.skills === "string") {
-      try {
-        const parsed = JSON.parse(profile.skills);
-        if (Array.isArray(parsed)) {
-          userSkills = parsed;
-        } else {
-          userSkills = profile.skills.split(",").map((s: string) => s.trim()).filter(Boolean);
-        }
-      } catch {
-        userSkills = profile.skills.split(",").map((s: string) => s.trim()).filter(Boolean);
-      }
-    }
-  }
-  // The course skills are always an array
-  const courseSkills: string[] = (selectedRole?.course.skills as string[]) || [];
-  // Only show skills that are BOTH in userSkills and courseSkills
-  const skillsFulfilledArr: string[] = courseSkills.filter(skill =>
-    userSkills.includes(skill)
-  );
 
   return (
     <Box display="flex" flexDirection="column" minHeight="100vh">

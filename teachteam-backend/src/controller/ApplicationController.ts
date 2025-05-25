@@ -6,7 +6,7 @@ export class ApplicationController {
   private applicationRepository = AppDataSource.getRepository(Application);
 
   async create(request: Request, response: Response) {
-    const { roles, courseCode, courseName, outcome, expressionOfInterest, note, email } = request.body;
+    const { roles, courseCode, courseName, outcome, expressionOfInterest, note, email, courseSkills, tutorSkills, skillsFulfilled } = request.body;
 
     const application = Object.assign(new Application(), {
       roles,
@@ -16,6 +16,9 @@ export class ApplicationController {
       expressionOfInterest,
       note,
       email,
+      courseSkills,
+      tutorSkills,
+      skillsFulfilled,
     });
 
     try {

@@ -1,4 +1,4 @@
-import { IsNotEmpty, IsString } from "class-validator";
+import { IsNotEmpty, IsString, IsArray } from "class-validator";
 
 export class CreateApplicationDTO {
   @IsString()
@@ -26,4 +26,14 @@ export class CreateApplicationDTO {
   @IsString()
   @IsNotEmpty()
   email: string;
+
+  @IsArray()
+  courseSkills: string[];
+
+  @IsArray()
+  tutorSkills: string[];
+
+  @IsString()
+  @IsNotEmpty()
+  skillsFulfilled: string;
 }
