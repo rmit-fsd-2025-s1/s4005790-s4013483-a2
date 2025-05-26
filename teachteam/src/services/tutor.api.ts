@@ -111,5 +111,10 @@ export const tutorApi = {
   deleteApplication: async (id: number) => {
     const response = await api.delete(`/applications/${id}`);
     return response.data;
-  }
+  },
+
+  getApplicationsByCourse: async (courseCode: string) => {
+    const response = await api.get(`/applications/course/${courseCode}`);
+    return response.data;
+  },
 };

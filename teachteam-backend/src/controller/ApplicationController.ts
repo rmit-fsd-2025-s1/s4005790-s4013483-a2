@@ -60,4 +60,14 @@ export class ApplicationController {
     } catch (error) {
       return response.status(500).json({ message: "Failed to delete application", error });    }
   }
+
+  async getByCourse(request: Request, response: Response) {
+    const { courseCode } = request.params;
+    try {
+      const apps = await this.applicationRepository.find({ where: { courseCode } });
+      return response.json(apps);
+    } catch (e) {
+      return response.status(500).json({ message: "Failed to fetch applications by course", error: e});
+    }
+  }
 }

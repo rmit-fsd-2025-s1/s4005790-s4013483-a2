@@ -22,4 +22,8 @@ router.delete("/applications/:id", async (req, res) => {
   await applicationController.deleteById(req, res);
 });
 
+router.get("applications/course/:courseCode", async (req, res) => {
+  await applicationController.getByCourse(req,res);
+});
+
 export default router;

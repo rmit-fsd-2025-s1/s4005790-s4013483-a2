@@ -13,6 +13,19 @@ export interface Lecturer {
   profile: LecturerProfile;
 }
 
+export interface Application {
+  roles: string;
+  courseCode: string;
+  courseName: string;
+  outcome: string;
+  expressionOfInterest: string;
+  note: string;
+  email: string;
+  courseSkills: string[];
+  tutorSkills: string[];
+  skillsFulfilled: string;
+}
+
 export const lecturerApi = {
   getAllLecturers: async () => {
     const response = await api.get("/lecturers");
@@ -53,5 +66,30 @@ export const lecturerApi = {
     const response = await api.get(`/lecturers/${lecturerId}/profile`);
     return response.data;
   },
-};
 
+  // --- APPLICATIONS for lecturers ---
+
+  getAllApplications: async (): Promise<Application[]> => {
+    const response = await api.get("/applications");
+    return response.data;
+  },
+
+  getApplicationsByCourse: async (courseCode: string): Promise<Application[]> => {
+    const response = await api.get(`/applications/course/${courseCode}`);
+    return response.data;
+  },
+
+  getApplicationById: async (id: number): Promise<Application> => {
+    const response = await api.get(`/applications/${id}`);
+    return response.data;
+  },
+
+  updateApplicationOutcome: async (id: number, outcome: string): Promise<Application> => {
+    const response = await api.patch(`/applications/${id}`, { outcome });
+    return response.data;
+  },
+
+  deleteApplication: async (id: number): Promise<void> => {
+    await api.delete(`/applications/${id}`);
+  },
+};

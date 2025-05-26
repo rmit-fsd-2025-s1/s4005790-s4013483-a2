@@ -1,26 +1,44 @@
-import React, { useState } from "react";
-import { Modal, ModalOverlay, ModalContent, ModalHeader, ModalBody, ModalFooter, Button, Text, VStack, HStack, Select } from "@chakra-ui/react";
-import { useApplications } from "@/context/ApplicationsContext";
+import React, { useState, useEffect } from "react";
+import {
+  Modal, ModalOverlay, ModalContent, ModalHeader, ModalBody, ModalFooter,
+  Button, Text, VStack, HStack, Select
+} from "@chakra-ui/react";
 import { useUsersLists } from "@/context/UsersListsContext";
+import { tutorApi } from "@/services/tutor.api";
 
 const RankApplicationsModal = ({ isOpen, onClose, courseCode }) => {
-  const { applications, setApplications } = useApplications();
+  const [applications, setApplications] = useState([]);
   const { usersList } = useUsersLists();
-  const approvedApplications = Array.from(applications.entries())
-    .flatMap(([email, roles]) =>
-      roles.filter((role) => role.course.code === courseCode && role.status === "Approved").map((role) => ({
-        email,
-        ...role,
-      }))
+  const [rankings, setRankings] = useState([]);
+
+  // Fetch applications for the course when modal opens or courseCode changes
+  useEffect(() => {
+    if (isOpen && courseCode) {
+      tutorApi.getApplicationsByCourse(courseCode).then((apps) => {
+        // Filter for approved applications only
+        const approved = apps.filter((app) => app.outcome === "Approved");
+        setApplications(approved);
+        // Reset rankings when applications change
+        setRankings(
+          approved.map((app, i) => ({
+            rank: i + 1,
+            email: null,
+          }))
+        );
+      });
+    }
+  }, [isOpen, courseCode]);
+
+  // Helper: Get available options for each rank (cannot select same candidate twice)
+  const getAvailableOptions = (currentEmail) => {
+    const selectedEmails = rankings.map((item) => item.email);
+    return applications.filter(
+      (app) =>
+        !selectedEmails.includes(app.email) || app.email === currentEmail
     );
+  };
 
-  const [rankings, setRankings] = useState(() =>
-    Array.from({ length: approvedApplications.length }, (_, i) => ({
-      rank: i + 1,
-      email: null,
-    }))
-  );
-
+  // Handle selection change
   const handleNameChange = (rank, selectedEmail) => {
     setRankings((prev) =>
       prev.map((item) =>
@@ -29,28 +47,11 @@ const RankApplicationsModal = ({ isOpen, onClose, courseCode }) => {
     );
   };
 
-  const getAvailableOptions = (currentEmail) => {
-    const selectedEmails = rankings.map((item) => item.email);
-    return approvedApplications.filter(
-      (app) =>
-        !selectedEmails.includes(app.email) || app.email === currentEmail
-    );
-  };
-
+  // Save rankings (implement actual saving logic as needed)
   const handleSave = () => {
-    setApplications((prevApplications) => {
-      const newApplications = new Map(prevApplications);
-      rankings.forEach(({ email, rank }) => {
-        if (email) {
-          const userRoles = newApplications.get(email) || [];
-          const updatedRoles = userRoles.map((role) =>
-            role.course.code === courseCode ? { ...role, rank } : role
-          );
-          newApplications.set(email, updatedRoles);
-        }
-      });
-      return newApplications;
-    });
+    // You need to POST/PATCH rankings to backend if you want them stored
+    // Here you can call a backend endpoint or update local state
+    // Example: tutorApi.saveRankings(courseCode, rankings)
     onClose();
   };
 
@@ -73,7 +74,7 @@ const RankApplicationsModal = ({ isOpen, onClose, courseCode }) => {
                   {getAvailableOptions(ranking.email).map((app) => (
                     <option key={app.email} value={app.email}>
                       {usersList.find((user) => user.email === app.email)?.name ||
-                        "Unknown"}
+                        app.email}
                     </option>
                   ))}
                 </Select>

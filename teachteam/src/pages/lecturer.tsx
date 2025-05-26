@@ -3,74 +3,84 @@ import Header from "../components/Header";
 import Footer from "../components/Footer";
 import SubjectTable from "../components/SubjectTable";
 import { useUser } from "@/context/UserContext";
-import { useApplications } from "@/context/ApplicationsContext";
 import { useProfile } from "@/context/LecturerProfileContext";
 import { fetchCourses, Course } from "@/components/CoursesList";
 import { useUsersLists } from "@/context/UsersListsContext";
 import { useState, useEffect } from "react";
+import { lecturerApi, Application as LecturerApplication } from "@/services/lecturer.api";
 
 export default function Lecturer() {
   const { user } = useUser();
-  const { applications, setApplications } = useApplications();
   const { profiles } = useProfile();
   const { usersList } = useUsersLists();
   const { isOpen, onOpen, onClose } = useDisclosure();
   const { isOpen: isProfileOpen, onOpen: onProfileOpen, onClose: onProfileClose } = useDisclosure();
-  const [selectedApplication, setSelectedApplication] = useState(null);
-  const [selectedProfile, setSelectedProfile] = useState(null);
-  const [selectedCourse] = useState("All"); // State for the dropdown filter
-  const [searchQuery, setSearchQuery] = useState({ courseName: "", tutorName: "", availability: "", skill: "" }); // State for search queries
-  const [searchResults, setSearchResults] = useState(null);
-  const [sortOption, setSortOption] = useState(""); // State for sorting option
-  const [comments, setComments] = useState(new Map()); // Map to store comments keyed by tutor email
-  const [newComment, setNewComment] = useState(""); // State for new comment input
+  const [selectedApplication, setSelectedApplication] = useState<any>(null);
+  const [selectedProfile, setSelectedProfile] = useState<any>(null);
+  const [selectedCourse] = useState("All");
+  const [searchQuery, setSearchQuery] = useState({ courseName: "", tutorName: "", availability: "", skill: "" });
+  const [searchResults, setSearchResults] = useState<any[] | null>(null);
+  const [sortOption, setSortOption] = useState("");
+  const [comments, setComments] = useState<Map<string, any[]>>(new Map());
+  const [newComment, setNewComment] = useState("");
   const [courseList, setCourseList] = useState<Course[]>([]);
+  const [allApplications, setAllApplications] = useState<LecturerApplication[]>([]);
 
-  // Load comments from localStorage on component mount
+  // Fetch all applications for all tutors from backend - use lecturerApi, not tutorApi
   useEffect(() => {
-    const storedComments = localStorage.getItem("comments");
-    if (storedComments) {
-      setComments(new Map(JSON.parse(storedComments)));
-    }
-    const loadCourses = async () => {
-      const courses = await fetchCourses(); // Fetch courses from the backend
-      setCourseList(courses);
-    };
-    loadCourses();
+    lecturerApi.getAllApplications().then(setAllApplications);
   }, []);
 
-  // Save comments to localStorage whenever they change
+  // Load comments and courses
+  useEffect(() => {
+    const storedComments = localStorage.getItem("comments");
+    if (storedComments) setComments(new Map(JSON.parse(storedComments)));
+    fetchCourses().then(setCourseList);
+  }, []);
+
   useEffect(() => {
     localStorage.setItem("comments", JSON.stringify(Array.from(comments.entries())));
   }, [comments]);
 
-  // Gets all applications from tutors which have yet to be approved
+  // Process applications for display
   const getTutorApplications = () => {
-    return Array.from(applications.entries())
-      .flatMap(([email, roles]) => {
-        const user = usersList.find(user => user.email === email);
-        return roles
-          .filter(role => role.status !== "Approved") // Exclude approved applications
-          .map(role => {
-            const profile = profiles.get(email);
-            const course = courseList.find(course => course.code === role.course.code);
-            const tutorSkills = profile?.skills.split(", ").filter(skill => skill !== "parttime" && skill !== "fulltime") || [];
-            const fulfilledSkills = tutorSkills.filter(skill => course?.skills.includes(skill)).length;
-
-            return {
-              email,
-              name: user?.name || "Unknown",
-              courseName: course?.name || "Unknown",
-              courseCode: role.course.code,
-              skillsFulfilled: `${fulfilledSkills}/${course?.skills.length}`,
-              expressionOfInterest: role.expressionOfInterest,
-              note: role.note,
-              requiredSkills: course?.skills.join(", ") || "",
-              tutorSkills: tutorSkills.join(", ") || "",
-              availability: profile?.availability || "Unknown",
-              profile
-            };
-          });
+    return allApplications
+      .filter(app => app.outcome !== "Approved") // Only show not-approved
+      .map(app => {
+        const userObj = usersList.find(u => u.email === app.email);
+        const profile = profiles.get(app.email);
+        const course = courseList.find(c => c.code === app.courseCode);
+        // Robustly parse skills as array
+        let tutorSkills: string[] = [];
+        if (app.tutorSkills && Array.isArray(app.tutorSkills)) {
+          tutorSkills = app.tutorSkills;
+        } else if (profile && profile.skills) {
+          if (Array.isArray(profile.skills)) tutorSkills = profile.skills;
+          else if (typeof profile.skills === "string") {
+            try {
+              const parsed = JSON.parse(profile.skills);
+              if (Array.isArray(parsed)) tutorSkills = parsed;
+              else tutorSkills = profile.skills.split(",").map(s => s.trim()).filter(Boolean);
+            } catch {
+              tutorSkills = profile.skills.split(",").map(s => s.trim()).filter(Boolean);
+            }
+          }
+        }
+        const requiredSkills: string[] = app.courseSkills || course?.skills || [];
+        const fulfilledSkills = tutorSkills.filter(skill => requiredSkills.includes(skill)).length;
+        return {
+          email: app.email,
+          name: userObj?.name || "Unknown",
+          courseName: app.courseName || course?.name || "Unknown",
+          courseCode: app.courseCode,
+          skillsFulfilled: app.skillsFulfilled || `${fulfilledSkills}/${requiredSkills.length}`,
+          expressionOfInterest: app.expressionOfInterest,
+          note: app.note,
+          requiredSkills: requiredSkills.join(", "),
+          tutorSkills: tutorSkills.join(", "),
+          availability: profile?.availability || "Unknown",
+          profile
+        };
       });
   };
 
@@ -81,7 +91,7 @@ export default function Lecturer() {
     ? tutorApplications
     : tutorApplications.filter(application => application.courseCode === selectedCourse));
 
-  // Sort applications based on the selected sort option
+  // Sort applications
   const sortedApplications = [...filteredApplications].sort((a, b) => {
     if (sortOption === "courseName") {
       return a.courseName.localeCompare(b.courseName);
@@ -91,29 +101,29 @@ export default function Lecturer() {
     return 0;
   });
 
-  const handleViewApplication = (application) => {
+  const handleViewApplication = (application: any) => {
     setSelectedApplication(application);
     onOpen();
   };
 
-  const handleViewProfile = (email) => {
+  const handleViewProfile = (email: string) => {
     const profile = profiles.get(email);
-    const user = usersList.find(user => user.email === email);
-    setSelectedProfile({ ...profile, name: user?.name || "Unknown", email });
+    const userObj = usersList.find(user => user.email === email);
+    setSelectedProfile({ ...profile, name: userObj?.name || "Unknown", email });
     onProfileOpen();
   };
 
+  // Approve/Reject logic should also be sent to backend if needed!
+  // Only updates local UI here, you may want to PATCH the backend.
   const handleApproveApplication = () => {
     if (selectedApplication) {
-      setApplications((prevApplications) => {
-        const newApplications = new Map(prevApplications);
-        const roles = newApplications.get(selectedApplication.email) || [];
-        const updatedRoles = roles.map(role => 
-          role.course.code === selectedApplication.courseCode ? { ...role, status: "Approved" } : role
-        );
-        newApplications.set(selectedApplication.email, updatedRoles);
-        return newApplications;
-      });
+      setAllApplications(prev =>
+        prev.map(app =>
+          app.email === selectedApplication.email && app.courseCode === selectedApplication.courseCode
+            ? { ...app, outcome: "Approved" }
+            : app
+        )
+      );
       setSelectedApplication(null);
       onClose();
     }
@@ -121,17 +131,11 @@ export default function Lecturer() {
 
   const handleRejectApplication = () => {
     if (selectedApplication) {
-      setApplications((prevApplications) => {
-        const newApplications = new Map(prevApplications);
-        const roles = newApplications.get(selectedApplication.email) || [];
-        const updatedRoles = roles.filter(role => role.course.code !== selectedApplication.courseCode);
-        if (updatedRoles.length > 0) {
-          newApplications.set(selectedApplication.email, updatedRoles);
-        } else {
-          newApplications.delete(selectedApplication.email);
-        }
-        return newApplications;
-      });
+      setAllApplications(prev =>
+        prev.filter(app =>
+          !(app.email === selectedApplication.email && app.courseCode === selectedApplication.courseCode)
+        )
+      );
       setSelectedApplication(null);
       onClose();
     }
@@ -143,10 +147,8 @@ export default function Lecturer() {
       const matchesTutorName = searchQuery.tutorName === "" || application.name.toLowerCase().includes(searchQuery.tutorName.toLowerCase());
       const matchesAvailability = searchQuery.availability === "" || application.availability === searchQuery.availability;
       const matchesSkill = searchQuery.skill === "" || application.tutorSkills.toLowerCase().includes(searchQuery.skill.toLowerCase());
-
       return matchesCourseName && matchesTutorName && matchesAvailability && matchesSkill;
     });
-
     setSearchResults(results);
   };
 
@@ -158,7 +160,7 @@ export default function Lecturer() {
         updatedComments.set(selectedProfile.email, [...tutorComments, { author: user.name, text: newComment }]);
         return updatedComments;
       });
-      setNewComment(""); // Clear the input field
+      setNewComment("");
     }
   };
 
