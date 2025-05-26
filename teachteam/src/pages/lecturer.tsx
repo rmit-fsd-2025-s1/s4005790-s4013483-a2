@@ -26,10 +26,22 @@ export default function Lecturer() {
   const [newComment, setNewComment] = useState("");
   const [courseList, setCourseList] = useState<Course[]>([]);
   const [allApplications, setAllApplications] = useState<LecturerApplication[]>([]);
+  const [tutorProfiles, setTutorProfiles] = useState<Map<string, any>>(new Map());
 
   // Fetch all applications for all tutors from backend - use lecturerApi, not tutorApi
   useEffect(() => {
     lecturerApi.getAllApplications().then(setAllApplications);
+  }, []);
+
+  // Fetch all tutor profiles for accurate availability and other info
+  useEffect(() => {
+    tutorApi.getAllProfiles().then((profiles: any[]) => {
+      const map = new Map();
+      profiles.forEach(profile => {
+        map.set(profile.email, profile);
+      });
+      setTutorProfiles(map);
+    });
   }, []);
 
   // Load comments and courses
@@ -49,7 +61,7 @@ export default function Lecturer() {
       .filter(app => app.outcome !== "Approved")
       .map(app => {
         const userObj = usersList.find(u => u.email === app.email);
-        const profile = profiles.get(app.email);
+        const profile = tutorProfiles.get(app.email); // Use full fetched profile for availability
         const course = courseList.find(c => c.code === app.courseCode);
         // Robustly parse skills as array
         let tutorSkills: string[] = [];
@@ -109,7 +121,7 @@ export default function Lecturer() {
 
   // Fetch tutor profile by email when lecturer clicks name
   const handleViewProfile = async (email: string) => {
-    let profile = profiles.get(email);
+    let profile = tutorProfiles.get(email) || profiles.get(email);
     try {
       const fetchedProfile = await tutorApi.getTutorProfileByEmail(email);
       profile = { ...profile, ...fetchedProfile };
