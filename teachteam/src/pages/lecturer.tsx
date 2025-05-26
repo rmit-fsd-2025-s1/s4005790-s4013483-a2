@@ -8,6 +8,7 @@ import { fetchCourses, Course } from "@/components/CoursesList";
 import { useUsersLists } from "@/context/UsersListsContext";
 import { useState, useEffect } from "react";
 import { lecturerApi, Application as LecturerApplication } from "@/services/lecturer.api";
+import { tutorApi } from "@/services/tutor.api";
 
 export default function Lecturer() {
   const { user } = useUser();
@@ -45,7 +46,7 @@ export default function Lecturer() {
   // Process applications for display
   const getTutorApplications = () => {
     return allApplications
-      .filter(app => app.outcome !== "Approved") // Only show not-approved
+      .filter(app => app.outcome !== "Approved")
       .map(app => {
         const userObj = usersList.find(u => u.email === app.email);
         const profile = profiles.get(app.email);
@@ -106,15 +107,20 @@ export default function Lecturer() {
     onOpen();
   };
 
-  const handleViewProfile = (email: string) => {
-    const profile = profiles.get(email);
+  // Fetch tutor profile by email when lecturer clicks name
+  const handleViewProfile = async (email: string) => {
+    let profile = profiles.get(email);
+    try {
+      const fetchedProfile = await tutorApi.getTutorProfileByEmail(email);
+      profile = { ...profile, ...fetchedProfile };
+    } catch (err) {
+      // If not found, use whatever we have (may be blank)
+    }
     const userObj = usersList.find(user => user.email === email);
     setSelectedProfile({ ...profile, name: userObj?.name || "Unknown", email });
     onProfileOpen();
   };
 
-  // Approve/Reject logic should also be sent to backend if needed!
-  // Only updates local UI here, you may want to PATCH the backend.
   const handleApproveApplication = () => {
     if (selectedApplication) {
       setAllApplications(prev =>
@@ -284,15 +290,21 @@ export default function Lecturer() {
             {selectedProfile ? (
               <>
                 <Text color="#032e5b"><strong>Name:</strong> {selectedProfile.name}</Text>
-                <Text color="#032e5b"><strong>Availability:</strong> {selectedProfile.availability}</Text>
-                <Text color="#032e5b"><strong>Previous Roles:</strong> {selectedProfile.roles}</Text>
-                <Text color="#032e5b"><strong>Skills:</strong> {selectedProfile.skills}</Text>
+                <Text color="#032e5b"><strong>Availability:</strong> {selectedProfile.availability || "-"}</Text>
+                <Text color="#032e5b"><strong>Previous Roles:</strong> {selectedProfile.roles || "-"}</Text>
+                <Text color="#032e5b"><strong>Skills:</strong> {
+                  selectedProfile.skills && Array.isArray(selectedProfile.skills)
+                    ? selectedProfile.skills.join(", ")
+                    : selectedProfile.skills || "-"
+                }</Text>
                 <Text color="#032e5b">
                   <strong>Academic Credentials:</strong>{" "}
-                  {Object.keys(selectedProfile.credentials || {})
-                    .filter((key) => selectedProfile.credentials[key] !== undefined)
-                    .map((key) => `${key} (${selectedProfile.credentials[key]})`)
-                    .join(", ")}
+                  {selectedProfile.credentials && typeof selectedProfile.credentials === "object"
+                    ? Object.keys(selectedProfile.credentials)
+                        .filter((key) => selectedProfile.credentials[key] !== undefined)
+                        .map((key) => `${key} (${selectedProfile.credentials[key]})`)
+                        .join(", ") || "-"
+                    : "-"}
                 </Text>
                 <Heading as="h4" size="md" mt={4} color="#032e5b">Comments</Heading>
                 <VStack align="start" spacing={2} mt={2}>
