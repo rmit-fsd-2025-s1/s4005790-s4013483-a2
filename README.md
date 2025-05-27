@@ -10,6 +10,31 @@ Tutor:
 - username: tom@tutor.com
 - password: password
 
+To add lecturer to a course:
+1. Go to the database (https://getmysql.com/phpmyadmin/)
+2. Enter in this credentials:
+- Username = S4013483
+- Password = 4z7&j$y0*0p9#9o0N0UQg2YQ@s!!qade33lKt0q&Xaoi@Ob5l7
+3. Go to the lecturer_courses table
+4. Click "Edit" to edit the prompt.
+5. Delete the existing prompt
+6. Paste in this prompt:
+SELECT * FROM `lecturer_courses`;,
+
+INSERT INTO lecturer_courses (lecturerProfileId, courseCode)
+VALUES (lecturerId, 'course_code')
+
+7. The lecturerID (an integer value) can be found on the lecturer_profile table
+8. The course_code can be found on the courses table
+9. For example, a query may look like this:
+SELECT * FROM `lecturer_courses`;
+INSERT INTO lecturer_courses (lecturerProfileId, courseCode)
+VALUES (7, 'COSC1111'), (7, 'COSC2217');
+
+Where lecturer with lecturerId 7 is assigned to course with code 'COSC1111' and 'COSC2217'
+
+
+
 To run the application:
 1. Open terminal
 2. Open project folder
