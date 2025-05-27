@@ -35,10 +35,14 @@ export class LecturerProfile {
   @UpdateDateColumn({ type: "timestamp" })
   updatedAt: Date;
 
+  @ManyToMany(() => Course, (course) => course.lecturers)
+  @JoinTable({
+    name: "lecturer_courses", // Join table name
+    joinColumn: { name: "lecturerProfileId", referencedColumnName: "id" },
+    inverseJoinColumn: { name: "courseCode", referencedColumnName: "code" },
+  })
+  courses: Course[];
+
   @OneToOne(() => Lecturer, (lecturer) => lecturer.profile)
   lecturer: Lecturer;
-
-  @ManyToMany(() => Course, (course) => course.lecturers)
-  @JoinTable()
-  courses: Course[];  
 }

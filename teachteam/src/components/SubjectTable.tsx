@@ -1,27 +1,22 @@
-import { useState, useEffect } from "react";
+import { useState } from "react";
 import { Box, Table, Thead, Tbody, Tr, Th, Td, Link, Text, useDisclosure } from "@chakra-ui/react";
-import { Course, fetchCourses } from "./CoursesList";
 import { useApplications } from "@/context/ApplicationsContext";
 import RankApplicationsModal from "@/context/RankApplicationsModal";
+import { Course } from "./CoursesList";
 
-const SubjectTable = () => {
+interface SubjectTableProps {
+  courses: Course[];
+}
+
+const SubjectTable = ({ courses }: SubjectTableProps) => {
   const { applications } = useApplications();
   const { isOpen, onOpen, onClose } = useDisclosure();
   const [selectedCourseCode, setSelectedCourseCode] = useState<string | null>(null);
-  const [courseList, setCourseList] = useState<Course[]>([]);
   const [sortConfig, setSortConfig] = useState<{ key: string; direction: "asc" | "desc" | null }>({
     key: "",
     direction: null,
   });
 
-    // Fetch courses and generate roles when the component mounts
-    useEffect(() => {
-      const loadCourses = async () => {
-        const courses = await fetchCourses(); // Fetch courses from the backend
-        setCourseList(courses);
-      };
-      loadCourses();
-    }, []);
   // Count approved applications for each course
   const getApprovedApplicationCount = (courseCode: string) => {
     return Array.from(applications.values())
@@ -43,7 +38,7 @@ const SubjectTable = () => {
   };
 
   // Sort courses based on the current sort configuration
-  const sortedCourses = [...courseList].sort((a, b) => {
+  const sortedCourses = [...courses].sort((a, b) => {
     if (!sortConfig.direction) {
       return 0; // No sorting
     }

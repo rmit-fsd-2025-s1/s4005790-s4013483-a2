@@ -2,6 +2,7 @@ import { Request, Response } from "express";
 import { AppDataSource } from "../data-source";
 import { Lecturer } from "../entity/Lecturer";
 import { LecturerProfile } from "../entity/LecturerProfile";
+import { Course } from "../entity/Course";
 
 export class LecturerController {
   private lecturerRepository = AppDataSource.getRepository(Lecturer);
@@ -212,6 +213,67 @@ export class LecturerController {
     }
 
     return response.json(profile);
+  }
+
+  async getCoursesByLecturerEmail(request: Request, response: Response) {
+    const email = request.params.email;
+    try {
+      const lecturer = await this.lecturerRepository.findOne({
+        where: { email },
+        relations: ["profile"],
+      });
+      if (!lecturer || !lecturer.profile) {
+        return response.status(404).json({ message: "Lecturer or profile not found" });
+      }
+
+      const lecturerProfileRepo = AppDataSource.getRepository(LecturerProfile);
+      const profile = await lecturerProfileRepo.findOne({
+        where: { id: lecturer.profile.id },
+        relations: ["courses"],
+      });
+
+      if (!profile) {
+        return response.status(404).json({ message: "Lecturer profile not found" });
+      }
+
+      return response.json(profile.courses || []);
+    } catch (e) {
+      return response.status(500).json({ message: "Failed to fetch courses for lecturer", error: e});
+    }
+  }
+
+  async assignCoursesToLecturer(request: Request, response: Response) {
+    const email = request.params.email;
+    const { courseCodes } = request.body;
+    try {
+      const lecturer = await this.lecturerRepository.findOne({
+        where: { email },
+        relations: ["profile"],
+      });
+      if (!lecturer || !lecturer.profile) {
+        return response.status(404).json({ message: "Lecturer or profile not found" });
+      }
+
+      const courseRepo = AppDataSource.getRepository(Course);
+      const courses = await courseRepo.findByIds(courseCodes);
+
+      const lecturerProfileRepo = AppDataSource.getRepository(LecturerProfile);
+      const profile = await lecturerProfileRepo.findOne({
+        where: { id: lecturer.profile.id },
+        relations: ["courses"],
+      });
+
+      if (!profile) {
+        return response.status(404).json({ message: "Lecturer profile not found" });
+      }
+
+      profile.courses = courses;
+      await lecturerProfileRepo.save(profile);
+
+      return response.json(profile.courses);
+    } catch(e) {
+      return response.status(500).json({ message: "Failed to assign courses to lecturer", error: e });
+    }
   }
 }
 

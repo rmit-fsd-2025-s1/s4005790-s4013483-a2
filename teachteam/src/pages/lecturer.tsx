@@ -4,7 +4,7 @@ import Footer from "../components/Footer";
 import SubjectTable from "../components/SubjectTable";
 import { useUser } from "@/context/UserContext";
 import { useProfile } from "@/context/LecturerProfileContext";
-import { fetchCourses, Course } from "@/components/CoursesList";
+import { Course } from "@/components/CoursesList";
 import { useUsersLists } from "@/context/UsersListsContext";
 import { useState, useEffect } from "react";
 import { lecturerApi, Application as LecturerApplication } from "@/services/lecturer.api";
@@ -24,9 +24,9 @@ export default function Lecturer() {
   const [sortOption, setSortOption] = useState("");
   const [comments, setComments] = useState<Map<string, any[]>>(new Map());
   const [newComment, setNewComment] = useState("");
-  const [courseList, setCourseList] = useState<Course[]>([]);
   const [allApplications, setAllApplications] = useState<LecturerApplication[]>([]);
   const [tutorProfiles, setTutorProfiles] = useState<Map<string, any>>(new Map());
+  const [managedCourses, setManagedCourses] = useState<Course[]>([]);
 
   // Fetch all applications for all tutors from backend - use lecturerApi, not tutorApi
   useEffect(() => {
@@ -44,11 +44,17 @@ export default function Lecturer() {
     });
   }, []);
 
-  // Load comments and courses
+  // Fetch only the courses managed by this lecturer
+  useEffect(() => {
+    if (user && user.role === "Lecturer") {
+      lecturerApi.getCoursesForLecturerByEmail(user.email).then(setManagedCourses);
+    }
+  }, [user]);
+
+  // Load comments
   useEffect(() => {
     const storedComments = localStorage.getItem("comments");
     if (storedComments) setComments(new Map(JSON.parse(storedComments)));
-    fetchCourses().then(setCourseList);
   }, []);
 
   useEffect(() => {
@@ -57,12 +63,13 @@ export default function Lecturer() {
 
   // Process applications for display
   const getTutorApplications = () => {
+    // Only show applications for managed courses
     return allApplications
-      .filter(app => app.outcome !== "Approved")
+      .filter(app => app.outcome !== "Approved" && managedCourses.some(c => c.code === app.courseCode))
       .map(app => {
         const userObj = usersList.find(u => u.email === app.email);
-        const profile = tutorProfiles.get(app.email); // Use full fetched profile for availability
-        const course = courseList.find(c => c.code === app.courseCode);
+        const profile = tutorProfiles.get(app.email);
+        const course = managedCourses.find(c => c.code === app.courseCode);
         // Robustly parse skills as array
         let tutorSkills: string[] = [];
         if (app.tutorSkills && Array.isArray(app.tutorSkills)) {
@@ -259,7 +266,7 @@ export default function Lecturer() {
             </VStack>
           </Box>
           <Box w="30%">
-            <SubjectTable />
+            <SubjectTable courses={managedCourses} />
           </Box>
         </Flex>
       </Box>

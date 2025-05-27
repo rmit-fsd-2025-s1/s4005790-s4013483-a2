@@ -38,4 +38,11 @@ router.post("/lecturers/:id/profile/:profileId:", async (req, res) => {
   await lecturerController.attachProfile(req, res);
 });
 
+router.get("/lecturers/email/:email/courses", async (req, res) =>{
+  await lecturerController.getCoursesByLecturerEmail(req, res);
+});
+
+router.post("/lecturers/email/:email/courses", async (req, res) => {
+  await lecturerController.assignCoursesToLecturer(req, res);
+});
 export default router;

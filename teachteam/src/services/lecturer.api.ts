@@ -92,4 +92,14 @@ export const lecturerApi = {
   deleteApplication: async (id: number): Promise<void> => {
     await api.delete(`/applications/${id}`);
   },
+
+  getCoursesForLecturerByEmail: async (email: string) => {
+    const response = await api.get(`/lecturers/email/${email}/courses`);
+    return response.data;
+  },
+
+  assignCoursesToLecturer: async (email: string, courseCodes: string[]) => {
+    const response = await api.post(`/lecturers/email/${email}/courses`, { courseCodes });
+    return response.data;
+  },
 };
