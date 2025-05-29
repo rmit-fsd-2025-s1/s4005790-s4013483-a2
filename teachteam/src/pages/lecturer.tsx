@@ -1,7 +1,8 @@
-import { Box, Heading, Text, Flex, VStack, HStack, Button, Modal, ModalOverlay, ModalContent, ModalHeader, ModalCloseButton, ModalBody, ModalFooter, Link, useDisclosure, Select, Input, Textarea } from "@chakra-ui/react";
+import { Box, Heading, Text, Flex, VStack, HStack, Button, Modal, ModalOverlay, ModalContent, ModalHeader, ModalCloseButton, ModalBody, ModalFooter, Link, useDisclosure, Textarea } from "@chakra-ui/react";
 import Header from "../components/Header";
 import Footer from "../components/Footer";
 import SubjectTable from "../components/SubjectTable";
+import ApplicantsSearchBar from "../components/ApplicantsSearchBar";
 import { useUser } from "@/context/UserContext";
 import { useProfile } from "@/context/LecturerProfileContext";
 import { Course } from "@/components/CoursesList";
@@ -9,6 +10,14 @@ import { useUsersLists } from "@/context/UsersListsContext";
 import { useState, useEffect } from "react";
 import { lecturerApi, Application as LecturerApplication } from "@/services/lecturer.api";
 import { tutorApi } from "@/services/tutor.api";
+
+function formatSessionType(raw: string) {
+  if (!raw) return "";
+  const lower = raw.toLowerCase();
+  if (lower === "tutor") return "Tutor";
+  if (lower === "lab-assistant" || lower === "lab assistant") return "Lab Assistant";
+  return raw.charAt(0).toUpperCase() + raw.slice(1);
+}
 
 export default function Lecturer() {
   const { user } = useUser();
@@ -18,17 +27,20 @@ export default function Lecturer() {
   const { isOpen: isProfileOpen, onOpen: onProfileOpen, onClose: onProfileClose } = useDisclosure();
   const [selectedApplication, setSelectedApplication] = useState<any>(null);
   const [selectedProfile, setSelectedProfile] = useState<any>(null);
-  const [selectedCourse] = useState("All");
-  const [searchQuery, setSearchQuery] = useState({ courseName: "", tutorName: "", availability: "", skill: "" });
-  const [searchResults, setSearchResults] = useState<any[] | null>(null);
-  const [sortOption, setSortOption] = useState("");
+  const [searchCriteria, setSearchCriteria] = useState({
+    courseCode: "",
+    tutorName: "",
+    sessionType: "",
+    availability: "",
+    skills: [] as string[],
+  });
   const [comments, setComments] = useState<Map<string, any[]>>(new Map());
   const [newComment, setNewComment] = useState("");
   const [allApplications, setAllApplications] = useState<LecturerApplication[]>([]);
   const [tutorProfiles, setTutorProfiles] = useState<Map<string, any>>(new Map());
   const [managedCourses, setManagedCourses] = useState<Course[]>([]);
 
-  // Fetch all applications for all tutors from backend - use lecturerApi, not tutorApi
+  // Fetch all applications for all tutors from backend
   useEffect(() => {
     lecturerApi.getAllApplications().then(setAllApplications);
   }, []);
@@ -63,14 +75,12 @@ export default function Lecturer() {
 
   // Process applications for display
   const getTutorApplications = () => {
-    // Only show applications for managed courses
     return allApplications
-      .filter(app => app.outcome !== "Approved" && managedCourses.some(c => c.code === app.courseCode))
+      .filter(app => managedCourses.some(c => c.code === app.courseCode))
       .map(app => {
         const userObj = usersList.find(u => u.email === app.email);
         const profile = tutorProfiles.get(app.email);
         const course = managedCourses.find(c => c.code === app.courseCode);
-        // Robustly parse skills as array
         let tutorSkills: string[] = [];
         if (app.tutorSkills && Array.isArray(app.tutorSkills)) {
           tutorSkills = app.tutorSkills;
@@ -88,17 +98,20 @@ export default function Lecturer() {
         }
         const requiredSkills: string[] = app.courseSkills || course?.skills || [];
         const fulfilledSkills = tutorSkills.filter(skill => requiredSkills.includes(skill)).length;
+        // FIX: Remove lowercasing, format session type for display
+        const sessionType = formatSessionType(app.roles);
+
         return {
+          ...app,
           email: app.email,
           name: userObj?.name || "Unknown",
           courseName: app.courseName || course?.name || "Unknown",
           courseCode: app.courseCode,
           skillsFulfilled: app.skillsFulfilled || `${fulfilledSkills}/${requiredSkills.length}`,
-          expressionOfInterest: app.expressionOfInterest,
-          note: app.note,
           requiredSkills: requiredSkills.join(", "),
           tutorSkills: tutorSkills.join(", "),
           availability: profile?.availability || "Unknown",
+          sessionType,
           profile
         };
       });
@@ -106,19 +119,18 @@ export default function Lecturer() {
 
   const tutorApplications = getTutorApplications();
 
-  // Filter applications by selected course
-  const filteredApplications = searchResults || (selectedCourse === "All"
-    ? tutorApplications
-    : tutorApplications.filter(application => application.courseCode === selectedCourse));
-
-  // Sort applications
-  const sortedApplications = [...filteredApplications].sort((a, b) => {
-    if (sortOption === "courseName") {
-      return a.courseName.localeCompare(b.courseName);
-    } else if (sortOption === "availability") {
-      return a.availability.localeCompare(b.availability);
-    }
-    return 0;
+  // Filter applications by current search criteria
+  const filteredApplications = tutorApplications.filter(application => {
+    const matchesCourse = !searchCriteria.courseCode || application.courseCode === searchCriteria.courseCode;
+    const matchesName = !searchCriteria.tutorName || application.name.toLowerCase().includes(searchCriteria.tutorName.toLowerCase());
+    // Session type: match "Tutor" or "Lab Assistant"
+    const matchesSessionType = !searchCriteria.sessionType || (application.sessionType && application.sessionType === searchCriteria.sessionType);
+    const matchesAvailability = !searchCriteria.availability || application.availability === searchCriteria.availability;
+    // Skills: every selected skill must be present in the applicant's skills
+    const matchesSkills = !searchCriteria.skills.length || searchCriteria.skills.every(skill =>
+      application.tutorSkills && application.tutorSkills.toLowerCase().includes(skill.toLowerCase())
+    );
+    return matchesCourse && matchesName && matchesSessionType && matchesAvailability && matchesSkills;
   });
 
   const handleViewApplication = (application: any) => {
@@ -132,49 +144,29 @@ export default function Lecturer() {
     try {
       const fetchedProfile = await tutorApi.getTutorProfileByEmail(email);
       profile = { ...profile, ...fetchedProfile };
-    } catch (err) {
-      // If not found, use whatever we have (may be blank)
-    }
+    } catch (err) {}
     const userObj = usersList.find(user => user.email === email);
     setSelectedProfile({ ...profile, name: userObj?.name || "Unknown", email });
     onProfileOpen();
   };
 
-  const handleApproveApplication = () => {
+  // Approve/Reject logic: update application outcome and refetch applications for latest state
+  const handleApproveApplication = async () => {
     if (selectedApplication) {
-      setAllApplications(prev =>
-        prev.map(app =>
-          app.email === selectedApplication.email && app.courseCode === selectedApplication.courseCode
-            ? { ...app, outcome: "Approved" }
-            : app
-        )
-      );
+      await lecturerApi.updateApplicationOutcome(selectedApplication.id, "Approved");
+      lecturerApi.getAllApplications().then(setAllApplications);
       setSelectedApplication(null);
       onClose();
     }
   };
 
-  const handleRejectApplication = () => {
+  const handleRejectApplication = async () => {
     if (selectedApplication) {
-      setAllApplications(prev =>
-        prev.filter(app =>
-          !(app.email === selectedApplication.email && app.courseCode === selectedApplication.courseCode)
-        )
-      );
+      await lecturerApi.updateApplicationOutcome(selectedApplication.id, "Rejected");
+      lecturerApi.getAllApplications().then(setAllApplications);
       setSelectedApplication(null);
       onClose();
     }
-  };
-
-  const handleSearch = () => {
-    const results = tutorApplications.filter((application) => {
-      const matchesCourseName = searchQuery.courseName === "" || application.courseName.toLowerCase().includes(searchQuery.courseName.toLowerCase());
-      const matchesTutorName = searchQuery.tutorName === "" || application.name.toLowerCase().includes(searchQuery.tutorName.toLowerCase());
-      const matchesAvailability = searchQuery.availability === "" || application.availability === searchQuery.availability;
-      const matchesSkill = searchQuery.skill === "" || application.tutorSkills.toLowerCase().includes(searchQuery.skill.toLowerCase());
-      return matchesCourseName && matchesTutorName && matchesAvailability && matchesSkill;
-    });
-    setSearchResults(results);
   };
 
   const handlePostComment = () => {
@@ -192,81 +184,45 @@ export default function Lecturer() {
   return (
     <Box display="flex" flexDirection="column" minHeight="100vh">
       <Header />
-      <Box as="main" flex="1" w="100%" p={8} textAlign="center">
-        <Heading as="h1" mb={8} color="#032e5b">
+      <Box as="main" flex="1" w="100%" p={8}>
+        <Heading as="h1" mb={8} color="#032e5b" textAlign="center">
           Lecturer Home Page
         </Heading>
-        <Text color="#032e5b">Welcome, {user?.name} the Lecturer!</Text>
-        {/* Search and Sort Options */}
-        <Box p={4} borderWidth="1px" borderRadius="lg" mb={4}>
-          <VStack spacing={4}>
-            <HStack w="100%" spacing={4}>
-              <Input
-                placeholder="Search by Course Name"
-                value={searchQuery.courseName}
-                onChange={(e) => setSearchQuery({ ...searchQuery, courseName: e.target.value })}
-              />
-              <Input
-                placeholder="Search by Tutor Name"
-                value={searchQuery.tutorName}
-                onChange={(e) => setSearchQuery({ ...searchQuery, tutorName: e.target.value })}
-              />
-            </HStack>
-            <HStack w="100%" spacing={4} color="#032e5b">
-              <Select
-                placeholder="Select Availability"
-                value={searchQuery.availability}
-                onChange={(e) => setSearchQuery({ ...searchQuery, availability: e.target.value })}
-              >
-                <option value="None">None</option>
-                <option value="Part-time">Part-time</option>
-                <option value="Full-time">Full-time</option>
-              </Select>
-              <Input
-                placeholder="Search by Skill"
-                value={searchQuery.skill}
-                onChange={(e) => setSearchQuery({ ...searchQuery, skill: e.target.value })}
-              />
-            </HStack>
-            <HStack w="100%" spacing={4} color="#032e5b">
-              <Select
-                placeholder="Sort By"
-                value={sortOption}
-                onChange={(e) => setSortOption(e.target.value)}
-              >
-                <option value="courseName">Course Name</option>
-                <option value="availability">Availability</option>
-              </Select>
-              <Button colorScheme="teal" onClick={handleSearch}>
-                Search
-              </Button>
-            </HStack>
-          </VStack>
-        </Box>
-        {/* Applications */}
-        <Flex mt={8} justifyContent="space-between">
-          <Box w="65%">
+        <Text color="#032e5b" textAlign="center" mb={6}>
+          Welcome, {user?.name} the Lecturer!
+        </Text>
+        <Flex mt={8} justifyContent="space-between" align="flex-start">
+          <Box w="24%" minW="260px" maxW="300px">
+            <ApplicantsSearchBar
+              courses={managedCourses}
+              onSearch={setSearchCriteria}
+            />
+          </Box>
+          <Box w="72%">
             <Heading as="h2" size="lg" mb={4} color="#032e5b">
               Tutor Applications
             </Heading>
             <VStack spacing={4} align="stretch">
-              {sortedApplications.map((application, index) => (
-                <Box key={index} p={4} borderWidth="1px" borderRadius="lg">
-                  <HStack justifyContent="space-between">
-                    <Link onClick={() => handleViewProfile(application.email)} color="teal.500">
-                      <Text><strong>Name:</strong> {application.name}</Text>
-                    </Link>
-                    <Text color="#032e5b"><strong>Course:</strong> {application.courseName}</Text>
-                    <Text color="#032e5b"><strong>Availability:</strong> {application.availability}</Text>
-                    <Text color="#032e5b"><strong>Skills fulfilled:</strong> {application.skillsFulfilled}</Text>
-                    <Button onClick={() => handleViewApplication(application)}>View Details</Button>
-                  </HStack>
-                </Box>
-              ))}
+              {filteredApplications
+                .filter((application) => application.outcome !== "Approved")
+                .map((application, index) => (
+                  <Box key={index} p={4} borderWidth="1px" borderRadius="lg">
+                    <HStack justifyContent="space-between">
+                      <Link onClick={() => handleViewProfile(application.email)} color="teal.500">
+                        <Text><strong>Name:</strong> {application.name}</Text>
+                      </Link>
+                      <Text color="#032e5b"><strong>Course:</strong> {application.courseName}</Text>
+                      <Text color="#032e5b"><strong>Session Type:</strong> {application.sessionType}</Text>
+                      <Text color="#032e5b"><strong>Availability:</strong> {application.availability}</Text>
+                      <Text color="#032e5b"><strong>Skills fulfilled:</strong> {application.skillsFulfilled}</Text>
+                      <Button onClick={() => handleViewApplication(application)}>View Details</Button>
+                    </HStack>
+                  </Box>
+                ))}
             </VStack>
-          </Box>
-          <Box w="30%">
-            <SubjectTable courses={managedCourses} />
+            <Box mt={8}>
+              <SubjectTable courses={managedCourses} applications={allApplications} />
+            </Box>
           </Box>
         </Flex>
       </Box>
@@ -283,6 +239,7 @@ export default function Lecturer() {
               <>
                 <Text color="#032e5b"><strong>Name:</strong> {selectedApplication.name}</Text>
                 <Text color="#032e5b"><strong>Course:</strong> {selectedApplication.courseName}</Text>
+                <Text color="#032e5b"><strong>Session Type:</strong> {selectedApplication.sessionType}</Text>
                 <Text color="#032e5b"><strong>Code:</strong> {selectedApplication.courseCode}</Text>
                 <Text color="#032e5b"><strong>Skills fulfilled:</strong> {selectedApplication.skillsFulfilled}</Text>
                 <Text color="#032e5b"><strong>Required Skills:</strong> {selectedApplication.requiredSkills}</Text>

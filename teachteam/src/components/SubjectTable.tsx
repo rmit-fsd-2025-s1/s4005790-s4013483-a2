@@ -1,15 +1,20 @@
 import { useState } from "react";
 import { Box, Table, Thead, Tbody, Tr, Th, Td, Link, Text, useDisclosure } from "@chakra-ui/react";
-import { useApplications } from "@/context/ApplicationsContext";
 import RankApplicationsModal from "@/context/RankApplicationsModal";
 import { Course } from "./CoursesList";
 
-interface SubjectTableProps {
-  courses: Course[];
+interface Application {
+  id: number;
+  courseCode: string;
+  outcome: string;
 }
 
-const SubjectTable = ({ courses }: SubjectTableProps) => {
-  const { applications } = useApplications();
+interface SubjectTableProps {
+  courses: Course[];
+  applications: Application[];
+}
+
+const SubjectTable = ({ courses, applications }: SubjectTableProps) => {
   const { isOpen, onOpen, onClose } = useDisclosure();
   const [selectedCourseCode, setSelectedCourseCode] = useState<string | null>(null);
   const [sortConfig, setSortConfig] = useState<{ key: string; direction: "asc" | "desc" | null }>({
@@ -19,28 +24,27 @@ const SubjectTable = ({ courses }: SubjectTableProps) => {
 
   // Count approved applications for each course
   const getApprovedApplicationCount = (courseCode: string) => {
-    return Array.from(applications.values())
-      .flat()
-      .filter((role) => role.course.code === courseCode && role.status === "Approved").length;
+    return applications.filter(
+      (app) => app.courseCode === courseCode && app.outcome === "Approved"
+    ).length;
   };
 
   // Handle sorting
   const handleSort = (key: string) => {
     setSortConfig((prevConfig) => {
       if (prevConfig.key === key) {
-        // Cycle through asc, desc, and null
         const nextDirection =
           prevConfig.direction === "asc" ? "desc" : prevConfig.direction === "desc" ? null : "asc";
         return { key, direction: nextDirection };
       }
-      return { key, direction: "asc" }; // Default to ascending if sorting a new column
+      return { key, direction: "asc" };
     });
   };
 
   // Sort courses based on the current sort configuration
   const sortedCourses = [...courses].sort((a, b) => {
     if (!sortConfig.direction) {
-      return 0; // No sorting
+      return 0;
     }
     const key = sortConfig.key;
     const aValue = key === "approvedApplications" ? getApprovedApplicationCount(a.code) : a[key as keyof Course];
@@ -69,6 +73,7 @@ const SubjectTable = ({ courses }: SubjectTableProps) => {
               color="#032e5b"
               cursor="pointer"
               onClick={() => handleSort("name")}
+              width="33%"
             >
               Course Name {sortConfig.key === "name" && (sortConfig.direction === "asc" ? "▲" : sortConfig.direction === "desc" ? "▼" : "")}
             </Th>
@@ -76,6 +81,7 @@ const SubjectTable = ({ courses }: SubjectTableProps) => {
               color="#032e5b"
               cursor="pointer"
               onClick={() => handleSort("code")}
+              width="33%"
             >
               Course Code {sortConfig.key === "code" && (sortConfig.direction === "asc" ? "▲" : sortConfig.direction === "desc" ? "▼" : "")}
             </Th>
@@ -83,6 +89,7 @@ const SubjectTable = ({ courses }: SubjectTableProps) => {
               color="#032e5b"
               cursor="pointer"
               onClick={() => handleSort("approvedApplications")}
+              width="34%"
             >
               Approved Applications {sortConfig.key === "approvedApplications" && (sortConfig.direction === "asc" ? "▲" : sortConfig.direction === "desc" ? "▼" : "")}
             </Th>
@@ -113,6 +120,7 @@ const SubjectTable = ({ courses }: SubjectTableProps) => {
           isOpen={isOpen}
           onClose={onClose}
           courseCode={selectedCourseCode}
+          applications={applications.filter(app => app.courseCode === selectedCourseCode && app.outcome === "Approved")}
         />
       )}
     </Box>
