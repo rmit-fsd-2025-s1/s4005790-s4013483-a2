@@ -191,15 +191,19 @@ export default function Lecturer() {
         <Text color="#032e5b" textAlign="center" mb={6}>
           Welcome, {user?.name} the Lecturer!
         </Text>
-        <Flex mt={8} justifyContent="space-between" align="flex-start">
-          <Box w="24%" minW="260px" maxW="300px">
+        {/* Layout: Search (left), Tutor Applications (center), Subject Table (right) */}
+        <Flex mt={8} gap={6} justifyContent="space-between" align="flex-start" width="100%">
+          <Box w="22%" minW="260px" maxW="320px">
+            <Heading as="h2" size="md" mb={4} color="#032e5b" textAlign="center">
+              Search Application
+            </Heading>
             <ApplicantsSearchBar
               courses={managedCourses}
               onSearch={setSearchCriteria}
             />
           </Box>
-          <Box w="72%">
-            <Heading as="h2" size="lg" mb={4} color="#032e5b">
+          <Box w="46%" minW="320px" maxW="700px">
+            <Heading as="h2" size="lg" mb={4} color="#032e5b" textAlign="center">
               Tutor Applications
             </Heading>
             <VStack spacing={4} align="stretch">
@@ -207,7 +211,7 @@ export default function Lecturer() {
                 .filter((application) => application.outcome !== "Approved")
                 .map((application, index) => (
                   <Box key={index} p={4} borderWidth="1px" borderRadius="lg">
-                    <HStack justifyContent="space-between">
+                    <HStack justifyContent="space-between" flexWrap="wrap">
                       <Link onClick={() => handleViewProfile(application.email)} color="teal.500">
                         <Text><strong>Name:</strong> {application.name}</Text>
                       </Link>
@@ -220,9 +224,9 @@ export default function Lecturer() {
                   </Box>
                 ))}
             </VStack>
-            <Box mt={8}>
-              <SubjectTable courses={managedCourses} applications={allApplications} />
-            </Box>
+          </Box>
+          <Box w="28%" minW="250px" maxW="420px">
+            <SubjectTable courses={managedCourses} applications={allApplications} />
           </Box>
         </Flex>
       </Box>
