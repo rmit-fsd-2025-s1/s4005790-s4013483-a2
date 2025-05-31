@@ -22,7 +22,12 @@ router.delete("/applications/:id", async (req, res) => {
   await applicationController.deleteById(req, res);
 });
 
-router.get("applications/course/:courseCode", async (req, res) => {
+// FIX: Add missing PATCH endpoint to update outcome
+router.patch("/applications/:id", async (req, res) => {
+  await applicationController.updateOutcome(req, res);
+});
+
+router.get("/applications/course/:courseCode", async (req, res) => {
   await applicationController.getByCourse(req,res);
 });
 

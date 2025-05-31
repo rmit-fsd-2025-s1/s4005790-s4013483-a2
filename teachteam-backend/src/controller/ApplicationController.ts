@@ -70,4 +70,20 @@ export class ApplicationController {
       return response.status(500).json({ message: "Failed to fetch applications by course", error: e});
     }
   }
+
+  async updateOutcome(request: Request, response: Response) {
+    const { id } = request.params;
+    const { outcome } = request.body;
+    try {
+      const application = await this.applicationRepository.findOneBy({ id: Number(id) });
+      if (!application) {
+        return response.status(404).json({ message: "Application not found "});
+      }
+      application.outcome = outcome;
+      const updated = await this.applicationRepository.save(application);
+      return response.json(updated);
+    } catch (error) {
+      return response.status(400).json({ message: "Error updating application", error });
+    }
+  }
 }
