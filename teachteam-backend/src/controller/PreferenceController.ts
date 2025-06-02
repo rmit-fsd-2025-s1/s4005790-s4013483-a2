@@ -9,24 +9,20 @@ export class PreferenceController {
     const { courseCode, lecturerId } = req.params;
     const preferences = await this.preferenceRepository.find({
       where: { courseCode, lecturerId: Number(lecturerId) },
-      order: { rank: "ASC" },
+      order: { preference_rank: "ASC" },
     });
     res.json(preferences);
   }
 
   async saveRankings(req: Request, res: Response) {
-    // Expects: { courseCode, lecturerId, rankings: [{applicationId, rank}] }
     const { courseCode, lecturerId, rankings } = req.body;
     try {
-      // Remove previous
       await this.preferenceRepository.delete({ courseCode, lecturerId });
-
-      // Insert new
       const toSave = rankings.map((r: any) => ({
         courseCode,
         lecturerId,
         applicationId: r.applicationId,
-        rank: r.rank,
+        preference_rank: r.preference_rank ?? r.rank, // Accepts either field from frontend
       }));
       const saved = await this.preferenceRepository.save(toSave);
       res.json(saved);

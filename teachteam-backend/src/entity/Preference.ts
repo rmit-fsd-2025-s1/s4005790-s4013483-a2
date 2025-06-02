@@ -1,6 +1,4 @@
-import { Entity, PrimaryGeneratedColumn, Column, ManyToOne, JoinColumn } from "typeorm";
-import { Application } from "./Application";
-import { Lecturer } from "./Lecturer";
+import { Entity, PrimaryGeneratedColumn, Column } from "typeorm";
 
 @Entity()
 export class Preference {
@@ -8,18 +6,10 @@ export class Preference {
   id: number;
 
   @Column()
-  rank: number;
-
-  @ManyToOne(() => Application, { eager: true, onDelete: "CASCADE" })
-  @JoinColumn({ name: "applicationId" })
-  application: Application;
+  preference_rank: number;
 
   @Column()
   applicationId: number;
-
-  @ManyToOne(() => Lecturer, { eager: true, onDelete: "CASCADE" })
-  @JoinColumn({ name: "lecturerId" })
-  lecturer: Lecturer;
 
   @Column()
   lecturerId: number;

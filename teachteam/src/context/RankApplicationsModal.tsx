@@ -69,7 +69,7 @@ const RankApplicationsModal = ({ isOpen, onClose, courseCode, applications }) =>
         lecturerId: getLecturerId(user),
         rankings: ranked.map((a, idx) => ({
           applicationId: a.id,
-          rank: idx + 1,
+          preference_rank: idx + 1,
         })),
       });
       toast({ title: "Ranking saved", status: "success" });
