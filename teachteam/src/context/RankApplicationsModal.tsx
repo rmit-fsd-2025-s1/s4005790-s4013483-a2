@@ -15,30 +15,47 @@ import {
 import { DragDropContext, Droppable, Draggable } from "@hello-pangea/dnd";
 import { useUser } from "@/context/UserContext";
 import { tutorApi } from "@/services/tutor.api";
-import axios from "axios"; // for preference save/load, adjust baseURL if needed
+import { api } from "@/services/lecturer.api";
 
-// It is recommended to use the user's real lecturerId for backend submission.
-const getLecturerId = (user) => user?.id || user?.lecturerId || 1;
+type Application = {
+  id: number;
+  name?: string;
+  email: string;
+  roles?: string;
+  skillsFulfilled?: string;
+  expressionOfInterest?: string;
+};
 
-const RankApplicationsModal = ({ isOpen, onClose, courseCode, applications }) => {
-  const [ranked, setRanked] = useState([]);
+type RankApplicationsModalProps = {
+  isOpen: boolean;
+  onClose: () => void;
+  courseCode: string;
+  applications: Application[];
+};
+
+const getLecturerId = (user: any) => user?.id || user?.lecturerId || 1;
+
+const RankApplicationsModal: React.FC<RankApplicationsModalProps> = ({
+  isOpen,
+  onClose,
+  courseCode,
+  applications,
+}) => {
+  const [ranked, setRanked] = useState<Application[]>([]);
   const [loading, setLoading] = useState(false);
   const { user } = useUser();
   const toast = useToast();
 
-  // Load preferences on open
   useEffect(() => {
     if (!isOpen || !courseCode || !user) return;
     const fetchPreferences = async () => {
       try {
-        // GET preferences for this course/lecturer
-        const response = await axios.get(`/api/preferences/${courseCode}/${getLecturerId(user)}`);
+        const response = await api.get(`/preferences/${courseCode}/${getLecturerId(user)}`);
         const prefs = response.data;
         if (prefs && prefs.length) {
-          // Order applications by preference, add new apps at the end
           const ordered = prefs
-            .map((pref) => applications.find((a) => a.id === pref.applicationId))
-            .filter(Boolean);
+            .map((pref: any) => applications.find((a) => a.id === pref.applicationId))
+            .filter(Boolean) as Application[];
           const extras = applications.filter((a) => !ordered.some((o) => o.id === a.id));
           setRanked([...ordered, ...extras]);
         } else {
@@ -51,8 +68,7 @@ const RankApplicationsModal = ({ isOpen, onClose, courseCode, applications }) =>
     fetchPreferences();
   }, [isOpen, courseCode, applications, user]);
 
-  // Drag and drop handler
-  const onDragEnd = useCallback((result) => {
+  const onDragEnd = useCallback((result: any) => {
     if (!result.destination) return;
     const items = Array.from(ranked);
     const [removed] = items.splice(result.source.index, 1);
@@ -60,11 +76,10 @@ const RankApplicationsModal = ({ isOpen, onClose, courseCode, applications }) =>
     setRanked(items);
   }, [ranked]);
 
-  // Save preferences to backend
   const handleSave = async () => {
     setLoading(true);
     try {
-      await axios.post("/api/preferences/save", {
+      await api.post("/preferences/save", {
         courseCode,
         lecturerId: getLecturerId(user),
         rankings: ranked.map((a, idx) => ({

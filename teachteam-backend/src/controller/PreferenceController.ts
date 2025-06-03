@@ -24,9 +24,11 @@ export class PreferenceController {
         applicationId: r.applicationId,
         preference_rank: r.preference_rank ?? r.rank, // Accepts either field from frontend
       }));
+      console.log("Saving preferences:", toSave);
       const saved = await this.preferenceRepository.save(toSave);
       res.json(saved);
     } catch (e) {
+      console.error("Error saving preferences: ", e)
       res.status(400).json({ message: "Error saving preferences", error: e });
     }
   }
