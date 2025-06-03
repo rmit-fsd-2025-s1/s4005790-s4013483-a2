@@ -2,7 +2,6 @@
 
 import type {
   ButtonProps,
-  GroupProps,
   InputProps,
   StackProps,
 } from "@chakra-ui/react"
@@ -29,7 +28,7 @@ export interface PasswordVisibilityProps {
 export interface PasswordInputProps
   extends InputProps,
     PasswordVisibilityProps {
-  rootProps?: GroupProps
+  rootProps?: any
 }
 
 export const PasswordInput = React.forwardRef<
@@ -57,9 +56,9 @@ export const PasswordInput = React.forwardRef<
     <InputGroup
       endElement={
         <VisibilityTrigger
-          disabled={rest.disabled}
+          disabled={rest.isDisabled}
           onPointerDown={(e) => {
-            if (rest.disabled) return
+            if (rest.isDisabled) return
             if (e.button !== 0) return
             e.preventDefault()
             setVisible(!visible)
@@ -122,9 +121,9 @@ export const PasswordStrengthMeter = React.forwardRef<
             rounded="sm"
             data-selected={index < value ? "" : undefined}
             layerStyle="fill.subtle"
-            colorPalette="gray"
+            color="gray"
             _selected={{
-              colorPalette,
+              color: "gray",
               layerStyle: "fill.solid",
             }}
           />
