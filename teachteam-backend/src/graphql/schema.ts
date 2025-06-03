@@ -6,14 +6,37 @@ export const typeDefs = gql`
         username: String!
         password: String!
     }
+    type Course {
+        code: String!
+        name: String!
+        skills: [String!]!
+        description: String!
+    }
+    type Lecturer {
+        id: ID!
+        name: String!
+        email: String!
+        password: String!
+        profile: LecturerProfile!
+    }
+    type LecturerProfile {
+        id: ID!
+        age: Int!
+        contact: String
+        biography: String
+        links: String
+        courses: [Course!]
+    }
 
     type Query {
         admins: [Admin!]!
+        courses: [Course!]!
+        lecturers: [Lecturer!]!
+        lecturerProfile: [LecturerProfile!]!
+        lecturerProfileCourses(lecturerProfileId: ID!): [Course!]!
     }
 
     type Mutation {
-        createAdmin(username: String!, password: String!): Admin!
-        updateAdmin(id: ID!, username: String!, password: String!): Admin!
-        deleteAdmin(id: ID!): Boolean!
+        addCourseToLecturer(courseCodes: [String!]!, lecturerId: ID!): LecturerProfile!
     }
 `;
