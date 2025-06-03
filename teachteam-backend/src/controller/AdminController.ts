@@ -12,9 +12,9 @@ export class AdminController {
    * @returns JSON response containing an array of all admins
    */
   async getAll(request: Request, response: Response) {
-    const lecturers = await this.adminRepository.find();
+    const admins = await this.adminRepository.find();
 
-    return response.json(lecturers);
+    return response.json(admins);
   }
 
   /**

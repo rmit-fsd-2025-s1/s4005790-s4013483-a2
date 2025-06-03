@@ -12,7 +12,7 @@ export class Admin {
   id: number;
 
   @Column({ type: "varchar", length: 40 })
-  name: string;
+  username: string;
 
   @Column({ type: "varchar", length: 100 })
   password: string;

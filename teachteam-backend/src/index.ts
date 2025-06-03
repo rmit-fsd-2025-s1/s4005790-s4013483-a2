@@ -10,6 +10,12 @@ import tutorProfileRoutes from "./routes/tutorProfile.routes";
 import cors from "cors";
 import preferenceRoutes from "./routes/preference.routes";
 import notificationRoutes from "./routes/notification.routes";
+import adminRoutes from "./routes/admin.routes";
+import { expressMiddleware } from "@apollo/server/express4";
+import { ApolloServer } from "@apollo/server";
+import { typeDefs } from "./graphql/schema";
+import { resolvers } from "./graphql/resolvers";
+
 const app = express();
 const PORT = process.env.PORT || 3001;
 
@@ -23,14 +29,27 @@ app.use("/api", applicationRoutes);
 app.use("/api", tutorProfileRoutes);
 app.use("/api", preferenceRoutes);
 app.use("/api", notificationRoutes);
+app.use("/api", adminRoutes);
 
-AppDataSource.initialize()
-  .then(() => {
-    console.log("Data Source has been initialized!");
-    app.listen(PORT, () => {
-      console.log(`Server is running on port ${PORT}`);
-    });
-  })
-  .catch((error) =>
-    console.log("Error during Data Source initialization:", error)
-  );
+async function startServer() {
+  const apolloServer = new ApolloServer({
+    typeDefs,
+    resolvers,
+  });
+
+  await apolloServer.start();
+
+  app.use("/graphql", expressMiddleware(apolloServer));
+
+  await AppDataSource.initialize();
+  console.log("Data Source has been initialized!");
+
+  app.listen(PORT, () => {
+    console.log(`Server is running on port ${PORT}`);
+    console.log(`GraphQL endpoint: http://localhost:${PORT}/graphql`);
+  });
+}
+
+startServer().catch((error) =>
+  console.log("Error during server initialization:", error)
+);
