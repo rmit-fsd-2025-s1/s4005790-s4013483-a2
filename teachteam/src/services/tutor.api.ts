@@ -117,4 +117,13 @@ export const tutorApi = {
     const response = await api.get(`/applications/course/${courseCode}`);
     return response.data;
   },
+
+  getNotifications: async (email: string) => {
+    const response = await api.get(`/notifications/${email}`);
+    return response.data;
+  },
+  markNotificationRead: async (id: number) => {
+    const response = await api.patch(`/notifications/${id}/read`);
+    return response.data;
+  },
 };

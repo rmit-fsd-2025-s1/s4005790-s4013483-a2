@@ -9,6 +9,7 @@ import applicationRoutes from "./routes/application.routes";
 import tutorProfileRoutes from "./routes/tutorProfile.routes";
 import cors from "cors";
 import preferenceRoutes from "./routes/preference.routes";
+import notificationRoutes from "./routes/notification.routes";
 const app = express();
 const PORT = process.env.PORT || 3001;
 
@@ -21,6 +22,7 @@ app.use("/api", courseRoutes);
 app.use("/api", applicationRoutes);
 app.use("/api", tutorProfileRoutes);
 app.use("/api", preferenceRoutes);
+app.use("/api", notificationRoutes);
 
 AppDataSource.initialize()
   .then(() => {

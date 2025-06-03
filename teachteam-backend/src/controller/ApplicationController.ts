@@ -1,6 +1,7 @@
 import { Request, Response } from "express";
 import { AppDataSource } from "../data-source";
 import { Application } from "../entity/Application";
+import { Notification } from "../entity/Notification";
 
 export class ApplicationController {
   private applicationRepository = AppDataSource.getRepository(Application);
@@ -81,6 +82,23 @@ export class ApplicationController {
       }
       application.outcome = outcome;
       const updated = await this.applicationRepository.save(application);
+
+      //Create notification if approved
+      if (outcome === "Accepted" || outcome === "Approved") {
+        const approvalDate = new Date();
+        const startDate = new Date(approvalDate.getTime());
+        startDate.setDate(approvalDate.getDate() + 14);
+        const message = `Congratulations! Your application for "${application.roles}" in "${application.courseName}" (${application.courseCode}) has been approved. 
+        Your expected start date is ${startDate.toLocaleDateString()}.`;
+
+        const notificationRepo = AppDataSource.getRepository(Notification);
+        await notificationRepo.save({
+          email: application.email,
+          applicationId: application.id,
+          message,
+        });
+      }
+      
       return response.json(updated);
     } catch (error) {
       return response.status(400).json({ message: "Error updating application", error });
