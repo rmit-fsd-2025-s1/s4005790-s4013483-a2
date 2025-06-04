@@ -13,19 +13,24 @@ const LecturerCourses = () => {
         setLecturers(temp);
         setCourses(await courseService.getAllCourses());
         setLecturer(temp[0]);
+        setLecturerSelectedCourses(temp[0].profile.id);
     }
 
     useEffect(() => {
         setLecturersAndCourses();
     }, []);
+
+    const setLecturerSelectedCourses = async (lecturerProfileId: string) => {
+        const profileCourses = await lecturerProfileService.getLecturerProfileCourses(lecturerProfileId);
+        setSelectedCourses(profileCourses.map((course) => ({ code: course.code, name: course.name })));
+    }
     
     const handleInputChange = async (e: React.ChangeEvent<HTMLSelectElement>) => {
         const lecturerId = e.target.value;
         const lecturer = lecturers.find((lecturer) => lecturer.id === lecturerId);
 
         if (lecturer) {
-            const profileCourses = await lecturerProfileService.getLecturerProfileCourses(lecturer.profile.id);
-            setSelectedCourses(profileCourses.map((course) => ({ code: course.code, name: course.name })));
+            setLecturerSelectedCourses(lecturer.profile.id);
             setLecturer(lecturer);
         }
     }
