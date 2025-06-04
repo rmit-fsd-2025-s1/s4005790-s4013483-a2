@@ -71,12 +71,10 @@ const EditCourses = () => {
     const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
         if (action === "Add") {
             setCourse({ ...course, [e.target.name]: e.target.value });
-            console.log(course);
         }
         else if (action === "Edit") {
             if (selectedCourse) {
                 setSelectedCourse({ ...selectedCourse, [e.target.name]: e.target.value });
-                console.log(selectedCourse);
             }
         }
     }
@@ -118,7 +116,6 @@ const EditCourses = () => {
             router.refresh();
         }
         else if (action === "Delete") {
-            console.log(selectedCourse.code);
             await courseService.deleteCourse(selectedCourse.code);
             router.refresh();
         }
