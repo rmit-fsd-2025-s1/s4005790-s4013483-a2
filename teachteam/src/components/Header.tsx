@@ -45,6 +45,7 @@ const Header = () => {
             <>
               <Button as="a" href="/ProfileLecturer" colorScheme="teal" variant="outline">Profile</Button>
               <Button as="a" href="/lecturer" colorScheme="teal" variant="outline">Home Page</Button>
+              <Button as="a" href="/lecturerAnalytics" colorScheme="teal" variant="outline">Analytics</Button>
             </>
           )}
           {user ? (

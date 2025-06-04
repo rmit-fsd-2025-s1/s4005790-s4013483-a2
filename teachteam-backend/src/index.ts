@@ -15,6 +15,7 @@ import { expressMiddleware } from "@apollo/server/express4";
 import { ApolloServer } from "@apollo/server";
 import { typeDefs } from "./graphql/schema";
 import { resolvers } from "./graphql/resolvers";
+import lecturerAnalyticsRoutes from "./routes/lecturerAnalytics.routes";
 
 const app = express();
 const PORT = process.env.PORT || 3001;
@@ -30,6 +31,7 @@ app.use("/api", tutorProfileRoutes);
 app.use("/api", preferenceRoutes);
 app.use("/api", notificationRoutes);
 app.use("/api", adminRoutes);
+app.use("/api", lecturerAnalyticsRoutes);
 
 async function startServer() {
   const apolloServer = new ApolloServer({

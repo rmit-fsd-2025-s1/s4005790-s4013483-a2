@@ -102,4 +102,9 @@ export const lecturerApi = {
     const response = await api.post(`/lecturers/email/${email}/courses`, { courseCodes });
     return response.data;
   },
+
+  getAnalytics: async (lecturerId: number) => {
+    const response = await api.get(`/lecturer-analytics/${lecturerId}`);
+    return response.data;
+  },
 };
