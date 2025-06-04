@@ -62,9 +62,9 @@ const GET_LECTURERS = gql`
   }
 `;
 
-const ADD_COURSE_TO_LECTURER = gql`
-  mutation AddCourseToLecturer($courseCodes: [String!]!, $lecturerId: ID!) {
-    addCourseToLecturer(courseCodes: $courseCodes, lecturerId: $lecturerId) {
+const ADD_COURSE_TO_LECTURER_PROFILE = gql`
+  mutation AddCourseToLecturerProfile($courseCodes: [String!]!, $lecturerProfileId: ID!) {
+    addCourseToLecturerProfile(courseCodes: $courseCodes, lecturerProfileId: $lecturerProfileId) {
       courses {
         code
       }
@@ -100,15 +100,16 @@ export const lecturerService = {
     const { data } = await client.query({ query: GET_LECTURERS });
     return data.lecturers;
   },
-  addCourseToLecturer: async (courseCodes: string[], lecturerId: string): Promise<LecturerProfile> => {
-    const { data } = await client.mutate({ mutation: ADD_COURSE_TO_LECTURER, variables: { courseCodes, lecturerId } });
-    return data.addCourseToLecturer;
-  },
+
 };
 
 export const lecturerProfileService = {
   getLecturerProfileCourses: async (lecturerProfileId: string): Promise<Course[]> => {
     const { data } = await client.query({ query: GET_LECTURER_PROFILE_COURSES, variables: { lecturerProfileId } });
     return data.lecturerProfileCourses;
+  },
+  addCourseToLecturerProfile: async (courseCodes: string[], lecturerProfileId: string): Promise<LecturerProfile> => {
+    const { data } = await client.mutate({ mutation: ADD_COURSE_TO_LECTURER_PROFILE, variables: { courseCodes, lecturerProfileId } });
+    return data.addCourseToLecturerProfile;
   },
 };

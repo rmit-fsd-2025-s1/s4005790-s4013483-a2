@@ -36,19 +36,11 @@ export const resolvers = {
         }
     },
     Mutation: {
-        addCourseToLecturer: async (_: any, { courseCodes, lecturerId }: { courseCodes: string[], lecturerId: string }) => {
-            const lecturer = await lecturerRepository.findOne({
-            where: { id: parseInt(lecturerId) },
-            relations: ["profile"],
-            });
-            if (!lecturer || !lecturer.profile) {
-                throw new Error("Lecturer or profile not found");
-            }
-    
+        addCourseToLecturerProfile: async (_: any, { courseCodes, lecturerProfileId }: { courseCodes: string[], lecturerProfileId: string }) => {
             const courses = await courseRepository.findByIds(courseCodes);
     
             const profile = await lecturerProfileRepository.findOne({
-            where: { id: lecturer.profile.id },
+            where: { id: parseInt(lecturerProfileId) },
             relations: ["courses"],
             });
     
