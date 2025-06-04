@@ -51,6 +51,21 @@ export const resolvers = {
             profile.courses = courses;
     
             return await lecturerProfileRepository.save(profile);
+        },
+        addCourse: async (_: any, { code, name, skills, description }: { code: string, name: string, skills: string[], description: string }) => {
+            const newCourse = await courseRepository.save({ code, name, skills, description });
+            return newCourse;
+        },
+        updateCourse: async (_: any, { code, name, skills, description }: { code: string, name: string, skills: string[], description: string }) => {
+            const updatedCourse = await courseRepository.save({ code, name, skills, description });
+            return updatedCourse;
+        },
+        deleteCourse: async (_: any, { code }: { code: string }): Promise<boolean> => {
+            const deletedCourse = await courseRepository.delete(code);
+            if (deletedCourse.affected) {
+                return true;
+            }
+            return false;
         }
     },
 };

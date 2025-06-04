@@ -46,6 +46,17 @@ const GET_COURSES = gql`
     courses {
       code
       name
+      skills
+      description
+    }
+  }
+`;
+
+const GET_COURSES_CODE_NAME = gql`
+  query GetCoursesCodeName {
+    courses {
+      code
+      name
     }
   }
 `;
@@ -81,6 +92,28 @@ const GET_LECTURER_PROFILE_COURSES = gql`
   }
 `;
 
+const ADD_COURSE = gql`
+  mutation AddCourse($code: String!, $name: String!, $skills: [String!]!, $description: String!) {
+    addCourse(code: $code, name: $name, skills: $skills, description: $description) {
+      code
+    }
+  }
+`;
+
+const UPDATE_COURSE = gql`
+  mutation UpdateCourse($code: String!, $name: String!, $skills: [String!]!, $description: String!) {
+    updateCourse(code: $code, name: $name, skills: $skills, description: $description) {
+      code
+    }
+  }
+`;
+
+const DELETE_COURSE = gql`
+  mutation DeleteCourse($code: String!) {
+    deleteCourse(code: $code)
+  }
+`;
+
 export const adminService = {
   getAllAdmins: async (): Promise<Admin[]> => {
     const { data } = await client.query({ query: GET_ADMINS });
@@ -92,6 +125,22 @@ export const courseService = {
   getAllCourses: async (): Promise<Course[]> => {
     const { data } = await client.query({ query: GET_COURSES });
     return data.courses;
+  },
+  getAllCoursesCodeName: async (): Promise<Course[]> => {
+    const { data } = await client.query({ query: GET_COURSES_CODE_NAME });
+    return data.courses;
+  },
+  addCourse: async (course: Course): Promise<Course> => {
+    const { data } = await client.mutate({ mutation: ADD_COURSE, variables: { code: course.code, name: course.name, skills: course.skills, description: course.description } });
+    return data.addCourse;
+  },
+  updateCourse: async (course: Course): Promise<Course> => {
+    const { data } = await client.mutate({ mutation: UPDATE_COURSE, variables: { code: course.code, name: course.name, skills: course.skills, description: course.description } });
+    return data.updateCourse;
+  },
+  deleteCourse: async (code: string): Promise<Course> => {
+    const { data } = await client.mutate({ mutation: DELETE_COURSE, variables: { code } });
+    return data.deleteCourse;
   },
 };
 

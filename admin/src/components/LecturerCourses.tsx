@@ -11,7 +11,7 @@ const LecturerCourses = () => {
     async function setLecturersAndCourses() {
         const temp = await lecturerService.getAllLecturers();
         setLecturers(temp);
-        setCourses(await courseService.getAllCourses());
+        setCourses(await courseService.getAllCoursesCodeName());
         setLecturer(temp[0]);
         setLecturerSelectedCourses(temp[0].profile.id);
     }
