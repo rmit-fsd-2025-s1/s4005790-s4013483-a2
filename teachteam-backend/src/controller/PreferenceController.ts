@@ -7,28 +7,31 @@ export class PreferenceController {
 
   async getByCourseAndLecturer(req: Request, res: Response) {
     const { courseCode, lecturerId } = req.params;
+    const { role } = req.query; // get role from query param
+    const where: any = { courseCode, lecturerId: Number(lecturerId) };
+    if (role) where.role = role;
     const preferences = await this.preferenceRepository.find({
-      where: { courseCode, lecturerId: Number(lecturerId) },
+      where,
       order: { preference_rank: "ASC" },
     });
     res.json(preferences);
   }
 
   async saveRankings(req: Request, res: Response) {
-    const { courseCode, lecturerId, rankings } = req.body;
+    const { courseCode, lecturerId, role, rankings } = req.body;
     try {
-      await this.preferenceRepository.delete({ courseCode, lecturerId });
+      // Delete only the preferences for this course/lecturer/role
+      await this.preferenceRepository.delete({ courseCode, lecturerId, role });
       const toSave = rankings.map((r: any) => ({
         courseCode,
         lecturerId,
+        role,
         applicationId: r.applicationId,
-        preference_rank: r.preference_rank ?? r.rank, // Accepts either field from frontend
+        preference_rank: r.preference_rank ?? r.rank,
       }));
-      console.log("Saving preferences:", toSave);
       const saved = await this.preferenceRepository.save(toSave);
       res.json(saved);
     } catch (e) {
-      console.error("Error saving preferences: ", e)
       res.status(400).json({ message: "Error saving preferences", error: e });
     }
   }

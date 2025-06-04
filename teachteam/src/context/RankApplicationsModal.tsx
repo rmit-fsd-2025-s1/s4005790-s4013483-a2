@@ -30,6 +30,7 @@ type RankApplicationsModalProps = {
   isOpen: boolean;
   onClose: () => void;
   courseCode: string;
+  role: string; // NEW: role prop ("Tutor" or "Lab-Assistant")
   applications: Application[];
 };
 
@@ -39,6 +40,7 @@ const RankApplicationsModal: React.FC<RankApplicationsModalProps> = ({
   isOpen,
   onClose,
   courseCode,
+  role,
   applications,
 }) => {
   const [ranked, setRanked] = useState<Application[]>([]);
@@ -47,10 +49,12 @@ const RankApplicationsModal: React.FC<RankApplicationsModalProps> = ({
   const toast = useToast();
 
   useEffect(() => {
-    if (!isOpen || !courseCode || !user) return;
+    if (!isOpen || !courseCode || !role || !user) return;
     const fetchPreferences = async () => {
       try {
-        const response = await api.get(`/preferences/${courseCode}/${getLecturerId(user)}`);
+        const response = await api.get(
+          `/preferences/${courseCode}/${getLecturerId(user)}?role=${encodeURIComponent(role)}`
+        );
         const prefs = response.data;
         if (prefs && prefs.length) {
           const ordered = prefs
@@ -66,7 +70,7 @@ const RankApplicationsModal: React.FC<RankApplicationsModalProps> = ({
       }
     };
     fetchPreferences();
-  }, [isOpen, courseCode, applications, user]);
+  }, [isOpen, courseCode, applications, user, role]);
 
   const onDragEnd = useCallback((result: any) => {
     if (!result.destination) return;
@@ -82,6 +86,7 @@ const RankApplicationsModal: React.FC<RankApplicationsModalProps> = ({
       await api.post("/preferences/save", {
         courseCode,
         lecturerId: getLecturerId(user),
+        role, // include role
         rankings: ranked.map((a, idx) => ({
           applicationId: a.id,
           preference_rank: idx + 1,
@@ -100,7 +105,9 @@ const RankApplicationsModal: React.FC<RankApplicationsModalProps> = ({
     <Modal isOpen={isOpen} onClose={onClose} size="lg" scrollBehavior="inside">
       <ModalOverlay />
       <ModalContent>
-        <ModalHeader>Rank Applications</ModalHeader>
+        <ModalHeader>
+          Rank Applications ({role})
+        </ModalHeader>
         <ModalBody>
           <Text fontSize="sm" mb={3} color="gray.600">
             Drag cards to set your preference order. Top card is most preferred.

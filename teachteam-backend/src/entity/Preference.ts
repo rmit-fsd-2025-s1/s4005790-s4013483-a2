@@ -16,4 +16,7 @@ export class Preference {
 
   @Column()
   courseCode: string;
+
+  @Column()
+  role: string; 
 }

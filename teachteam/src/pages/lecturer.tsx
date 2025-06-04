@@ -181,6 +181,7 @@ export default function Lecturer() {
     }
   };
 
+  // --- NEW: Refactored layout: search left, tutor apps top, subject table below ---
   return (
     <Box display="flex" flexDirection="column" minHeight="100vh">
       <Header />
@@ -191,8 +192,8 @@ export default function Lecturer() {
         <Text color="#032e5b" textAlign="center" mb={6}>
           Welcome, {user?.name} the Lecturer!
         </Text>
-        {/* Layout: Search (left), Tutor Applications (center), Subject Table (right) */}
-        <Flex mt={8} gap={6} justifyContent="space-between" align="flex-start" width="100%">
+        <Flex mt={8} gap={6} align="flex-start" width="100%">
+          {/* Search Column - left, unchanged */}
           <Box w="22%" minW="260px" maxW="320px">
             <Heading as="h2" size="md" mb={4} color="#032e5b" textAlign="center">
               Search Application
@@ -202,31 +203,34 @@ export default function Lecturer() {
               onSearch={setSearchCriteria}
             />
           </Box>
-          <Box w="46%" minW="320px" maxW="700px">
-            <Heading as="h2" size="lg" mb={4} color="#032e5b" textAlign="center">
-              Tutor Applications
-            </Heading>
-            <VStack spacing={4} align="stretch">
-              {filteredApplications
-                .filter((application) => application.outcome !== "Approved")
-                .map((application, index) => (
-                  <Box key={index} p={4} borderWidth="1px" borderRadius="lg">
-                    <HStack justifyContent="space-between" flexWrap="wrap">
-                      <Link onClick={() => handleViewProfile(application.email)} color="teal.500">
-                        <Text><strong>Name:</strong> {application.name}</Text>
-                      </Link>
-                      <Text color="#032e5b"><strong>Course:</strong> {application.courseName}</Text>
-                      <Text color="#032e5b"><strong>Session Type:</strong> {application.sessionType}</Text>
-                      <Text color="#032e5b"><strong>Availability:</strong> {application.availability}</Text>
-                      <Text color="#032e5b"><strong>Skills fulfilled:</strong> {application.skillsFulfilled}</Text>
-                      <Button onClick={() => handleViewApplication(application)}>View Details</Button>
-                    </HStack>
-                  </Box>
-                ))}
-            </VStack>
-          </Box>
-          <Box w="28%" minW="250px" maxW="420px">
-            <SubjectTable courses={managedCourses} applications={allApplications} />
+          {/* Main Column: Tutor Applications (top), Subject Table (bottom) */}
+          <Box flex="1" minW="320px" maxW="900px">
+            <Box>
+              <Heading as="h2" size="lg" mb={4} color="#032e5b" textAlign="center">
+                Tutor Applications
+              </Heading>
+              <VStack spacing={4} align="stretch" mb={8}>
+                {filteredApplications
+                  .filter((application) => application.outcome !== "Approved")
+                  .map((application, index) => (
+                    <Box key={index} p={4} borderWidth="1px" borderRadius="lg">
+                      <HStack justifyContent="space-between" flexWrap="wrap">
+                        <Link onClick={() => handleViewProfile(application.email)} color="teal.500">
+                          <Text><strong>Name:</strong> {application.name}</Text>
+                        </Link>
+                        <Text color="#032e5b"><strong>Course:</strong> {application.courseName}</Text>
+                        <Text color="#032e5b"><strong>Session Type:</strong> {application.sessionType}</Text>
+                        <Text color="#032e5b"><strong>Availability:</strong> {application.availability}</Text>
+                        <Text color="#032e5b"><strong>Skills fulfilled:</strong> {application.skillsFulfilled}</Text>
+                        <Button onClick={() => handleViewApplication(application)}>View Details</Button>
+                      </HStack>
+                    </Box>
+                  ))}
+              </VStack>
+            </Box>
+            <Box mt={4}>
+              <SubjectTable courses={managedCourses} applications={allApplications} />
+            </Box>
           </Box>
         </Flex>
       </Box>

@@ -1,5 +1,19 @@
 import { useState } from "react";
-import { Box, Table, Thead, Tbody, Tr, Th, Td, Link, Text, useDisclosure, TableContainer, Heading } from "@chakra-ui/react";
+import {
+  Box,
+  Table,
+  Thead,
+  Tbody,
+  Tr,
+  Th,
+  Td,
+  Text,
+  useDisclosure,
+  TableContainer,
+  Heading,
+  Button,
+  ButtonGroup
+} from "@chakra-ui/react";
 import RankApplicationsModal from "@/context/RankApplicationsModal";
 import { Course } from "./CoursesList";
 
@@ -7,6 +21,7 @@ interface Application {
   id: number;
   courseCode: string;
   outcome: string;
+  roles: string; // Ensure this is present
 }
 
 interface SubjectTableProps {
@@ -14,9 +29,12 @@ interface SubjectTableProps {
   applications: Application[];
 }
 
+const ROLES = ["Tutor", "Lab-Assistant"];
+
 const SubjectTable = ({ courses, applications }: SubjectTableProps) => {
   const { isOpen, onOpen, onClose } = useDisclosure();
   const [selectedCourseCode, setSelectedCourseCode] = useState<string | null>(null);
+  const [selectedRole, setSelectedRole] = useState<string>("Tutor");
   const [sortConfig, setSortConfig] = useState<{ key: string; direction: "asc" | "desc" | null }>({
     key: "",
     direction: null,
@@ -63,8 +81,9 @@ const SubjectTable = ({ courses, applications }: SubjectTableProps) => {
     return 0;
   });
 
-  const handleSubjectClick = (courseCode: string) => {
+  const handleSubjectClick = (courseCode: string, role: string) => {
     setSelectedCourseCode(courseCode);
+    setSelectedRole(role);
     onOpen();
   };
 
@@ -121,6 +140,9 @@ const SubjectTable = ({ courses, applications }: SubjectTableProps) => {
               >
                 Approved {sortConfig.key === "approvedApplications" && (sortConfig.direction === "asc" ? "▲" : sortConfig.direction === "desc" ? "▼" : "")}
               </Th>
+              <Th color="#032e5b" p={1} fontSize="sm" textAlign="center" minW="120px">
+                Rank Applications
+              </Th>
             </Tr>
           </Thead>
           <Tbody>
@@ -134,17 +156,22 @@ const SubjectTable = ({ courses, applications }: SubjectTableProps) => {
                   whiteSpace="normal"
                   wordBreak="break-word"
                 >
-                  <Link
-                    onClick={() => handleSubjectClick(course.code)}
-                    color="teal.500"
-                    cursor="pointer"
-                  >
-                    {course.name}
-                  </Link>
+                  {/* Not clickable anymore */}
+                  <Text color="#032e5b">{course.name}</Text>
                 </Td>
                 <Td p={1} fontSize="sm" color="#032e5b" minW="60px" maxW="80px">{course.code}</Td>
                 <Td p={1} fontSize="sm" color="#032e5b" textAlign="center" minW="70px">{getReceivedApplicationCount(course.code)}</Td>
                 <Td p={1} fontSize="sm" color="#032e5b" textAlign="center" minW="70px">{getApprovedApplicationCount(course.code)}</Td>
+                <Td p={1} fontSize="sm" textAlign="center" minW="120px">
+                  <ButtonGroup size="sm" variant="outline">
+                    <Button colorScheme="teal" onClick={() => handleSubjectClick(course.code, "Tutor")}>
+                      Rank Tutors
+                    </Button>
+                    <Button colorScheme="purple" onClick={() => handleSubjectClick(course.code, "Lab-Assistant")}>
+                      Rank Lab-Assistants
+                    </Button>
+                  </ButtonGroup>
+                </Td>
               </Tr>
             ))}
           </Tbody>
@@ -160,7 +187,12 @@ const SubjectTable = ({ courses, applications }: SubjectTableProps) => {
           isOpen={isOpen}
           onClose={onClose}
           courseCode={selectedCourseCode}
-          applications={applications.filter(app => app.courseCode === selectedCourseCode && app.outcome === "Approved")}
+          role={selectedRole}
+          applications={applications.filter(app =>
+            app.courseCode === selectedCourseCode &&
+            app.outcome === "Approved" &&
+            app.roles === selectedRole
+          )}
         />
       )}
     </Box>
