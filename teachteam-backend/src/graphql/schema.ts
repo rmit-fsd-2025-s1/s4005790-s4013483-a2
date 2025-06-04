@@ -11,6 +11,7 @@ export const typeDefs = gql`
         name: String!
         skills: [String!]!
         description: String!
+        lecturers: [LecturerProfile]
     }
     type Lecturer {
         id: ID!
@@ -25,7 +26,7 @@ export const typeDefs = gql`
         contact: String
         biography: String
         links: String
-        courses: [Course!]
+        courses: [Course]
     }
 
     type Query {
@@ -37,6 +38,6 @@ export const typeDefs = gql`
     }
 
     type Mutation {
-        addCourseToLecturer(courseCodes: [String!]!, lecturerId: ID!): LecturerProfile!
+        addCourseToLecturerProfile(courseCodes: [String!]!, lecturerProfileId: ID!): LecturerProfile!
     }
 `;
