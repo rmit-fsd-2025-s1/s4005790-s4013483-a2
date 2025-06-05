@@ -98,7 +98,6 @@ export default function Lecturer() {
         }
         const requiredSkills: string[] = app.courseSkills || course?.skills || [];
         const fulfilledSkills = tutorSkills.filter(skill => requiredSkills.includes(skill)).length;
-        // FIX: Remove lowercasing, format session type for display
         const sessionType = formatSessionType(app.roles);
 
         return {
@@ -123,10 +122,8 @@ export default function Lecturer() {
   const filteredApplications = tutorApplications.filter(application => {
     const matchesCourse = !searchCriteria.courseCode || application.courseCode === searchCriteria.courseCode;
     const matchesName = !searchCriteria.tutorName || application.name.toLowerCase().includes(searchCriteria.tutorName.toLowerCase());
-    // Session type: match "Tutor" or "Lab Assistant"
     const matchesSessionType = !searchCriteria.sessionType || (application.sessionType && application.sessionType === searchCriteria.sessionType);
     const matchesAvailability = !searchCriteria.availability || application.availability === searchCriteria.availability;
-    // Skills: every selected skill must be present in the applicant's skills
     const matchesSkills = !searchCriteria.skills.length || searchCriteria.skills.every(skill =>
       application.tutorSkills && application.tutorSkills.toLowerCase().includes(skill.toLowerCase())
     );
@@ -150,7 +147,7 @@ export default function Lecturer() {
     onProfileOpen();
   };
 
-  // Approve/Reject logic: update application outcome and refetch applications for latest state
+  // Approve logic: update application outcome and refetch applications for latest state
   const handleApproveApplication = async () => {
     if (selectedApplication) {
       await lecturerApi.updateApplicationOutcome(selectedApplication.id, "Approved");
@@ -160,9 +157,11 @@ export default function Lecturer() {
     }
   };
 
+  // Reject logic: update application outcome, DELETE, and refetch applications for latest state
   const handleRejectApplication = async () => {
     if (selectedApplication) {
       await lecturerApi.updateApplicationOutcome(selectedApplication.id, "Rejected");
+      await lecturerApi.deleteApplication(selectedApplication.id); // Remove from DB
       lecturerApi.getAllApplications().then(setAllApplications);
       setSelectedApplication(null);
       onClose();
@@ -181,7 +180,6 @@ export default function Lecturer() {
     }
   };
 
-  // --- NEW: Refactored layout: search left, tutor apps top, subject table below ---
   return (
     <Box display="flex" flexDirection="column" minHeight="100vh">
       <Header />
