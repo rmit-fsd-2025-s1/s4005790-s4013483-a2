@@ -27,6 +27,9 @@ async function validateForm(user: { email: string; password: string }): Promise<
     : null;
 
   if (userExists && await bcrypt.compare(user.password, userExists.password)) {
+    if (userExists.blocked) {
+      return "Your account is blocked!";
+    }
     return  { 
       email: userExists.email,
       role: userExists.role,
