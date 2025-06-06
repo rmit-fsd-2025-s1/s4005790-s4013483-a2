@@ -20,6 +20,9 @@ export class Tutor {
   @Column({ type: "varchar", length: 100 })
   password: string;
 
+  @Column({ type: "boolean", default: false })
+  blocked: boolean;
+
   @CreateDateColumn({ type: "timestamp" })
   createdAt: Date;
 

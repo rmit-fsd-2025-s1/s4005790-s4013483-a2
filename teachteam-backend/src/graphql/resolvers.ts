@@ -3,11 +3,13 @@ import { Admin } from "../entity/Admin";
 import { Lecturer } from "../entity/Lecturer";
 import { LecturerProfile } from "../entity/LecturerProfile";
 import { Course } from "../entity/Course";
+import { Tutor } from "../entity/Tutor";
 
 const adminRepository = AppDataSource.getRepository(Admin);
 const courseRepository = AppDataSource.getRepository(Course);
 const lecturerRepository = AppDataSource.getRepository(Lecturer);
 const lecturerProfileRepository = AppDataSource.getRepository(LecturerProfile);
+const tutorRepository = AppDataSource.getRepository(Tutor);
 
 export const resolvers = {
     Query: {
@@ -33,6 +35,10 @@ export const resolvers = {
                 relations: ["courses"],
             });
             return lecturerProfile?.courses || [];
+        },
+        tutors: async () => {
+            const tutors = await tutorRepository.find();
+            return tutors;
         }
     },
     Mutation: {
@@ -66,6 +72,14 @@ export const resolvers = {
                 return true;
             }
             return false;
+        },
+        changeTutorBlockedStatus: async (_: any, { id, blocked }: { id: string, blocked: boolean }) => {
+            const tutor = await tutorRepository.findOne({ where: { id: parseInt(id) } });
+            if (!tutor) {
+                throw new Error("Tutor not found");
+            }
+            tutor.blocked = blocked;
+            return await tutorRepository.save(tutor);
         }
     },
 };

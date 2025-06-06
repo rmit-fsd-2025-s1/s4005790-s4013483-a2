@@ -27,12 +27,21 @@ export const typeDefs = gql`
         links: String
     }
 
+    type Tutor {
+        id: ID!
+        name: String!
+        email: String!
+        password: String!
+        blocked: Boolean!
+    }
+
     type Query {
         admins: [Admin!]!
         courses: [Course!]!
         lecturers: [Lecturer!]!
         lecturerProfile: [LecturerProfile!]!
         lecturerProfileCourses(lecturerProfileId: ID!): [Course!]!
+        tutors: [Tutor!]!
     }
 
     type Mutation {
@@ -40,5 +49,6 @@ export const typeDefs = gql`
         addCourse(code: String!, name: String!, skills: [String!]!, description: String!): Course!
         updateCourse(code: String!, name: String!, skills: [String!]!, description: String!): Course!
         deleteCourse(code: String!): Boolean!
+        changeTutorBlockedStatus(id: ID!, blocked: Boolean!): Tutor!
     }
 `;
