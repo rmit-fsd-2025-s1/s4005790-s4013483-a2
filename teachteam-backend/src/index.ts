@@ -1,5 +1,5 @@
 import "reflect-metadata";
-import express from "express";
+import express, { json } from "express";
 import { AppDataSource } from "./data-source";
 import lecturerRoutes from "./routes/lecturer.routes";
 import tutorRoutes from "./routes/tutor.routes";
@@ -16,8 +16,14 @@ import { ApolloServer } from "@apollo/server";
 import { typeDefs } from "./graphql/schema";
 import { resolvers } from "./graphql/resolvers";
 import lecturerAnalyticsRoutes from "./routes/lecturerAnalytics.routes";
+import { WebSocketServer } from "ws";
+import http from "http";
+import { makeExecutableSchema } from "@graphql-tools/schema";
+import { ApolloServerPluginDrainHttpServer } from "@apollo/server/plugin/drainHttpServer";
+import { useServer } from "graphql-ws/lib/use/ws";
 
 const app = express();
+const httpServer = http.createServer(app);
 const PORT = process.env.PORT || 3001;
 
 app.use(cors());
@@ -34,19 +40,45 @@ app.use("/api", adminRoutes);
 app.use("/api", lecturerAnalyticsRoutes);
 
 async function startServer() {
+  const ws = new WebSocketServer({
+    server: httpServer,
+    path: "/graphql",
+  });
+
+  const schema = makeExecutableSchema({ typeDefs, resolvers });
+
+  const serverCleanup = useServer({ schema }, ws);
+
   const apolloServer = new ApolloServer({
-    typeDefs,
-    resolvers,
+    schema,
+    plugins: [
+      ApolloServerPluginDrainHttpServer({ httpServer }),
+      {
+        async serverWillStart() {
+          return {
+            async drainServer() {
+              await serverCleanup.dispose();
+            },
+          };
+        },
+      },
+    ],
   });
 
   await apolloServer.start();
 
-  app.use("/graphql", expressMiddleware(apolloServer));
+  app.use(
+    "/graphql",
+    cors<cors.CorsRequest>(),
+    json(),
+    expressMiddleware(apolloServer)
+  );
 
   await AppDataSource.initialize();
   console.log("Data Source has been initialized!");
 
-  app.listen(PORT, () => {
+
+  httpServer.listen(PORT, () => {
     console.log(`Server is running on port ${PORT}`);
     console.log(`GraphQL endpoint: http://localhost:${PORT}/graphql`);
   });

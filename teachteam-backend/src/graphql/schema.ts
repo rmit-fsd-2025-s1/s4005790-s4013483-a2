@@ -1,4 +1,7 @@
 import { gql } from "graphql-tag";
+import { PubSub } from "graphql-subscriptions";
+
+export const pubsub = new PubSub();
 
 export const typeDefs = gql`
     type Admin {
@@ -64,5 +67,9 @@ export const typeDefs = gql`
         updateCourse(code: String!, name: String!, skills: [String!]!, description: String!): Course!
         deleteCourse(code: String!): Boolean!
         updateTutorBlocked(id: ID!, blocked: Boolean!): Tutor!
+    }
+
+    type Subscription {
+        tutorUnavailable(tutorId: ID!): Tutor!
     }
 `;

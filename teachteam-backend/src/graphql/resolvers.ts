@@ -5,6 +5,7 @@ import { LecturerProfile } from "../entity/LecturerProfile";
 import { Course } from "../entity/Course";
 import { Tutor } from "../entity/Tutor";
 import { Application } from "../entity/Application";
+import { pubsub } from "./schema";
 
 const adminRepository = AppDataSource.getRepository(Admin);
 const courseRepository = AppDataSource.getRepository(Course);
@@ -87,5 +88,12 @@ export const resolvers = {
             tutor.blocked = blocked;
             return await tutorRepository.save(tutor);
         }
+    },
+    Subscription: {
+        tutorUnavailable: {
+            subscribe: async (_: any, { tutorId }: { tutorId: string }) => {
+                return pubsub.asyncIterator(`tutorUnavailable ${tutorId}`);
+            },
+        },
     },
 };
