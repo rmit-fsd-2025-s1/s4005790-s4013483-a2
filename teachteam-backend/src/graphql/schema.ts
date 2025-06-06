@@ -34,6 +34,19 @@ export const typeDefs = gql`
         password: String!
         blocked: Boolean!
     }
+    type Application {
+        id: ID!
+        roles: String!
+        courseCode: String!
+        courseName: String!
+        outcome: String!
+        expressionOfInterest: String!
+        note: String!
+        email: String!
+        courseSkills: [String]
+        tutorSkills: [String]
+        skillsFulfilled: String!
+    }
 
     type Query {
         admins: [Admin!]!
@@ -42,6 +55,7 @@ export const typeDefs = gql`
         lecturerProfile: [LecturerProfile!]!
         lecturerProfileCourses(lecturerProfileId: ID!): [Course!]!
         tutors: [Tutor!]!
+        applications: [Application!]!
     }
 
     type Mutation {

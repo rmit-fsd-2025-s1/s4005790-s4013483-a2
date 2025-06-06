@@ -39,7 +39,20 @@ export interface Tutor {
   blocked: boolean;
 }
 
-// GraphQL Queries
+export interface Application {
+  id: string;
+  roles: string;
+  courseCode: string;
+  courseName: string;
+  outcome: string;
+  expressionOfInterest: string;
+  note: string;
+  email: string;
+  courseSkills: string[];
+  tutorSkills: string[];
+  skillsFulfilled: string;
+}
+
 const GET_ADMINS = gql`
   query GetAdmins {
     admins {
@@ -97,6 +110,17 @@ const GET_TUTORS = gql`
       name
       email
       blocked
+    }
+  }
+`;
+
+const GET_APPLICATIONS = gql`
+  query GetApplications {
+    applications {
+      email
+      courseCode
+      courseName
+      outcome
     }
   }
 `;
@@ -200,5 +224,12 @@ export const lecturerProfileService = {
   addCourseToLecturerProfile: async (courseCodes: string[], lecturerProfileId: string): Promise<LecturerProfile> => {
     const { data } = await client.mutate({ mutation: ADD_COURSE_TO_LECTURER_PROFILE, variables: { courseCodes, lecturerProfileId } });
     return data.addCourseToLecturerProfile;
+  },
+};
+
+export const applicationService = {
+  getAllApplications: async (): Promise<Application[]> => {
+    const { data } = await client.query({ query: GET_APPLICATIONS });
+    return data.applications;
   },
 };

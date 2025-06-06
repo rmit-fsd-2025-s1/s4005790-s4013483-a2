@@ -4,12 +4,14 @@ import { Lecturer } from "../entity/Lecturer";
 import { LecturerProfile } from "../entity/LecturerProfile";
 import { Course } from "../entity/Course";
 import { Tutor } from "../entity/Tutor";
+import { Application } from "../entity/Application";
 
 const adminRepository = AppDataSource.getRepository(Admin);
 const courseRepository = AppDataSource.getRepository(Course);
 const lecturerRepository = AppDataSource.getRepository(Lecturer);
 const lecturerProfileRepository = AppDataSource.getRepository(LecturerProfile);
 const tutorRepository = AppDataSource.getRepository(Tutor);
+const applicationRepository = AppDataSource.getRepository(Application);
 
 export const resolvers = {
     Query: {
@@ -39,6 +41,10 @@ export const resolvers = {
         tutors: async () => {
             const tutors = await tutorRepository.find();
             return tutors;
+        },
+        applications: async () => {
+            const applications = await applicationRepository.find();
+            return applications;
         }
     },
     Mutation: {
