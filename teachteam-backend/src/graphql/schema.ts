@@ -70,6 +70,6 @@ export const typeDefs = gql`
     }
 
     type Subscription {
-        tutorUnavailable(tutorId: ID!): Tutor!
+        tutorUnavailable: Tutor!
     }
 `;

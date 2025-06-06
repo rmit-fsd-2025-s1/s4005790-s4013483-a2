@@ -86,13 +86,15 @@ export const resolvers = {
                 throw new Error("Tutor not found");
             }
             tutor.blocked = blocked;
+            if (blocked) {
+                pubsub.publish(`TUTOR_UNAVAILABLE`, { tutorUnavailable: tutor });
+            }
             return await tutorRepository.save(tutor);
         }
     },
     Subscription: {
         tutorUnavailable: {
-            subscribe: async (_: any, { tutorId }: { tutorId: string }) => {
-                return pubsub.asyncIterator(`tutorUnavailable ${tutorId}`);
+            subscribe: () => { return pubsub.asyncIterator(`TUTOR_UNAVAILABLE`);
             },
         },
     },
