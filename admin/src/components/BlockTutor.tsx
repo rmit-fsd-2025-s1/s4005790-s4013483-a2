@@ -33,7 +33,7 @@ const BlockTutor = () => {
                             <option value={tutor.id}>{tutor.name}</option>
                         ))}
                     </Select>
-                    <Button type="submit">{selectedTutor?.blocked ? "Unblock" : "Block"}</Button>
+                    <Button type="submit" colorScheme="red">{selectedTutor?.blocked ? "Unblock" : "Block"}</Button>
                 </FormControl>
             </form>
         </>

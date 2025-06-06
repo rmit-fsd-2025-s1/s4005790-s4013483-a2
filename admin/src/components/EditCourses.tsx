@@ -130,7 +130,7 @@ const EditCourses = () => {
             <form onSubmit={handleSubmit}>
                 <FormControl>
                     <FormLabel fontSize="2xl" fontWeight="bold">Modify Semester Courses</FormLabel>
-                    <FormLabel>Action</FormLabel>
+                    <FormLabel fontWeight="bold">Action</FormLabel>
                     <Select onChange={(e) => setAction(e.target.value as "Add" | "Delete" | "Edit")} value={action}>
                         <option value="Add">Add</option>
                         <option value="Delete">Delete</option>
@@ -138,14 +138,14 @@ const EditCourses = () => {
                     </Select>
                     {action === "Add" && (
                         <>
-                            <FormLabel>Course Code</FormLabel>
+                            <FormLabel fontWeight="bold">Course Code</FormLabel>
                             <Input name="code" value={course.code} onChange={handleChange} />
-                            <FormLabel>Course Name</FormLabel>
+                            <FormLabel fontWeight="bold">Course Name</FormLabel>
                             <Input name="name" value={course.name} onChange={handleChange} />
-                            <FormLabel>Course Description</FormLabel>
+                            <FormLabel fontWeight="bold">Course Description</FormLabel>
                             <Input name="description" value={course.description} onChange={handleChange} />
-                            <FormLabel>Course Skills</FormLabel>
-                            <HStack wrap="wrap" spacing={4}>
+                            <FormLabel fontWeight="bold">Course Skills</FormLabel>
+                            <HStack wrap="wrap">
                                 {skillsList.map((skill) => (
                                     <Checkbox value={skill} onChange={handleCheckboxChange} name="skills">{skill}</Checkbox>
                                 ))}
@@ -175,7 +175,7 @@ const EditCourses = () => {
                         </>
                     )}
                 </FormControl>
-                <Button type="submit">Submit</Button>
+                <Button type="submit" colorScheme="red">Submit</Button>
             </form>
         </>
     );

@@ -1,4 +1,4 @@
-import { Button, Checkbox, CheckboxGroup, FormControl, FormLabel, Select, Stack } from "@chakra-ui/react";
+import { Button, Checkbox, CheckboxGroup, FormControl, FormLabel, HStack, Select, Stack } from "@chakra-ui/react";
 import { lecturerService, courseService, Lecturer, Course, lecturerProfileService } from "@/services/api";
 import { useEffect, useState } from "react";
 
@@ -63,14 +63,15 @@ const LecturerCourses = () => {
         <>
             <form onSubmit={handleSubmit}>
                 <FormControl>
-                    <FormLabel>Lecturer</FormLabel>
+                    <FormLabel fontSize="2xl" fontWeight="bold">Set Lecturer Courses</FormLabel>
+                    <FormLabel fontWeight="bold">Lecturer</FormLabel>
                     <Select onChange={handleInputChange}>
                         {lecturers.map((lecturer) => (
                             <option value={lecturer.id}>{lecturer.name}</option>
                         ))}
                     </Select>
-                    <FormLabel>Courses</FormLabel>
-                    <Stack>
+                    <FormLabel fontWeight="bold">Courses</FormLabel>
+                    <HStack wrap="wrap" spacing={4}>
                         {courses.map((course) =>
                             selectedCourses.map((selectedCourse) => selectedCourse.code).includes(course.code) ? (
                                 <Checkbox isChecked={true} value={course.code} onChange={handleCheckboxChange}>
@@ -82,9 +83,9 @@ const LecturerCourses = () => {
                                 </Checkbox>
                             )
                         )}
-                    </Stack>
+                    </HStack>
                 </FormControl>
-                <Button type="submit">Set Courses</Button>
+                <Button type="submit" colorScheme="red">Set Courses</Button>
             </form>
         </>
     )
