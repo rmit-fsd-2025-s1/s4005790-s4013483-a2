@@ -49,6 +49,6 @@ export const typeDefs = gql`
         addCourse(code: String!, name: String!, skills: [String!]!, description: String!): Course!
         updateCourse(code: String!, name: String!, skills: [String!]!, description: String!): Course!
         deleteCourse(code: String!): Boolean!
-        changeTutorBlockedStatus(id: ID!, blocked: Boolean!): Tutor!
+        updateTutorBlocked(id: ID!, blocked: Boolean!): Tutor!
     }
 `;

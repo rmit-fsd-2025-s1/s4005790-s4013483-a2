@@ -73,7 +73,7 @@ export const resolvers = {
             }
             return false;
         },
-        changeTutorBlockedStatus: async (_: any, { id, blocked }: { id: string, blocked: boolean }) => {
+        updateTutorBlocked: async (_: any, { id, blocked }: { id: string, blocked: boolean }) => {
             const tutor = await tutorRepository.findOne({ where: { id: parseInt(id) } });
             if (!tutor) {
                 throw new Error("Tutor not found");

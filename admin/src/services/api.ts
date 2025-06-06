@@ -31,6 +31,14 @@ export interface LecturerProfile {
   courses: Course[];
 }
 
+export interface Tutor {
+  id: string;
+  name: string;
+  email: string;
+  password: string;
+  blocked: boolean;
+}
+
 // GraphQL Queries
 const GET_ADMINS = gql`
   query GetAdmins {
@@ -73,6 +81,26 @@ const GET_LECTURERS = gql`
   }
 `;
 
+const GET_LECTURER_PROFILE_COURSES = gql`
+  query GetLecturerProfileCourses($lecturerProfileId: ID!) {
+    lecturerProfileCourses(lecturerProfileId: $lecturerProfileId) {
+      name
+      code
+    }
+  }
+`;
+
+const GET_TUTORS = gql`
+  query GetTutors {
+    tutors {
+      id
+      name
+      email
+      blocked
+    }
+  }
+`;
+
 const ADD_COURSE_TO_LECTURER_PROFILE = gql`
   mutation AddCourseToLecturerProfile($courseCodes: [String!]!, $lecturerProfileId: ID!) {
     addCourseToLecturerProfile(courseCodes: $courseCodes, lecturerProfileId: $lecturerProfileId) {
@@ -83,20 +111,18 @@ const ADD_COURSE_TO_LECTURER_PROFILE = gql`
   }
 `;
 
-const GET_LECTURER_PROFILE_COURSES = gql`
-  query GetLecturerProfileCourses($lecturerProfileId: ID!) {
-    lecturerProfileCourses(lecturerProfileId: $lecturerProfileId) {
-      name
-      code
-    }
-  }
-`;
 
 const ADD_COURSE = gql`
   mutation AddCourse($code: String!, $name: String!, $skills: [String!]!, $description: String!) {
     addCourse(code: $code, name: $name, skills: $skills, description: $description) {
       code
     }
+  }
+`;
+
+const DELETE_COURSE = gql`
+  mutation DeleteCourse($code: String!) {
+    deleteCourse(code: $code)
   }
 `;
 
@@ -108,9 +134,12 @@ const UPDATE_COURSE = gql`
   }
 `;
 
-const DELETE_COURSE = gql`
-  mutation DeleteCourse($code: String!) {
-    deleteCourse(code: $code)
+const UPDATE_TUTOR_BLOCKED = gql`
+  mutation UpdateTutorBlocked($id: ID!, $blocked: Boolean!) {
+    updateTutorBlocked(id: $id, blocked: $blocked) {
+      id
+      blocked
+    }
   }
 `;
 
@@ -141,6 +170,17 @@ export const courseService = {
   deleteCourse: async (code: string): Promise<Course> => {
     const { data } = await client.mutate({ mutation: DELETE_COURSE, variables: { code } });
     return data.deleteCourse;
+  },
+};
+
+export const tutorService = {
+  getAllTutors: async (): Promise<Tutor[]> => {
+    const { data } = await client.query({ query: GET_TUTORS });
+    return data.tutors;
+  },
+  updateTutorBlocked: async (id: string, blocked: boolean): Promise<Tutor> => {
+    const { data } = await client.mutate({ mutation: UPDATE_TUTOR_BLOCKED, variables: { id, blocked } });
+    return data.updateTutorBlocked;
   },
 };
 

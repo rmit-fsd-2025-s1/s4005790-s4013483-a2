@@ -3,6 +3,7 @@ import Footer from "@/components/Footer";
 import LecturerCourses from "@/components/LecturerCourses";
 import { Divider } from "@chakra-ui/react";
 import EditCourses from "@/components/EditCourses";
+import BlockTutor from "@/components/BlockTutor";
 
 export default function Home() {
   return (
@@ -11,6 +12,8 @@ export default function Home() {
       <LecturerCourses />
       <Divider my={4} />
       <EditCourses />
+      <Divider my={4} />
+      <BlockTutor />
       <Footer />
     </>
   );
