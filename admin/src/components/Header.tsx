@@ -13,7 +13,7 @@ const Header = () => {
   
   const handleSignOut = () => {
     setUser(null);
-    router.push("/");
+    router.push("/login");
   };
 
   const handleSignOutClick = () => {
