@@ -23,11 +23,7 @@ const Header = () => {
   return (
     <Box as="header" w="100%" p={4} bg="white" boxShadow="md">
       <Grid templateColumns="1fr auto 1fr" alignItems="center">
-        <GridItem>
-          <Button as="a" href="/aboutUs" colorScheme="teal" variant="outline">
-            About Us
-          </Button>
-        </GridItem>
+        <GridItem></GridItem>
         <GridItem justifySelf="center">
           <Link href="/" _hover={{ textDecoration: "none" }}>
             <Image src="/teachteam-logo.png" alt="TeachTeam Logo" width="100" height="100" />
