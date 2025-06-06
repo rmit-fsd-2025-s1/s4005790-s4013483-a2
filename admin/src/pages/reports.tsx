@@ -1,6 +1,6 @@
 import Header from "@/components/Header";
 import Footer from "@/components/Footer";
-import { Button, FormControl, Select, Tr, Thead, Table, TableContainer, Th, Td, Tbody } from "@chakra-ui/react";
+import { Button, FormControl, Select, Tr, Thead, Table, TableContainer, Th, Td, Tbody, FormLabel, Heading } from "@chakra-ui/react";
 import { useEffect, useState } from "react";
 import { Application, applicationService, Course, courseService, Tutor, tutorService } from "@/services/api";
 
@@ -37,6 +37,7 @@ export default function Reports() {
             <Header />
             <form onSubmit={handleSubmit}>
                 <FormControl>
+                    <FormLabel fontSize="2xl" fontWeight="bold">Report Type</FormLabel>
                     <Select onChange={handleChange}>
                         <option value="1">Candidates chosen by course</option>
                         <option value="2">Candidates chosen for more than 3 courses</option>
@@ -47,7 +48,8 @@ export default function Reports() {
             </form>
             {submitted && reportType === "1" && (
             <TableContainer>
-                <Table>
+                <Heading fontSize="2xl" fontWeight="bold">Candidates chosen by course</Heading> 
+                <Table  whiteSpace="normal" overflowWrap="break-word">
                     <Thead>
                         <Tr>
                             <Th>Course</Th>
