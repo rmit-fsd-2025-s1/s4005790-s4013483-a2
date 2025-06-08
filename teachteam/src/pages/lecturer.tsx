@@ -11,6 +11,7 @@ import { useState, useEffect } from "react";
 import { lecturerApi, Application as LecturerApplication } from "@/services/lecturer.api";
 import { tutorApi } from "@/services/tutor.api";
 import { createClient } from "graphql-ws";
+import { useTutorsUnavailable } from "@/context/TutorsUnavailableContext";
 
 function formatSessionType(raw: string) {
   if (!raw) return "";
@@ -19,18 +20,6 @@ function formatSessionType(raw: string) {
   if (lower === "lab-assistant" || lower === "lab assistant") return "Lab Assistant";
   return raw.charAt(0).toUpperCase() + raw.slice(1);
 }
-
-interface TutorUnavailableData {
-  tutorUnavailable: {
-    id: string;
-    name: string;
-    email: string;
-  }
-}
-
-const wsClient = createClient({
-  url: "ws://localhost:3001/graphql",
-});
 
 export default function Lecturer() {
   const { user } = useUser();
@@ -52,46 +41,11 @@ export default function Lecturer() {
   const [allApplications, setAllApplications] = useState<LecturerApplication[]>([]);
   const [tutorProfiles, setTutorProfiles] = useState<Map<string, any>>(new Map());
   const [managedCourses, setManagedCourses] = useState<Course[]>([]);
-  const [tutorUnavailable, setTutorUnavailable] = useState<any[]>([]);
+  const { tutorsUnavailable } = useTutorsUnavailable();
 
   // Fetch all applications for all tutors from backend
   useEffect(() => {
     lecturerApi.getAllApplications().then(setAllApplications);
-
-    // GraphQL sub
-    let isSubscribed = true;
-    
-    const unsubscribe = wsClient.subscribe<TutorUnavailableData>({
-      query: `
-        subscription TutorUnavailable {
-          tutorUnavailable {
-            id
-            name
-            email
-          }
-        }
-      `,
-    },
-    {
-      next: (data) => {
-        if (!isSubscribed) return;
-        if (data?.data?.tutorUnavailable) {
-          setTutorUnavailable(prev => {
-            if (prev.some(tutor => tutor.id === data?.data?.tutorUnavailable.id)) {
-              return prev;
-            }
-            return [...prev, data?.data?.tutorUnavailable];
-          });
-        }
-      },
-      error: (error: Error) => console.error("Subscription error:", error),
-      complete: () => console.log("Subscription completed"),
-    });
-
-    return () => {
-      isSubscribed = false;
-      unsubscribe();
-    };
   }, []);
 
   // Fetch all tutor profiles for accurate availability and other info
@@ -239,12 +193,13 @@ export default function Lecturer() {
         <Text color="#032e5b" textAlign="center" mb={6}>
           Welcome, {user?.name} the Lecturer!
         </Text>
+        {tutorsUnavailable.length > 0 && (
         <Box minW="320px" maxW="900px" mb={8} mx="auto">
           <Heading as="h2" size="md" mb={4} color="#032e5b" textAlign="center">
             Tutors Unavailable For Current Semester
           </Heading>
           <VStack spacing={4} align="stretch" mb={8}>
-            {tutorUnavailable.map((tutor, index) => (
+            {tutorsUnavailable.map((tutor, index) => (
               <Box key={index} p={4} borderWidth="1px" borderRadius="lg">
                 <Text><strong>Name:</strong> {tutor.name}</Text>
                 <Text><strong>Email:</strong> {tutor.email}</Text>
@@ -252,6 +207,7 @@ export default function Lecturer() {
             ))}
           </VStack>
         </Box>
+        )}
         <Flex mt={8} gap={6} align="flex-start" width="100%">
           {/* Search Column - left, unchanged */}
           <Box w="22%" minW="260px" maxW="320px">
@@ -273,16 +229,16 @@ export default function Lecturer() {
                 {filteredApplications
                   .filter((application) => application.outcome !== "Approved")
                   .map((application, index) => (
-                    <Box key={index} p={4} borderWidth="1px" borderRadius="lg">
+                    <Box key={index} p={4} borderWidth="1px" borderRadius="lg" backgroundColor={tutorsUnavailable.some(tutor => tutor.email === application.email) ? "red.500" : ""}>
                       <HStack justifyContent="space-between" flexWrap="wrap">
-                        <Link onClick={() => handleViewProfile(application.email)} color="teal.500">
+                        <Link onClick={() => handleViewProfile(application.email)} color={tutorsUnavailable.some(tutor => tutor.email === application.email) ? "gray.500" : "teal.500"}>
                           <Text><strong>Name:</strong> {application.name}</Text>
                         </Link>
                         <Text color="#032e5b"><strong>Course:</strong> {application.courseName}</Text>
                         <Text color="#032e5b"><strong>Session Type:</strong> {application.sessionType}</Text>
                         <Text color="#032e5b"><strong>Availability:</strong> {application.availability}</Text>
                         <Text color="#032e5b"><strong>Skills fulfilled:</strong> {application.skillsFulfilled}</Text>
-                        <Button onClick={() => handleViewApplication(application)}>View Details</Button>
+                        <Button disabled={tutorsUnavailable.some(tutor => tutor.email === application.email)} onClick={() => handleViewApplication(application)}>View Details</Button>
                       </HStack>
                     </Box>
                   ))}

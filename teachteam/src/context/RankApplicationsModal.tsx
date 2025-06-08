@@ -16,6 +16,7 @@ import { DragDropContext, Droppable, Draggable } from "@hello-pangea/dnd";
 import { useUser } from "@/context/UserContext";
 import { tutorApi } from "@/services/tutor.api";
 import { api } from "@/services/lecturer.api";
+import { useTutorsUnavailable } from "@/context/TutorsUnavailableContext";
 
 type Application = {
   id: number;
@@ -47,6 +48,7 @@ const RankApplicationsModal: React.FC<RankApplicationsModalProps> = ({
   const [loading, setLoading] = useState(false);
   const { user } = useUser();
   const toast = useToast();
+  const { tutorsUnavailable } = useTutorsUnavailable();
 
   useEffect(() => {
     if (!isOpen || !courseCode || !role || !user) return;
@@ -134,9 +136,10 @@ const RankApplicationsModal: React.FC<RankApplicationsModalProps> = ({
                           borderRadius="md"
                           p={3}
                           boxShadow="sm"
+                          backgroundColor={tutorsUnavailable.some(tutor => tutor.email === app.email) ? "red.500" : "#f7fafc"}
                         >
                           <Text fontWeight="bold" mb={1}>
-                            Preference #{idx + 1}
+                            Preference #{idx + 1} <span style={{ color: "yellow" }}>{tutorsUnavailable.some(tutor => tutor.email === app.email) ? " (Warning: Unavailable)" : ""}</span>  
                           </Text>
                           <Text><strong>Name:</strong> {app.name || app.email}</Text>
                           <Text><strong>Role:</strong> {app.roles}</Text>

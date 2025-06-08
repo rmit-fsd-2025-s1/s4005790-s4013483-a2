@@ -7,10 +7,12 @@ import { LecturerProfileProvider } from "@/context/LecturerProfileContext";
 import { TutorProfileProvider } from "@/context/TutorProfileContext"; 
 import { ApplicationsProvider } from "@/context/ApplicationsContext";
 import { UsersListsProvider } from "@/context/UsersListsContext";
+import { TutorsUnavailableProvider } from "@/context/TutorsUnavailableContext";
 
 export default function App({ Component, pageProps }: AppProps) {
   return (
     <UserProvider>
+    <TutorsUnavailableProvider>
     <UsersListsProvider>
     <TutorProfileProvider>
     <LecturerProfileProvider>
@@ -22,6 +24,7 @@ export default function App({ Component, pageProps }: AppProps) {
     </LecturerProfileProvider>
     </TutorProfileProvider>
     </UsersListsProvider>
+    </TutorsUnavailableProvider>
     </UserProvider>
   );
 }
