@@ -128,9 +128,7 @@ const GET_APPLICATIONS = gql`
 const ADD_COURSE_TO_LECTURER_PROFILE = gql`
   mutation AddCourseToLecturerProfile($courseCodes: [String!]!, $lecturerProfileId: ID!) {
     addCourseToLecturerProfile(courseCodes: $courseCodes, lecturerProfileId: $lecturerProfileId) {
-      courses {
-        code
-      }
+      id
     }
   }
 `;
