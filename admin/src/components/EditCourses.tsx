@@ -116,8 +116,10 @@ const EditCourses = () => {
             router.refresh();
         }
         else if (action === "Delete") {
+            await courseService.removeCourseFromLecturerProfiles(selectedCourse.code);
             await courseService.deleteCourse(selectedCourse.code);
             router.refresh();
+            
         }
         else if (action === "Edit") {
             await courseService.updateCourse(selectedCourse);
@@ -128,7 +130,7 @@ const EditCourses = () => {
     return (
         <>
             <form onSubmit={handleSubmit}>
-                <FormControl>
+                <FormControl id="modify-courses">
                     <FormLabel textAlign="center" fontSize="2xl" fontWeight="bold">Modify Semester Courses</FormLabel>
                     <FormLabel fontWeight="bold">Action</FormLabel>
                     <Select onChange={(e) => setAction(e.target.value as "Add" | "Delete" | "Edit")} value={action}>
@@ -138,12 +140,14 @@ const EditCourses = () => {
                     </Select>
                     {action === "Add" && (
                         <>
-                            <FormLabel fontWeight="bold">Course Code</FormLabel>
-                            <Input name="code" value={course.code} onChange={handleChange} />
-                            <FormLabel fontWeight="bold">Course Name</FormLabel>
-                            <Input name="name" value={course.name} onChange={handleChange} />
-                            <FormLabel fontWeight="bold">Course Description</FormLabel>
-                            <Input name="description" value={course.description} onChange={handleChange} />
+                            <FormControl isRequired id="add-course">
+                                <FormLabel fontWeight="bold">Course Code</FormLabel>
+                                <Input name="code" value={course.code} onChange={handleChange} />
+                                <FormLabel fontWeight="bold">Course Name</FormLabel>
+                                <Input name="name" value={course.name} onChange={handleChange} />
+                                <FormLabel fontWeight="bold">Course Description</FormLabel>
+                                <Input name="description" value={course.description} onChange={handleChange} />
+                            </FormControl>
                             <FormLabel fontWeight="bold">Course Skills</FormLabel>
                             <HStack wrap="wrap">
                                 {skillsList.map((skill) => (
@@ -160,12 +164,14 @@ const EditCourses = () => {
                     )}
                     {action === "Edit" && (
                         <>
-                            <FormLabel>Course Code</FormLabel>
-                            {coursesAsSelectOptions()}
-                            <FormLabel>Course Name</FormLabel>
-                            <Input name="name" value={selectedCourse?.name} onChange={handleChange} />
-                            <FormLabel>Course Description</FormLabel>
-                            <Input name="description" value={selectedCourse?.description} onChange={handleChange} />
+                            <FormControl isRequired id="edit-course">
+                                <FormLabel>Course Code</FormLabel>
+                                {coursesAsSelectOptions()}
+                                <FormLabel>Course Name</FormLabel>
+                                <Input name="name" value={selectedCourse?.name} onChange={handleChange} />
+                                <FormLabel>Course Description</FormLabel>
+                                <Input name="description" value={selectedCourse?.description} onChange={handleChange} />
+                            </FormControl>
                             <FormLabel>Course Skills</FormLabel>
                             <HStack wrap="wrap" spacing={4}>
                                 {skillsList.map((skill) => (

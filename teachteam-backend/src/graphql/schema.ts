@@ -67,6 +67,7 @@ export const typeDefs = gql`
         updateCourse(code: String!, name: String!, skills: [String!]!, description: String!): Course!
         deleteCourse(code: String!): Boolean!
         updateTutorBlocked(id: ID!, blocked: Boolean!): Tutor!
+        removeCourseFromLecturerProfiles(courseCode: String!): [LecturerProfile!]!
     }
 
     type Subscription {

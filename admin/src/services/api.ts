@@ -165,6 +165,14 @@ const UPDATE_TUTOR_BLOCKED = gql`
   }
 `;
 
+const REMOVE_COURSE_FROM_LECTURER_PROFILES = gql`
+  mutation RemoveCourseFromLecturerProfiles($courseCode: String!) {
+    removeCourseFromLecturerProfiles(courseCode: $courseCode) {
+      id
+    }
+  }
+`;
+
 export const adminService = {
   getAllAdmins: async (): Promise<Admin[]> => {
     const { data } = await client.query({ query: GET_ADMINS });
@@ -188,6 +196,10 @@ export const courseService = {
   updateCourse: async (course: Course): Promise<Course> => {
     const { data } = await client.mutate({ mutation: UPDATE_COURSE, variables: { code: course.code, name: course.name, skills: course.skills, description: course.description } });
     return data.updateCourse;
+  },
+  removeCourseFromLecturerProfiles: async (courseCode: string): Promise<LecturerProfile[]> => {
+    const { data } = await client.mutate({ mutation: REMOVE_COURSE_FROM_LECTURER_PROFILES, variables: { courseCode } });
+    return data.removeCourseFromLecturerProfiles;
   },
   deleteCourse: async (code: string): Promise<Course> => {
     const { data } = await client.mutate({ mutation: DELETE_COURSE, variables: { code } });
