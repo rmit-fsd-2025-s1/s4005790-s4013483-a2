@@ -9,8 +9,15 @@ Lecturer:
 Tutor:
 - username: tom@tutor.com
 - password: password
+(Note: Feel free to create your own using the 'Create Account' button in the sign in page)
 
 To add lecturer to a course:
+1. Go to admin page (http://localhost:3002)
+2. Find "Set Lecturer Courses" heading
+3. Choose lecturer and select courses
+4. Click "Set Courses" button
+
+To add lecturer to a course (without admin):
 1. Go to the database (https://getmysql.com/phpmyadmin/)
 2. Enter in this credentials:
 - Username = S4013483
@@ -35,6 +42,7 @@ Where lecturer with lecturerId 7 is assigned to course with code 'COSC1111' and 
 
 
 
+## Note for any of the following you may go into each individual folder to run/build
 To run the application:
 1. Open terminal
 2. Open project folder
@@ -42,7 +50,8 @@ To run the application:
 4. `npm run install-all`
 5. `npm run dev`
 
-To run unit tests:
-1. `cd teachteam`
-2. `npm test`
-3. The unit tests should now run and results should show
+To build application:
+1. Open terminal
+2. Open project folder
+3. `npm run build`
+4. `npm run start`
