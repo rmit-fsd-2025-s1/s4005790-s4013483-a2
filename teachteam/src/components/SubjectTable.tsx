@@ -19,6 +19,7 @@ import { Course } from "./CoursesList";
 
 interface Application {
   id: number;
+  email: string;
   courseCode: string;
   outcome: string;
   roles: string; // Ensure this is present
@@ -62,8 +63,8 @@ const SubjectTable = ({ courses, applications }: SubjectTableProps) => {
   const sortedCourses = [...courses].sort((a, b) => {
     if (!sortConfig.direction) return 0;
     const key = sortConfig.key;
-    let aValue: number;
-    let bValue: number;
+    let aValue: number | string | string[];
+    let bValue: number | string | string[];
     if (key === "approvedApplications") {
       aValue = getApprovedApplicationCount(a.code);
       bValue = getApprovedApplicationCount(b.code);

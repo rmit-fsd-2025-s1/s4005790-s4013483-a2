@@ -31,6 +31,7 @@ async function validateForm(user: { email: string; password: string }): Promise<
       return "Your account is blocked!";
     }
     return  { 
+      id: userExists.id,
       email: userExists.email,
       role: userExists.role,
       name: userExists.name

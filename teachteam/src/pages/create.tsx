@@ -55,6 +55,7 @@ export default function SignUp() {
   const { setUser } = useUser();
   const [formError, setFormError] = useState<string | null>(null);
   const [user, setUserToCheck] = useState<User>({
+    id: 0,
     name: "",
     email: "",
     password: "",

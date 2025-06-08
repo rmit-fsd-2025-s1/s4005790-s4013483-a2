@@ -42,6 +42,9 @@ const academicCredentialsList = [
 
 export default function Profiles() {
   const [profilesChange, setProfilesChange] = useState<TutorProfile>({
+    id: 0,
+    createdAt: "",
+    updatedAt: "",
     roles: "",
     availability: "None",
     skills: [],
@@ -68,6 +71,9 @@ export default function Profiles() {
         } catch {
           // If no profile, initialize a blank profile with email
           setProfilesChange({
+            id: 0,
+            createdAt: "",
+            updatedAt: "",
             roles: "",
             availability: "None",
             skills: [],
@@ -101,15 +107,19 @@ export default function Profiles() {
   };
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>) => {
-    const { name, type, value, checked } = e.target;
-
+    const { name, type, value } = e.target;
     if (type === "checkbox") {
+      const checked = (e.target as HTMLInputElement).checked;
       if (academicCredentialsList.includes(name)) {
+        const restCredentials = { ...profilesChange.credentials };
+        delete restCredentials[name];
         setProfilesChange((prevProfile) => ({
           ...prevProfile,
-          credentials: {
+          credentials: checked ? {
             ...prevProfile.credentials,
-            [name]: checked ? "" : undefined,
+            [name]: checked ? "" : "",
+          } : {
+            ...restCredentials,
           },
         }));
       } else {

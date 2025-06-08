@@ -65,11 +65,13 @@ export const TutorsUnavailableProvider = ({ children }: { children: ReactNode })
       next: (data) => {
         if (!isSubscribed) return;
         if (data?.data?.tutorUnavailable) {
-          setTutorsUnavailable(prev => {
-            if (prev.some(tutor => tutor.id === data?.data?.tutorUnavailable.id)) {
+          const tutor = data.data.tutorUnavailable;
+          if (!tutor) return;
+          setTutorsUnavailable((prev: TutorUnavailable[]) => {
+            if (prev.some(t => t.id === tutor.id)) {
               return prev;
             }
-            return [...prev, data?.data?.tutorUnavailable];
+            return [...prev, tutor];
           });
         }
       },
