@@ -59,9 +59,9 @@ export default function Profiles() {
   useEffect(() => {
     const localUser = localStorage.getItem("user");
     if (!localUser || JSON.parse(localUser).role !== "Tutor") {
-      router.push("/login");
+      router.push("/");
     }
-  }, []);
+  }, [router]);
 
   useEffect(() => {
     if (user) {

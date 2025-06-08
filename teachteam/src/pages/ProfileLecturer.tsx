@@ -24,9 +24,9 @@ export default function ProfileLecturer() {
   useEffect(() => {
     const localUser = localStorage.getItem("user");
     if (!localUser || JSON.parse(localUser).role !== "Lecturer") {
-      router.push("/login");
+      router.push("/");
     }
-  }, []);
+  }, [router]);
 
   // If there is a pre-existing profile load it in.
   useEffect(() => {

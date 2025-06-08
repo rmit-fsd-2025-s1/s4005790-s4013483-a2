@@ -20,7 +20,7 @@ export default function ViewApplications() {
   useEffect(() => {
     const localUser = localStorage.getItem("user");
     if (!localUser || JSON.parse(localUser).role !== "Tutor") {
-      router.push("/login");
+      router.push("/");
     }
   }, []);
 

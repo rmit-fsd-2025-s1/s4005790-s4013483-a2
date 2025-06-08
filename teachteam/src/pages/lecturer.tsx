@@ -75,7 +75,7 @@ export default function Lecturer() {
 
     const localUser = localStorage.getItem("user");
     if (!localUser || JSON.parse(localUser).role !== "Lecturer") {
-      router.push("/login");
+      router.push("/");
     }
   }, []);
 
