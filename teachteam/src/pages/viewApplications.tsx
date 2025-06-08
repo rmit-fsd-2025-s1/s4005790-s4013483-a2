@@ -4,15 +4,16 @@ import Header from "../components/Header";
 import Footer from "../components/Footer";
 import { useUser } from "@/context/UserContext";
 import { tutorApi } from "@/services/tutor.api";
+import { Application } from "@/services/tutor.api";
 
 export default function ViewApplications() {
   const { user } = useUser();
   const toast = useToast();
 
-  const [userApplications, setUserApplications] = useState<any[]>([]);
+  const [userApplications, setUserApplications] = useState<Application[]>([]);
   const [withdrawModal, setWithdrawModal] = useState<{
     open: boolean;
-    application: any | null;
+    application: Application | null;
   }>({ open: false, application: null });
 
   useEffect(() => {
@@ -30,7 +31,7 @@ export default function ViewApplications() {
   }, [user?.email]);
 
   // Show confirmation modal
-  const handleWithdrawClick = (application: any) => {
+  const handleWithdrawClick = (application: Application) => {
     setWithdrawModal({ open: true, application });
   };
 
@@ -50,7 +51,7 @@ export default function ViewApplications() {
         duration: 3000,
         isClosable: true,
       });
-    } catch (error) {
+    } catch {
       toast({
         title: "Error",
         description: "Failed to withdraw application.",

@@ -4,13 +4,11 @@ import Footer from "../components/Footer";
 import SubjectTable from "../components/SubjectTable";
 import ApplicantsSearchBar from "../components/ApplicantsSearchBar";
 import { useUser } from "@/context/UserContext";
-import { useProfile } from "@/context/LecturerProfileContext";
 import { Course } from "@/components/CoursesList";
 import { useUsersLists } from "@/context/UsersListsContext";
 import { useState, useEffect } from "react";
-import { lecturerApi, Application as LecturerApplication } from "@/services/lecturer.api";
-import { tutorApi } from "@/services/tutor.api";
-import { createClient } from "graphql-ws";
+import { lecturerApi, Application } from "@/services/lecturer.api";
+import { TutorProfile, tutorApi } from "@/services/tutor.api";
 import { useTutorsUnavailable } from "@/context/TutorsUnavailableContext";
 
 function formatSessionType(raw: string) {
@@ -21,14 +19,41 @@ function formatSessionType(raw: string) {
   return raw.charAt(0).toUpperCase() + raw.slice(1);
 }
 
+interface Comment {
+  author: string;
+  text: string;
+}
+
+interface ApplicationDisplay {
+  id: number;
+  email: string;
+  name: string;
+  courseName: string;
+  courseCode: string;
+  skillsFulfilled: string;
+  requiredSkills: string;
+  tutorSkills: string;
+  sessionType: string;
+  expressionOfInterest: string;
+  note: string;
+}
+
+interface TutorProfileDisplay {
+  name: string;
+  email: string;
+  availability: string;
+  roles: string;
+  skills: string;
+  credentials: { [key: string]: string };
+}
+
 export default function Lecturer() {
   const { user } = useUser();
-  const { profiles } = useProfile();
   const { usersList } = useUsersLists();
   const { isOpen, onOpen, onClose } = useDisclosure();
   const { isOpen: isProfileOpen, onOpen: onProfileOpen, onClose: onProfileClose } = useDisclosure();
-  const [selectedApplication, setSelectedApplication] = useState<any>(null);
-  const [selectedProfile, setSelectedProfile] = useState<any>(null);
+  const [selectedApplication, setSelectedApplication] = useState<ApplicationDisplay | null>(null);
+  const [selectedProfile, setSelectedProfile] = useState<TutorProfileDisplay | null>(null);
   const [searchCriteria, setSearchCriteria] = useState({
     courseCode: "",
     tutorName: "",
@@ -36,10 +61,10 @@ export default function Lecturer() {
     availability: "",
     skills: [] as string[],
   });
-  const [comments, setComments] = useState<Map<string, any[]>>(new Map());
+  const [comments, setComments] = useState<Map<string, Comment[]>>(new Map());
   const [newComment, setNewComment] = useState("");
-  const [allApplications, setAllApplications] = useState<LecturerApplication[]>([]);
-  const [tutorProfiles, setTutorProfiles] = useState<Map<string, any>>(new Map());
+  const [allApplications, setAllApplications] = useState<Application[]>([]);
+  const [tutorProfiles, setTutorProfiles] = useState<Map<string, TutorProfile>>(new Map());
   const [managedCourses, setManagedCourses] = useState<Course[]>([]);
   const { tutorsUnavailable } = useTutorsUnavailable();
 
@@ -50,7 +75,7 @@ export default function Lecturer() {
 
   // Fetch all tutor profiles for accurate availability and other info
   useEffect(() => {
-    tutorApi.getAllProfiles().then((profiles: any[]) => {
+    tutorApi.getAllProfiles().then((profiles: TutorProfile[]) => {
       const map = new Map();
       profiles.forEach(profile => {
         map.set(profile.email, profile);
@@ -93,9 +118,9 @@ export default function Lecturer() {
             try {
               const parsed = JSON.parse(profile.skills);
               if (Array.isArray(parsed)) tutorSkills = parsed;
-              else tutorSkills = profile.skills.split(",").map(s => s.trim()).filter(Boolean);
+              // else tutorSkills = profile.skills.split(",").map(s => s.trim()).filter(Boolean);
             } catch {
-              tutorSkills = profile.skills.split(",").map(s => s.trim()).filter(Boolean);
+              // tutorSkills = profile.skills.split(",").map(s => s.trim()).filter(Boolean);
             }
           }
         }
@@ -133,20 +158,28 @@ export default function Lecturer() {
     return matchesCourse && matchesName && matchesSessionType && matchesAvailability && matchesSkills;
   });
 
-  const handleViewApplication = (application: any) => {
+  const handleViewApplication = (application: ApplicationDisplay) => {
     setSelectedApplication(application);
     onOpen();
   };
 
   // Fetch tutor profile by email when lecturer clicks name
   const handleViewProfile = async (email: string) => {
-    let profile = tutorProfiles.get(email) || profiles.get(email);
+    let profile = tutorProfiles.get(email);
     try {
       const fetchedProfile = await tutorApi.getTutorProfileByEmail(email);
       profile = { ...profile, ...fetchedProfile };
-    } catch (err) {}
+    } catch {}
     const userObj = usersList.find(user => user.email === email);
-    setSelectedProfile({ ...profile, name: userObj?.name || "Unknown", email });
+    // setSelectedProfile({ ...profile, name: userObj?.name || "Unknown", email });
+    setSelectedProfile({
+      name: userObj?.name || "Unknown",
+      email,
+      availability: profile?.availability || "Unknown",
+      roles: profile?.roles || "Unknown",
+      skills: profile?.skills.join(", ") || "",
+      credentials: profile?.credentials || {},
+    });
     onProfileOpen();
   };
 
@@ -176,7 +209,7 @@ export default function Lecturer() {
       setComments((prevComments) => {
         const updatedComments = new Map(prevComments);
         const tutorComments = updatedComments.get(selectedProfile.email) || [];
-        updatedComments.set(selectedProfile.email, [...tutorComments, { author: user.name, text: newComment }]);
+        updatedComments.set(selectedProfile.email, [...tutorComments, { author: user?.name || "Unknown", text: newComment }]);
         return updatedComments;
       });
       setNewComment("");

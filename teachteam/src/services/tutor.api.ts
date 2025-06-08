@@ -12,6 +12,7 @@ export interface Tutor {
 }
 
 export interface Application {
+  id: number;
   roles: string;
   courseCode: string;
   courseName: string;
@@ -26,10 +27,13 @@ export interface Application {
 
 export interface TutorProfile {
   id?: number;
+  email: string;
   roles: string;
   availability: string;
   skills: string[];
   credentials: { [key: string]: string };
+  createdAt: string;
+  updatedAt: string;
 }
 
 export const tutorApi = {

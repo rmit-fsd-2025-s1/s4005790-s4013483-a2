@@ -5,13 +5,12 @@ import {
 } from "@chakra-ui/react";
 import Header from "../components/Header";
 import Footer from "../components/Footer";
-import { useUser } from "@/context/UserContext";
-import { lecturerApi } from "@/services/lecturer.api";
+import { Application, lecturerApi } from "@/services/lecturer.api";
 import { tutorApi, TutorProfile, Tutor } from "@/services/tutor.api";
+import { Analytics } from "@/components/AnalyticsClass";
 
 export default function LecturerAnalytics() {
-  const { user } = useUser();
-  const [analytics, setAnalytics] = useState<any>(null);
+  const [analytics, setAnalytics] = useState<Analytics | null>(null);
   const [loading, setLoading] = useState(true);
 
   // For modal/profile
@@ -169,7 +168,7 @@ export default function LecturerAnalytics() {
                     <Td colSpan={5} textAlign="center" color="gray.400">All applicants have been approved at least once.</Td>
                   </Tr>
                 ) : (
-                  analytics.neverSelected.map((app: any, idx: number) => (
+                  analytics.neverSelected.map((app: Application, idx: number) => (
                     <Tr key={app.email + idx}>
                       <Td><NameLink email={app.email} /></Td>
                       <Td>{app.email}</Td>
@@ -199,7 +198,7 @@ export default function LecturerAnalytics() {
                     <Td colSpan={3} textAlign="center" color="gray.400">No data.</Td>
                   </Tr>
                 ) : (
-                  analytics.stats.map((row: any, idx: number) => (
+                  analytics.stats.map((row: { email: string; count: number }, idx: number) => (
                     <Tr key={row.email + idx}>
                       <Td><NameLink email={row.email} /></Td>
                       <Td>{row.email}</Td>

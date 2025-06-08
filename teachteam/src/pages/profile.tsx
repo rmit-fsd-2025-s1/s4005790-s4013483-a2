@@ -65,7 +65,7 @@ export default function Profiles() {
             email: user.email, // always ensure email is set
           });
           setCreatedAt(new Date(profile.createdAt).toLocaleDateString());
-        } catch (error) {
+        } catch {
           // If no profile, initialize a blank profile with email
           setProfilesChange({
             roles: "",

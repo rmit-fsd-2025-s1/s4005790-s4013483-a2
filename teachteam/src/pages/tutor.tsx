@@ -38,12 +38,13 @@ import {
   CloseButton,
   VStack,
 } from "@chakra-ui/react";
-import { tutorApi } from "@/services/tutor.api";
+import { Application, tutorApi } from "@/services/tutor.api";
+import { Notification } from "@/components/NotificationClass";
 
 // --- TutorNotifications component ---
 function TutorNotifications() {
   const { user } = useUser();
-  const [notifications, setNotifications] = useState<any[]>([]);
+  const [notifications, setNotifications] = useState<Notification[]>([]);
 
   useEffect(() => {
     const fetchNotifications = async () => {
@@ -97,7 +98,7 @@ export default function Tutor() {
   const profile = Array.from(profiles.values()).find((p) => p.email === user?.email);
 
   const toast = useToast();
-  const [userApplications, setUserApplications] = useState<any[]>([]);
+  const [userApplications, setUserApplications] = useState<Application[]>([]);
 
   useEffect(() => {
     const loadCoursesRolesAndApplications = async () => {
@@ -108,7 +109,7 @@ export default function Tutor() {
         try {
           const apps = await tutorApi.getApplicationsByUser(user.email);
           setUserApplications(apps);
-        } catch (err) {
+        } catch {
           setUserApplications([]);
         }
       }

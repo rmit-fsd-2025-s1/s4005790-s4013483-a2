@@ -14,6 +14,7 @@ export interface Lecturer {
 }
 
 export interface Application {
+  id: number;
   roles: string;
   courseCode: string;
   courseName: string;
