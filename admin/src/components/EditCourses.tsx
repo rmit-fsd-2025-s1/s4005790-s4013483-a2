@@ -62,7 +62,7 @@ const EditCourses = () => {
                 skills: [],
             })}>
                 {courses.map((course) => (
-                    <option value={course.code}>{course.name} ({course.code})</option>
+                    <option key={course.code} value={course.code}>{course.name} ({course.code})</option>
                 ))}
             </Select>
         )
@@ -147,7 +147,7 @@ const EditCourses = () => {
                             <FormLabel fontWeight="bold">Course Skills</FormLabel>
                             <HStack wrap="wrap">
                                 {skillsList.map((skill) => (
-                                    <Checkbox value={skill} onChange={handleCheckboxChange} name="skills">{skill}</Checkbox>
+                                    <Checkbox key={skill} value={skill} onChange={handleCheckboxChange} name="skills">{skill}</Checkbox>
                                 ))}
                             </HStack>
                         </>

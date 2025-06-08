@@ -6,7 +6,6 @@ import EditCourses from "@/components/EditCourses";
 import BlockTutor from "@/components/BlockTutor";
 import { useUser } from "@/context/UserContext";
 import router from "next/router";
-import { useRouter } from "next/router";
 import { useEffect } from "react";
 
 export default function Home() {
@@ -16,7 +15,7 @@ export default function Home() {
     if (!user) {
       router.push("/login");
     }
-  }, []);
+  }, [user]);
 
   return (
     <>

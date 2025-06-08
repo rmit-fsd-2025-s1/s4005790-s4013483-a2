@@ -1,5 +1,4 @@
-import { ChakraProvider, Box, Heading, VStack, Text, Input, Button, FormControl, FormLabel, Link } from "@chakra-ui/react";
-import NextLink from "next/link";
+import { ChakraProvider, Box, Heading, VStack, Text, Input, Button, FormControl, FormLabel } from "@chakra-ui/react";
 import { PasswordInput, PasswordStrengthMeter } from "@/components/ui/password-input";
 import Header from "../components/Header";
 import Footer from "../components/Footer";
@@ -65,7 +64,7 @@ export default function Login() {
     if (user) {
       router.push("/");
     }
-  }, [router]);
+  }, [user, router]);
 
   return (
     <ChakraProvider>

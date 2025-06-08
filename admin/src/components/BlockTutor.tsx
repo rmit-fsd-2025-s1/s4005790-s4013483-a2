@@ -30,7 +30,7 @@ const BlockTutor = () => {
                     <FormLabel fontSize="2xl" fontWeight="bold">Update Tutor Blocked Status</FormLabel>
                     <Select onChange={(e) => setSelectedTutor(tutors.find((tutor) => tutor.id === e.target.value) || null)}>
                         {tutors.map((tutor) => (
-                            <option value={tutor.id}>{tutor.name}</option>
+                            <option key={tutor.id} value={tutor.id}>{tutor.name}</option>
                         ))}
                     </Select>
                     <Button type="submit" colorScheme="red">{selectedTutor?.blocked ? "Unblock" : "Block"}</Button>

@@ -1,4 +1,4 @@
-import { Button, Checkbox, CheckboxGroup, FormControl, FormLabel, HStack, Select, Stack } from "@chakra-ui/react";
+import { Button, Checkbox, FormControl, FormLabel, HStack, Select } from "@chakra-ui/react";
 import { lecturerService, courseService, Lecturer, Course, lecturerProfileService } from "@/services/api";
 import { useEffect, useState } from "react";
 
@@ -8,15 +8,14 @@ const LecturerCourses = () => {
     const [courses, setCourses] = useState<Course[]>([]);
     const [selectedCourses, setSelectedCourses] = useState<Course[]>([]);
 
-    async function setLecturersAndCourses() {
-        const temp = await lecturerService.getAllLecturers();
-        setLecturers(temp);
-        setCourses(await courseService.getAllCoursesCodeName());
-        setLecturer(temp[0]);
-        setLecturerSelectedCourses(temp[0].profile.id);
-    }
-
     useEffect(() => {
+        const setLecturersAndCourses = async () => {
+            const temp = await lecturerService.getAllLecturers();
+            setLecturers(temp);
+            setCourses(await courseService.getAllCoursesCodeName());
+            setLecturer(temp[0]);
+            setLecturerSelectedCourses(temp[0].profile.id);
+        }
         setLecturersAndCourses();
     }, []);
 
@@ -67,18 +66,18 @@ const LecturerCourses = () => {
                     <FormLabel fontWeight="bold">Lecturer</FormLabel>
                     <Select onChange={handleInputChange}>
                         {lecturers.map((lecturer) => (
-                            <option value={lecturer.id}>{lecturer.name}</option>
+                            <option key={lecturer.id} value={lecturer.id}>{lecturer.name}</option>
                         ))}
                     </Select>
                     <FormLabel fontWeight="bold">Courses</FormLabel>
                     <HStack wrap="wrap" spacing={4}>
                         {courses.map((course) =>
                             selectedCourses.map((selectedCourse) => selectedCourse.code).includes(course.code) ? (
-                                <Checkbox isChecked={true} value={course.code} onChange={handleCheckboxChange}>
+                                <Checkbox key={course.code} isChecked={true} value={course.code} onChange={handleCheckboxChange}>
                                     {course.name} ({course.code})
                                 </Checkbox>
                             ) : (
-                                <Checkbox value={course.code} onChange={handleCheckboxChange}>
+                                <Checkbox key={course.code} value={course.code} onChange={handleCheckboxChange}>
                                     {course.name} ({course.code})
                                 </Checkbox>
                             )
