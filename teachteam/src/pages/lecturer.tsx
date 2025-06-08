@@ -10,6 +10,7 @@ import { useState, useEffect } from "react";
 import { lecturerApi, Application } from "@/services/lecturer.api";
 import { TutorProfile, tutorApi } from "@/services/tutor.api";
 import { useTutorsUnavailable } from "@/context/TutorsUnavailableContext";
+import router from "next/router";
 
 function formatSessionType(raw: string) {
   if (!raw) return "";
@@ -71,6 +72,11 @@ export default function Lecturer() {
   // Fetch all applications for all tutors from backend
   useEffect(() => {
     lecturerApi.getAllApplications().then(setAllApplications);
+
+    const localUser = localStorage.getItem("user");
+    if (!localUser || JSON.parse(localUser).role !== "Lecturer") {
+      router.push("/login");
+    }
   }, []);
 
   // Fetch all tutor profiles for accurate availability and other info

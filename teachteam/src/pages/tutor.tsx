@@ -40,6 +40,7 @@ import {
 } from "@chakra-ui/react";
 import { Application, tutorApi } from "@/services/tutor.api";
 import { Notification } from "@/components/NotificationClass";
+import router from "next/router";
 
 // --- TutorNotifications component ---
 function TutorNotifications() {
@@ -99,6 +100,13 @@ export default function Tutor() {
 
   const toast = useToast();
   const [userApplications, setUserApplications] = useState<Application[]>([]);
+
+  useEffect(() => {
+    const localUser = localStorage.getItem("user");
+    if (!localUser || JSON.parse(localUser).role !== "Tutor") {
+      router.push("/login");
+    }
+  }, []);
 
   useEffect(() => {
     const loadCoursesRolesAndApplications = async () => {

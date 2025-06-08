@@ -57,6 +57,13 @@ export default function Profiles() {
   const router = useRouter();
 
   useEffect(() => {
+    const localUser = localStorage.getItem("user");
+    if (!localUser || JSON.parse(localUser).role !== "Tutor") {
+      router.push("/login");
+    }
+  }, []);
+
+  useEffect(() => {
     if (user) {
       const fetchProfile = async () => {
         try {

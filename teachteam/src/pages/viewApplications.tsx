@@ -5,6 +5,7 @@ import Footer from "../components/Footer";
 import { useUser } from "@/context/UserContext";
 import { tutorApi } from "@/services/tutor.api";
 import { Application } from "@/services/tutor.api";
+import router from "next/router";
 
 export default function ViewApplications() {
   const { user } = useUser();
@@ -15,6 +16,13 @@ export default function ViewApplications() {
     open: boolean;
     application: Application | null;
   }>({ open: false, application: null });
+
+  useEffect(() => {
+    const localUser = localStorage.getItem("user");
+    if (!localUser || JSON.parse(localUser).role !== "Tutor") {
+      router.push("/login");
+    }
+  }, []);
 
   useEffect(() => {
     const fetchApplications = async () => {

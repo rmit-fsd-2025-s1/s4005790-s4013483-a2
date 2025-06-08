@@ -21,6 +21,13 @@ export default function ProfileLecturer() {
   const { isOpen, onOpen, onClose } = useDisclosure();
   const router = useRouter();
 
+  useEffect(() => {
+    const localUser = localStorage.getItem("user");
+    if (!localUser || JSON.parse(localUser).role !== "Lecturer") {
+      router.push("/login");
+    }
+  }, []);
+
   // If there is a pre-existing profile load it in.
   useEffect(() => {
     async function fetchCreatedAt() {

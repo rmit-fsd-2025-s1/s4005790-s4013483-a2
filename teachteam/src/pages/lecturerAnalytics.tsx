@@ -8,6 +8,7 @@ import Footer from "../components/Footer";
 import { Application, lecturerApi } from "@/services/lecturer.api";
 import { tutorApi, TutorProfile, Tutor } from "@/services/tutor.api";
 import { Analytics } from "@/components/AnalyticsClass";
+import router from "next/router";
 
 export default function LecturerAnalytics() {
   const [analytics, setAnalytics] = useState<Analytics | null>(null);
@@ -37,6 +38,11 @@ export default function LecturerAnalytics() {
       setTutorEmailToName(emailToName);
     })
     .finally(() => setLoading(false));
+
+    const localUser = localStorage.getItem("user");
+    if (!localUser || JSON.parse(localUser).role !== "Lecturer") {
+      router.push("/login");
+    }
   }, []);
 
   // Fetch tutor profile when email changes
