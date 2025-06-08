@@ -1,8 +1,7 @@
 import Header from "@/components/Header";
 import Footer from "@/components/Footer";
-import { Button, FormControl, Select, Tr, Thead, Table, TableContainer, Th, Td, Tbody, FormLabel, Heading } from "@chakra-ui/react";
+import { Button, FormControl, Select, Tr, Thead, Table, TableContainer, Th, Td, Tbody, FormLabel, Heading, Box } from "@chakra-ui/react";
 import { useEffect, useState } from "react";
-import { useUser } from "@/context/UserContext";
 import router from "next/router";
 import { Application, applicationService, Course, courseService, Tutor, tutorService } from "@/services/api";
 
@@ -12,13 +11,12 @@ export default function Reports() {
     const [courses, setCourses] = useState<Course[]>([]);
     const [tutors, setTutors] = useState<Tutor[]>([]);
     const [applications, setApplications] = useState<Application[]>([]);
-    const { user } = useUser();
 
     useEffect(() => {
-        if (!user) {
-        router.push("/login");
+        if (!localStorage.getItem("user")) {
+            router.push("/login");
         }
-    }, [user]);
+    }, []);
 
     const loadData = async () => {
         const tutors = await tutorService.getAllTutors();
@@ -44,6 +42,7 @@ export default function Reports() {
     return (
         <>
             <Header />
+            <Box w="75%" maxW="1200px" mx="auto" px={4}>
             <form onSubmit={handleSubmit}>
                 <FormControl>
                     <FormLabel fontSize="2xl" fontWeight="bold">Report Type</FormLabel>
@@ -114,6 +113,7 @@ export default function Reports() {
                     </Table>
                 </TableContainer>
             )}
+            </Box>
             <Footer />
         </>
     );

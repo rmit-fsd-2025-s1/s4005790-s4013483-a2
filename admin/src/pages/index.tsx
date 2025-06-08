@@ -1,30 +1,30 @@
 import Header from "@/components/Header";
 import Footer from "@/components/Footer";
 import LecturerCourses from "@/components/LecturerCourses";
-import { Divider } from "@chakra-ui/react";
+import { Box, Divider } from "@chakra-ui/react";
 import EditCourses from "@/components/EditCourses";
 import BlockTutor from "@/components/BlockTutor";
-import { useUser } from "@/context/UserContext";
 import router from "next/router";
 import { useEffect } from "react";
 
 export default function Home() {
-  const { user } = useUser();
 
   useEffect(() => {
-    if (!user) {
+    if (!localStorage.getItem("user")) {
       router.push("/login");
     }
-  }, [user]);
+  }, []);
 
   return (
     <>
       <Header />
+      <Box w="75%" maxW="1200px" mx="auto" px={4}>
       <LecturerCourses />
-      <Divider my={4} />
+      <Divider borderColor="black" my={4} borderWidth="1px" />
       <EditCourses />
-      <Divider my={4} />
+      <Divider borderColor="black" my={4} borderWidth="1px" />
       <BlockTutor />
+      </Box>
       <Footer />
     </>
   );

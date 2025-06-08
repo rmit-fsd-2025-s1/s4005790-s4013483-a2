@@ -30,14 +30,14 @@ const Header = () => {
           </Link>
         </GridItem>
         <GridItem justifySelf="end">
-          <Button as="a" href="/" colorScheme="teal" variant="outline" mr={2}>
-            Adminstrate
-          </Button>
-          <Button as="a" href="/reports" colorScheme="teal" variant="outline" mr={2}>
-            Reports
-          </Button>
           {user ? (
             <>
+              <Button as="a" href="/" colorScheme="teal" variant="outline" mr={2}>
+                Adminstrate
+              </Button>
+              <Button as="a" href="/reports" colorScheme="teal" variant="outline" mr={2}>
+                Reports
+              </Button>
               <Button onClick={handleSignOutClick} colorScheme="red" variant="outline">
                 Sign Out
               </Button>
