@@ -12,11 +12,16 @@ import {
   VStack,
   useToast
 } from "@chakra-ui/react";
-import { DragDropContext, Droppable, Draggable } from "@hello-pangea/dnd";
+import { DragDropContext, Droppable, Draggable, DropResult } from "@hello-pangea/dnd";
 import { useUser } from "@/context/UserContext";
-import { tutorApi } from "@/services/tutor.api";
 import { api } from "@/services/lecturer.api";
 import { useTutorsUnavailable } from "@/context/TutorsUnavailableContext";
+import { User } from "@/components/User";
+
+type Preference = {
+  applicationId: number;
+  preference_rank: number;
+};
 
 type Application = {
   id: number;
@@ -35,7 +40,7 @@ type RankApplicationsModalProps = {
   applications: Application[];
 };
 
-const getLecturerId = (user: any) => user?.id || user?.lecturerId || 1;
+const getLecturerId = (user: Omit<User, "password"> | null) => user?.id || 1;
 
 const RankApplicationsModal: React.FC<RankApplicationsModalProps> = ({
   isOpen,
@@ -60,7 +65,7 @@ const RankApplicationsModal: React.FC<RankApplicationsModalProps> = ({
         const prefs = response.data;
         if (prefs && prefs.length) {
           const ordered = prefs
-            .map((pref: any) => applications.find((a) => a.id === pref.applicationId))
+            .map((pref: Preference) => applications.find((a) => a.id === pref.applicationId))
             .filter(Boolean) as Application[];
           const extras = applications.filter((a) => !ordered.some((o) => o.id === a.id));
           setRanked([...ordered, ...extras]);
@@ -74,7 +79,7 @@ const RankApplicationsModal: React.FC<RankApplicationsModalProps> = ({
     fetchPreferences();
   }, [isOpen, courseCode, applications, user, role]);
 
-  const onDragEnd = useCallback((result: any) => {
+  const onDragEnd = useCallback((result: DropResult) => {
     if (!result.destination) return;
     const items = Array.from(ranked);
     const [removed] = items.splice(result.source.index, 1);
@@ -96,7 +101,7 @@ const RankApplicationsModal: React.FC<RankApplicationsModalProps> = ({
       });
       toast({ title: "Ranking saved", status: "success" });
       onClose();
-    } catch (e) {
+    } catch {
       toast({ title: "Failed to save rankings", status: "error" });
     } finally {
       setLoading(false);

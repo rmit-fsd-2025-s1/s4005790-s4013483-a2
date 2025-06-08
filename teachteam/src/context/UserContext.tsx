@@ -41,6 +41,7 @@ export const UserProvider = ({ children }: { children: ReactNode }) => {
         const userFound = tutor || lecturer;
 
         setUser({
+          id: userFound.id,
           email: userFound.email,
           name: userFound.name,
           role: tutor ? "Tutor" : "Lecturer"
