@@ -10,6 +10,7 @@ import { useUsersLists } from "@/context/UsersListsContext";
 import { useState, useEffect } from "react";
 import { lecturerApi, Application as LecturerApplication } from "@/services/lecturer.api";
 import { tutorApi } from "@/services/tutor.api";
+import { createClient } from "graphql-ws";
 
 function formatSessionType(raw: string) {
   if (!raw) return "";
@@ -18,6 +19,18 @@ function formatSessionType(raw: string) {
   if (lower === "lab-assistant" || lower === "lab assistant") return "Lab Assistant";
   return raw.charAt(0).toUpperCase() + raw.slice(1);
 }
+
+interface TutorUnavailableData {
+  tutorUnavailable: {
+    id: string;
+    name: string;
+    email: string;
+  }
+}
+
+const wsClient = createClient({
+  url: "ws://localhost:3001/graphql",
+});
 
 export default function Lecturer() {
   const { user } = useUser();
@@ -39,10 +52,46 @@ export default function Lecturer() {
   const [allApplications, setAllApplications] = useState<LecturerApplication[]>([]);
   const [tutorProfiles, setTutorProfiles] = useState<Map<string, any>>(new Map());
   const [managedCourses, setManagedCourses] = useState<Course[]>([]);
+  const [tutorUnavailable, setTutorUnavailable] = useState<any[]>([]);
 
   // Fetch all applications for all tutors from backend
   useEffect(() => {
     lecturerApi.getAllApplications().then(setAllApplications);
+
+    // GraphQL sub
+    let isSubscribed = true;
+    
+    const unsubscribe = wsClient.subscribe<TutorUnavailableData>({
+      query: `
+        subscription TutorUnavailable {
+          tutorUnavailable {
+            id
+            name
+            email
+          }
+        }
+      `,
+    },
+    {
+      next: (data) => {
+        if (!isSubscribed) return;
+        if (data?.data?.tutorUnavailable) {
+          setTutorUnavailable(prev => {
+            if (prev.some(tutor => tutor.id === data?.data?.tutorUnavailable.id)) {
+              return prev;
+            }
+            return [...prev, data?.data?.tutorUnavailable];
+          });
+        }
+      },
+      error: (error: Error) => console.error("Subscription error:", error),
+      complete: () => console.log("Subscription completed"),
+    });
+
+    return () => {
+      isSubscribed = false;
+      unsubscribe();
+    };
   }, []);
 
   // Fetch all tutor profiles for accurate availability and other info
@@ -190,6 +239,19 @@ export default function Lecturer() {
         <Text color="#032e5b" textAlign="center" mb={6}>
           Welcome, {user?.name} the Lecturer!
         </Text>
+        <Box minW="320px" maxW="900px" mb={8} mx="auto">
+          <Heading as="h2" size="md" mb={4} color="#032e5b" textAlign="center">
+            Tutors Unavailable For Current Semester
+          </Heading>
+          <VStack spacing={4} align="stretch" mb={8}>
+            {tutorUnavailable.map((tutor, index) => (
+              <Box key={index} p={4} borderWidth="1px" borderRadius="lg">
+                <Text><strong>Name:</strong> {tutor.name}</Text>
+                <Text><strong>Email:</strong> {tutor.email}</Text>
+              </Box>
+            ))}
+          </VStack>
+        </Box>
         <Flex mt={8} gap={6} align="flex-start" width="100%">
           {/* Search Column - left, unchanged */}
           <Box w="22%" minW="260px" maxW="320px">
