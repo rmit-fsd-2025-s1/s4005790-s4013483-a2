@@ -9,6 +9,7 @@ export interface Tutor {
   name: string;
   email: string;
   password: string;
+  blocked: boolean;
 }
 
 export interface Application {

@@ -1,14 +1,17 @@
 import { createContext, useContext, useEffect, useState, ReactNode } from "react";
 import { createClient } from "graphql-ws";
-import { tutorApi } from "@/services/tutor.api";
+import { Tutor, tutorApi } from "@/services/tutor.api";
 
 interface TutorUnavailableData {
-  tutorUnavailable: {
-    id: string;
-    name: string;
-    email: string;
-  }
+  tutorUnavailable: TutorUnavailable;
 }
+
+interface TutorUnavailable {
+  id: string;
+  name: string;
+  email: string;
+}
+
 // Create WebSocket client
 const wsClient = createClient({
   url: "ws://localhost:3001/graphql",
@@ -16,8 +19,8 @@ const wsClient = createClient({
 
 // Interfacae type for TutorsUnavailableContext
 interface TutorsUnavailableContextType {
-  tutorsUnavailable: any[];
-  setTutorsUnavailable: (tutorsUnavailable: any[]) => void;
+  tutorsUnavailable: TutorUnavailable[];
+  setTutorsUnavailable: (tutorsUnavailable: TutorUnavailable[]) => void;
 }
 
 // TutorsUnavailableContext for context hook to use
@@ -32,12 +35,12 @@ export const useTutorsUnavailable = () => useContext(TutorsUnavailableContext);
 // To wrap in _app.tsx
 export const TutorsUnavailableProvider = ({ children }: { children: ReactNode }) => {
 
-  const [tutorsUnavailable, setTutorsUnavailable] = useState<any[]>([]);
+  const [tutorsUnavailable, setTutorsUnavailable] = useState<TutorUnavailable[]>([]);
 
   useEffect(() => {
     const fetchTutors = async () => {
       const tutors = await tutorApi.getAllTutors();
-      setTutorsUnavailable(tutors.filter((tutor: any) => tutor.blocked === true).map((tutor: any) => ({
+      setTutorsUnavailable(tutors.filter((tutor: Tutor) => tutor.blocked === true).map((tutor: Tutor) => ({
         id: tutor.id,
         name: tutor.name,
         email: tutor.email,
