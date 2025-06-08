@@ -1,7 +1,5 @@
 import { createContext, useContext, useEffect, useState, ReactNode } from "react";
 import { createClient } from "graphql-ws";
-import { User } from "@/components/User";
-import { lecturerApi } from "@/services/lecturer.api";
 import { tutorApi } from "@/services/tutor.api";
 
 interface TutorUnavailableData {
@@ -37,6 +35,16 @@ export const TutorsUnavailableProvider = ({ children }: { children: ReactNode })
   const [tutorsUnavailable, setTutorsUnavailable] = useState<any[]>([]);
 
   useEffect(() => {
+    const fetchTutors = async () => {
+      const tutors = await tutorApi.getAllTutors();
+      setTutorsUnavailable(tutors.filter((tutor: any) => tutor.blocked === true).map((tutor: any) => ({
+        id: tutor.id,
+        name: tutor.name,
+        email: tutor.email,
+      })));
+    }
+    fetchTutors();
+    
     let isSubscribed = true;
     
     const unsubscribe = wsClient.subscribe<TutorUnavailableData>({
