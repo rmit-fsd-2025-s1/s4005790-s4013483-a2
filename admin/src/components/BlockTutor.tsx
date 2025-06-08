@@ -27,13 +27,13 @@ const BlockTutor = () => {
         <>
             <form onSubmit={handleSubmit}>
                 <FormControl>
-                    <FormLabel fontSize="2xl" fontWeight="bold">Update Tutor Blocked Status</FormLabel>
+                    <FormLabel textAlign="center" fontSize="2xl" fontWeight="bold">Update Tutor Blocked Status</FormLabel>
                     <Select onChange={(e) => setSelectedTutor(tutors.find((tutor) => tutor.id === e.target.value) || null)}>
                         {tutors.map((tutor) => (
                             <option key={tutor.id} value={tutor.id}>{tutor.name}</option>
                         ))}
                     </Select>
-                    <Button type="submit" colorScheme="red">{selectedTutor?.blocked ? "Unblock" : "Block"}</Button>
+                    <Button type="submit" colorScheme="red" display="block" mx="auto" mt={4}>{selectedTutor?.blocked ? "Unblock" : "Block"}</Button>
                 </FormControl>
             </form>
         </>

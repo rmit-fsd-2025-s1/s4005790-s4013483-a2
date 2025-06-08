@@ -42,21 +42,21 @@ export default function Reports() {
     return (
         <>
             <Header />
-            <Box w="75%" maxW="1200px" mx="auto" px={4}>
+            <Box w="100%" maxW="800px" mx="auto" px={4}>
             <form onSubmit={handleSubmit}>
                 <FormControl>
-                    <FormLabel fontSize="2xl" fontWeight="bold">Report Type</FormLabel>
+                    <FormLabel textAlign="center" fontSize="2xl" fontWeight="bold">Report Type</FormLabel>
                     <Select onChange={handleChange}>
                         <option value="1">Candidates chosen by course</option>
                         <option value="2">Candidates chosen for more than 3 courses</option>
                         <option value="3">Candidates not chosen</option>
                     </Select>
-                    <Button type="submit">Generate Report</Button>
+                    <Button type="submit" colorScheme="red" display="block" mx="auto" mt={4}>Generate Report</Button>
                 </FormControl>
             </form>
             {submitted && reportType === "1" && (
-            <TableContainer>
-                <Heading fontSize="2xl" fontWeight="bold">Candidates chosen by course</Heading> 
+            <TableContainer w="100%" mx="auto" mt={4}>
+                <Heading textAlign="center" fontSize="2xl" fontWeight="bold">Candidates chosen by course</Heading> 
                 <Table  whiteSpace="normal" overflowWrap="break-word">
                     <Thead>
                         <Tr>
@@ -84,7 +84,8 @@ export default function Reports() {
             </TableContainer>
             )}
             {submitted && (reportType === "2" || reportType === "3") && (
-                <TableContainer>
+                <TableContainer w="100%" mx="auto" mt={4}>
+                    <Heading textAlign="center" fontSize="2xl" fontWeight="bold">Candidates</Heading> 
                     <Table>
                         <Thead>
                             <Tr>

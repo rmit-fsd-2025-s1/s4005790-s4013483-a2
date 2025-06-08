@@ -62,7 +62,7 @@ const LecturerCourses = () => {
         <>
             <form onSubmit={handleSubmit}>
                 <FormControl>
-                    <FormLabel fontSize="2xl" fontWeight="bold">Set Lecturer Courses</FormLabel>
+                    <FormLabel textAlign="center" fontSize="2xl" fontWeight="bold">Set Lecturer Courses</FormLabel>
                     <FormLabel fontWeight="bold">Lecturer</FormLabel>
                     <Select onChange={handleInputChange}>
                         {lecturers.map((lecturer) => (
@@ -84,7 +84,7 @@ const LecturerCourses = () => {
                         )}
                     </HStack>
                 </FormControl>
-                <Button type="submit" colorScheme="red">Set Courses</Button>
+                <Button type="submit" colorScheme="red" display="block" mx="auto" mt={4}>Set Courses</Button>
             </form>
         </>
     )

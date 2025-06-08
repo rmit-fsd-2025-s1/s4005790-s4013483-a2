@@ -129,7 +129,7 @@ const EditCourses = () => {
         <>
             <form onSubmit={handleSubmit}>
                 <FormControl>
-                    <FormLabel fontSize="2xl" fontWeight="bold">Modify Semester Courses</FormLabel>
+                    <FormLabel textAlign="center" fontSize="2xl" fontWeight="bold">Modify Semester Courses</FormLabel>
                     <FormLabel fontWeight="bold">Action</FormLabel>
                     <Select onChange={(e) => setAction(e.target.value as "Add" | "Delete" | "Edit")} value={action}>
                         <option value="Add">Add</option>
@@ -175,7 +175,7 @@ const EditCourses = () => {
                         </>
                     )}
                 </FormControl>
-                <Button type="submit" colorScheme="red">Submit</Button>
+                <Button type="submit" colorScheme="red" display="block" mx="auto" mt={4}>Submit</Button>
             </form>
         </>
     );

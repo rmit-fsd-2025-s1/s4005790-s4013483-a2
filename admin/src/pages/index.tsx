@@ -18,7 +18,7 @@ export default function Home() {
   return (
     <>
       <Header />
-      <Box w="75%" maxW="1200px" mx="auto" px={4}>
+      <Box w="100%" maxW="800px" mx="auto" px={4}>
       <LecturerCourses />
       <Divider borderColor="black" my={4} borderWidth="1px" />
       <EditCourses />
