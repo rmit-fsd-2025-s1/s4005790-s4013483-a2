@@ -2,6 +2,7 @@
 
 import type {
   ButtonProps,
+  InputGroupProps,
   InputProps,
   StackProps,
 } from "@chakra-ui/react"
@@ -28,7 +29,7 @@ export interface PasswordVisibilityProps {
 export interface PasswordInputProps
   extends InputProps,
     PasswordVisibilityProps {
-  rootProps?: any
+  rootProps?: InputGroupProps;
 }
 
 export const PasswordInput = React.forwardRef<
@@ -108,7 +109,7 @@ export const PasswordStrengthMeter = React.forwardRef<
   const { max = 4, value, ...rest } = props
 
   const percent = (value / max) * 100
-  const { label, colorPalette } = getColorPalette(percent)
+  const { label } = getColorPalette(percent)
 
   return (
     <Stack align="flex-end" gap="1" ref={ref} {...rest}>

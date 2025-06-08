@@ -2,10 +2,11 @@ import { useEffect, useState } from "react";
 import { Box, Alert, AlertIcon, AlertTitle, AlertDescription, CloseButton, VStack } from "@chakra-ui/react";
 import { tutorApi } from "@/services/tutor.api";
 import { useUser } from "@/context/UserContext";
+import { Notification } from "@/components/NotificationClass";
 
 export default function TutorNotifications() {
   const { user } = useUser();
-  const [notifications, setNotifications] = useState<any[]>([]);
+  const [notifications, setNotifications] = useState<Notification[]>([]);
 
   useEffect(() => {
     const fetchNotifications = async () => {
