@@ -29,8 +29,6 @@ interface SubjectTableProps {
   applications: Application[];
 }
 
-const ROLES = ["Tutor", "Lab-Assistant"];
-
 const SubjectTable = ({ courses, applications }: SubjectTableProps) => {
   const { isOpen, onOpen, onClose } = useDisclosure();
   const [selectedCourseCode, setSelectedCourseCode] = useState<string | null>(null);
@@ -64,8 +62,8 @@ const SubjectTable = ({ courses, applications }: SubjectTableProps) => {
   const sortedCourses = [...courses].sort((a, b) => {
     if (!sortConfig.direction) return 0;
     const key = sortConfig.key;
-    let aValue: any;
-    let bValue: any;
+    let aValue: number;
+    let bValue: number;
     if (key === "approvedApplications") {
       aValue = getApprovedApplicationCount(a.code);
       bValue = getApprovedApplicationCount(b.code);

@@ -34,7 +34,7 @@ const ApplicantsSearchBar = ({ courses, onSearch }: ApplicantsSearchBarProps) =>
   });
 
   // Call onSearch on every change for real-time filtering
-  const handleFieldChange = (field: string, value: any) => {
+  const handleFieldChange = (field: string, value: string | number | (string | number)[]) => {
     const newCriteria = { ...criteria, [field]: value };
     setCriteria(newCriteria);
     onSearch(newCriteria);
