@@ -187,18 +187,18 @@ export default function Tutor() {
   if (profile && profile.skills) {
     if (Array.isArray(profile.skills)) {
       userSkills = profile.skills;
-    } else if (typeof profile.skills === "string") {
-      try {
-        const parsed = JSON.parse(profile.skills);
-        if (Array.isArray(parsed)) {
-          userSkills = parsed;
-        } else {
-          userSkills = profile.skills.split(",").map((s: string) => s.trim()).filter(Boolean);
-        }
-      } catch {
-        userSkills = profile.skills.split(",").map((s: string) => s.trim()).filter(Boolean);
-      }
-    }
+    } // else if (typeof profile.skills === "string") {
+    //   try {
+    //     const parsed = JSON.parse(profile.skills);
+    //     if (Array.isArray(parsed)) {
+    //       userSkills = parsed;
+    //     } else {
+    //       userSkills = profile.skills.split(",").map((s: string) => s.trim()).filter(Boolean);
+    //     }
+    //   } catch {
+    //     userSkills = profile.skills.split(",").map((s: string) => s.trim()).filter(Boolean);
+    //   }
+    // }
   }
   // The course skills are always an array
   const courseSkills: string[] = (selectedRole?.course.skills as string[]) || [];
@@ -212,7 +212,8 @@ export default function Tutor() {
     if (selectedRole) {
       // Compose the application object with the new fields
       const application = {
-        email: user?.email,
+        id: user?.id || 0,
+        email: user?.email || "",
         roles: selectedRole.role,
         courseCode: selectedRole.course.code,
         courseName: selectedRole.course.name,
