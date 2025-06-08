@@ -5,10 +5,10 @@ GitHub Repository For Assignment 2 - Submitted by Dang Nguyen and Joshua Santosa
 Login credentials for testing:
 Lecturer:
 - username: larry@lecturer.com
-- password: password
+- password: password\  
 Tutor:
 - username: tom@tutor.com
-- password: password
+- password: password\
 (Note: Feel free to create your own using the 'Create Account' button in the sign in page)
 
 To add lecturer to a course:
@@ -42,7 +42,7 @@ Where lecturer with lecturerId 7 is assigned to course with code 'COSC1111' and 
 
 
 
-## Note for any of the following you may go into each individual folder to run/build
+### Note for any of the following you may go into each individual folder to run/build
 To run the application:
 1. Open terminal
 2. Open project folder

@@ -87,6 +87,18 @@ exports.resolvers = {
                 schema_1.pubsub.publish(`TUTOR_UNAVAILABLE`, { tutorUnavailable: tutor });
             }
             return await tutorRepository.save(tutor);
+        },
+        removeCourseFromLecturerProfiles: async (_, { courseCode }) => {
+            const allLecturerProfiles = await lecturerProfileRepository.find({
+                relations: ["courses"]
+            });
+            const lecturerProfiles = allLecturerProfiles.filter(profile => profile.courses.some(course => course.code === courseCode));
+            const updatedProfiles = lecturerProfiles.map(profile => {
+                const updatedCourses = profile.courses.filter(course => course.code !== courseCode);
+                profile.courses = updatedCourses;
+                return profile;
+            });
+            return await lecturerProfileRepository.save(updatedProfiles);
         }
     },
     Subscription: {
